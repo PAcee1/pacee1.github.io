@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springcloud," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、理论基础1.客户端负载均衡（Ribbon）客户端实现负载均衡，在SpringCloud中使用NetFlix的Ribbon  如图，负载均衡器和Client实例是在一起的，即一个完整的应用 好处：是比较稳定的，如果负载均衡器出问题的话，只会一个应用出问题，而不是整个应用都出问题。如果多个Client实例绑定到一台负载均衡器时，负载均衡器宕机就会导致全部出问题。 不足：升级的成本高，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="07.SpringCloud Ribbon Basic">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/07-SpringCloud-Ribbon-Basic/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、理论基础1.客户端负载均衡（Ribbon）客户端实现负载均衡，在SpringCloud中使用NetFlix的Ribbon  如图，负载均衡器和Client实例是在一起的，即一个完整的应用 好处：是比较稳定的，如果负载均衡器出问题的话，只会一个应用出问题，而不是整个应用都出问题。如果多个Client实例绑定到一台负载均衡器时，负载均衡器宕机就会导致全部出问题。 不足：升级的成本高，">
+<meta property="og:image" content="http://yoursite.com/image/1575535542283.png">
+<meta property="og:image" content="http://yoursite.com/image/1575535918281.png">
+<meta property="og:image" content="http://yoursite.com/image/1575547772340.png">
+<meta property="og:image" content="http://yoursite.com/image/1575548055042.png">
+<meta property="og:image" content="http://yoursite.com/image/1575549697157.png">
+<meta property="og:image" content="http://yoursite.com/image/1575550328128.png">
+<meta property="og:image" content="http://yoursite.com/image/1575550207666.png">
+<meta property="og:image" content="http://yoursite.com/image/1575553028036.png">
+<meta property="og:image" content="http://yoursite.com/image/1575553046825.png">
+<meta property="og:image" content="http://yoursite.com/image/1575553203567.png">
+<meta property="og:image" content="http://yoursite.com/image/1575553212626.png">
+<meta property="og:image" content="http://yoursite.com/image/1575553228485.png">
+<meta property="og:image" content="http://yoursite.com/image/1575553281914.png">
+<meta property="og:image" content="http://yoursite.com/image/1575553271056.png">
+<meta property="article:published_time" content="2019-12-23T05:46:00.000Z">
+<meta property="article:modified_time" content="2019-12-23T05:47:32.476Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springcloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1575535542283.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/23/07-SpringCloud-Ribbon-Basic/"/>
+
+
+
+
+
+  <title>07.SpringCloud Ribbon Basic | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/23/07-SpringCloud-Ribbon-Basic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">07.SpringCloud Ribbon Basic</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-23T13:46:00+08:00">
+                2019-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springcloud/" itemprop="url" rel="index">
+                    <span itemprop="name">springcloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、理论基础"><a href="#一、理论基础" class="headerlink" title="一、理论基础"></a>一、理论基础</h2><h3 id="1-客户端负载均衡（Ribbon）"><a href="#1-客户端负载均衡（Ribbon）" class="headerlink" title="1.客户端负载均衡（Ribbon）"></a>1.客户端负载均衡（Ribbon）</h3><p>客户端实现负载均衡，在SpringCloud中使用NetFlix的Ribbon</p>
+<p><img src="/image/1575535542283.png" alt="1575535542283"></p>
+<p>如图，<strong>负载均衡器和Client实例是在一起的</strong>，即一个完整的应用</p>
+<p><strong>好处</strong>：是比较<strong>稳定</strong>的，如果负载均衡器出问题的话，只会一个应用出问题，而不是整个应用都出问题。如果多个Client实例绑定到一台负载均衡器时，负载均衡器宕机就会导致全部出问题。</p>
+<p><strong>不足</strong>：升级的成本高，</p>
+<a id="more"></a>
+
+<h3 id="2-服务端负载均衡（Zuul）"><a href="#2-服务端负载均衡（Zuul）" class="headerlink" title="2.服务端负载均衡（Zuul）"></a>2.服务端负载均衡（Zuul）</h3><p>服务端实现负载均衡，在SpringCloud中使用Zuul实现</p>
+<p><img src="/image/1575535918281.png" alt="1575535918281"></p>
+<p>可以清楚的看到，<strong>多个Client实例是绑定到一台负载均衡器</strong>上的。有一个单独的负载均衡层，而不是和Client在一个层次。</p>
+<p><strong>好处</strong>：统一维护，成本低</p>
+<p><strong>不足</strong>：一旦故障，影响大，不够稳定</p>
+<h3 id="3-调度算法"><a href="#3-调度算法" class="headerlink" title="3.调度算法"></a>3.调度算法</h3><p>调度算法有多种，每个负载均衡器的实现也不同，主要有：</p>
+<ul>
+<li>先来先服务：类似队列</li>
+<li>最早截止时间优先</li>
+<li>最短保留时间优先</li>
+<li>固定优先级：类似有一个权重，固定请求，比如0.5，即50%的概率请求某个</li>
+<li>轮询</li>
+<li>多级别队列</li>
+</ul>
+<h2 id="二、NetFlix-Ribbon"><a href="#二、NetFlix-Ribbon" class="headerlink" title="二、NetFlix Ribbon"></a>二、NetFlix Ribbon</h2><p>下面我们先了解下SpringCloud Ribbon，先从固定ip请求服务开始</p>
+<h3 id="1-服务提供与消费"><a href="#1-服务提供与消费" class="headerlink" title="1.服务提供与消费"></a>1.服务提供与消费</h3><p>在之前笔记有说到，一个基础微服务架构中，具有注册中心，服务提供方与消费方，在之前Eureka学习时，只针对注册中心和服务提供方进行了说明，因为消费方是需要基于Ribbon的。</p>
+<h3 id="2-不使用Ribbon的消费"><a href="#2-不使用Ribbon的消费" class="headerlink" title="2.不使用Ribbon的消费"></a>2.不使用Ribbon的消费</h3><p>需要初始化两个应用，一个提供方，一个消费方</p>
+<h4 id="提供方"><a href="#提供方" class="headerlink" title="提供方"></a>提供方</h4><p>需要的依赖有<code>springboot,cloud,web,actuator</code></p>
+<p>配置文件<code>application.properties</code>：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 服务提供方</span></span><br><span class="line"><span class="meta">spring.application.name</span> = <span class="string">spring-cloud-service-provider</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### 服务端口</span></span><br><span class="line"><span class="meta">server.port</span> = <span class="string">9090</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### 管理安全失效</span></span><br><span class="line"><span class="meta">management.security.enabled</span> = <span class="string">false</span></span><br></pre></td></tr></table></figure>
+
+<p>写一个<code>Controller</code>，用来提供服务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ServiceProviderController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;server.port&#125;"</span>)</span><br><span class="line">    <span class="keyword">private</span> Integer port;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping</span>(<span class="string">"/greeting"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">greeting</span><span class="params">(@RequestBody User user)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Greeting , "</span> + user + <span class="string">" on port : "</span> + port;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>很简单的服务，传入<code>User</code>的参数并打印出来，<code>User</code>具有<code>id</code>和<code>name</code>字段</p>
+<p>这里我们启动服务后用<code>postman</code>测试一下：</p>
+<p><img src="/image/1575547772340.png" alt="1575547772340"></p>
+<p>成功请求，然后编写服务消费方</p>
+<h4 id="消费方"><a href="#消费方" class="headerlink" title="消费方"></a>消费方</h4><p>需要的依赖有<code>springboot,cloud,web,actuator</code></p>
+<p>编写<code>application.properties</code>:</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 服务消费方</span></span><br><span class="line"><span class="meta">spring.application.name</span> = <span class="string">spring-cloud-ribbon-client</span></span><br><span class="line"><span class="comment">### 服务端口</span></span><br><span class="line"><span class="meta">server.port</span> = <span class="string">8080</span></span><br><span class="line"><span class="comment">### 管理安全失效</span></span><br><span class="line"><span class="meta">management.security.enabled</span> = <span class="string">false</span></span><br></pre></td></tr></table></figure>
+
+<p>编写Controller：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClientController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RestTemplate restTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">""</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">index</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        User user = <span class="keyword">new</span> User();</span><br><span class="line">        user.setId(<span class="number">1L</span>);</span><br><span class="line">        user.setName(<span class="string">"pace"</span>);</span><br><span class="line">        <span class="keyword">return</span> restTemplate.postForObject(<span class="string">"http://localhost:9090/greeting"</span>,user, String<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，这里我们使用<code>RestTemplate</code>作为服务请求方式，即<code>RESTful</code>，<code>postForObject</code>方法即使用post请求提供方</p>
+<p>在启动器类上初始化<code>RestTemplate</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringCloudLesson6Application</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		SpringApplication.run(SpringCloudLesson6Application<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RestTemplate <span class="title">restTemplate</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RestTemplate();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样我们访问 <a href="http://localhost:8080/" target="_blank" rel="noopener">http://localhost:8080/</a> </p>
+<p><img src="/image/1575548055042.png" alt="1575548007160"></p>
+<p>成功打印信息</p>
+<h3 id="3-使用Ribbon"><a href="#3-使用Ribbon" class="headerlink" title="3.使用Ribbon"></a>3.使用Ribbon</h3><p>提供方不变，需要是消费方有所变化</p>
+<p><strong>启动器类</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@RibbonClients</span>(&#123;</span><br><span class="line">        <span class="meta">@RibbonClient</span>(name = <span class="string">"spring-cloud-service-provider"</span>)</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringCloudLesson6Application</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		SpringApplication.run(SpringCloudLesson6Application<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@LoadBalanced</span> <span class="comment">// 开启Ribbon</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RestTemplate <span class="title">restTemplate</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RestTemplate();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在之前的基础上添加了三个注解，其中<code>@RibbonClients</code>可以不写，这里只是展示如果需要配置多个<code>RibbonClient</code>时的使用方式，而<code>@LoadBalanced</code>是告诉<code>RestTemplate</code>开启了负载均衡。</p>
+<p>配置文件<code>application.properties</code>：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 服务消费方</span></span><br><span class="line"><span class="meta">spring.application.name</span> = <span class="string">spring-cloud-ribbon-client</span></span><br><span class="line"><span class="comment">### 服务端口</span></span><br><span class="line"><span class="meta">server.port</span> = <span class="string">8080</span></span><br><span class="line"><span class="comment">### 管理安全失效</span></span><br><span class="line"><span class="meta">management.security.enabled</span> = <span class="string">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 请求映射地址</span></span><br><span class="line"><span class="meta">spring-cloud-service-provider.ribbon.listOfServers</span>=<span class="string">http://127.0.0.1:9090</span></span><br></pre></td></tr></table></figure>
+
+<p>多配置了一个请求映射地址，编写格式为：启动器类上的<code>name.ribbon.listOfServers=xxx</code></p>
+<p>注意这里<code>listOfServers</code>不能写成<code>list-of-servers</code></p>
+<p><strong>Controller</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping</span>(<span class="string">""</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">index</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    User user = <span class="keyword">new</span> User();</span><br><span class="line">    user.setId(<span class="number">1L</span>);</span><br><span class="line">    user.setName(<span class="string">"pace"</span>);</span><br><span class="line">    <span class="keyword">return</span> restTemplate.postForObject(<span class="string">"http://spring-cloud-service-provider/greeting"</span>,user, String<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>请求路径由ip+端口改为了应用名称</p>
+<h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>这里简单探寻下原理，具体的源码分析放到后面来说：</p>
+<p>可以简单的思考下，关于Ribbon的配置只是做了应用名与ip端口的映射，而最主要的讲请求路径的转换还是由RestTemplate来做的，并且多加了一个@LoadBalanced注解，也可以理解为是开启了负载均衡。</p>
+<p>这里我们断点进入 restTemplate.postForObject()请求</p>
+<p><img src="/image/1575549697157.png" alt="1575549697157"></p>
+<p>由上图可以明显的看到，有一个负载均衡拦截器<code>LoadBalancerInterceptor</code>，这是一个很重要的拦截器，在负载均衡中使用颇多：</p>
+<p><img src="/image/1575550328128.png" alt="1575550328128"></p>
+<p>进入这个类就能看到我们所写的应用名称了，F7再次进入return的这个方法</p>
+<p><img src="/image/1575550207666.png" alt="1575550207666"></p>
+<p>这里就会进行负载均衡，将我们的应用名称映射成ip+端口，更深层次的转义等之后在研究。</p>
+<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>这里有一个问题，在我们使用RestTemplate发送post请求时，请求的路径<strong>虽然为应用名称</strong>，但是在配置文件中还是需要配置服务提供方的<strong>IP+端口</strong>，所以<strong>我们必须要明确知道提供方的IP端口</strong>，才能这样使用，当服务一多，维护起来也不是很方便</p>
+<h2 id="三、Ribbon整合Eureka"><a href="#三、Ribbon整合Eureka" class="headerlink" title="三、Ribbon整合Eureka"></a>三、Ribbon整合Eureka</h2><h3 id="Eureka-Server"><a href="#Eureka-Server" class="headerlink" title="Eureka Server"></a>Eureka Server</h3><p>先创建一个单机版的注册中心</p>
+<p>添加Maven依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>也是非常简单，配置文件：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## Eureka Serer</span></span><br><span class="line"><span class="meta">spring.application.name</span> = <span class="string">spring-cloud-eureka-server</span></span><br><span class="line"><span class="comment">## 服务端口</span></span><br><span class="line"><span class="meta">server.port</span> = <span class="string">10001</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### 取消向注册中心注册</span></span><br><span class="line"><span class="meta">eureka.client.register-with-eureka</span>=<span class="string">false</span></span><br><span class="line"><span class="comment"># 取消拉去注册中心信息</span></span><br><span class="line"><span class="meta">eureka.client.fetch-registry</span>=<span class="string">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 取消Peer 8761节点添加</span></span><br><span class="line"><span class="meta">eureka.instance.hostname</span>=<span class="string">localhost</span></span><br></pre></td></tr></table></figure>
+
+<p>启动器类添加注解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableEurekaServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringCloudLesson6EurekaServerApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		SpringApplication.run(SpringCloudLesson6EurekaServerApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="调整服务提供方"><a href="#调整服务提供方" class="headerlink" title="调整服务提供方"></a>调整服务提供方</h3><p>之前我们提供方没有采用Eureka的方式，而是简单的REST服务</p>
+<p>添加Maven依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>添加配置文件：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 注册Eureka</span></span><br><span class="line"><span class="meta">eureka.client.service-url.defaultZone</span>=<span class="string">http://localhost:10001/eureka</span></span><br></pre></td></tr></table></figure>
+
+<p>添加注解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringCloudLesson6ServiceProviderApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		SpringApplication.run(SpringCloudLesson6ServiceProviderApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="调整Ribbon消费者"><a href="#调整Ribbon消费者" class="headerlink" title="调整Ribbon消费者"></a>调整Ribbon消费者</h3><p>和提供者一样，添加Eureka依赖，配置文件与注解。</p>
+<p>配置文件：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 服务消费方</span></span><br><span class="line"><span class="meta">spring.application.name</span> = <span class="string">spring-cloud-ribbon-client</span></span><br><span class="line"><span class="comment">### 服务端口</span></span><br><span class="line"><span class="meta">server.port</span> = <span class="string">8080</span></span><br><span class="line"><span class="comment">### 管理安全失效</span></span><br><span class="line"><span class="meta">management.security.enabled</span> = <span class="string">false</span></span><br><span class="line"></span><br><span class="line"><span class="meta">eureka.client.service-url.defaultZone</span>=<span class="string">http://127.0.0.1:10001/eureka</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#spring-cloud-service-provider.ribbon.listOfServers=http://127.0.0.1:9090</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到，这时我们没有在配置listOfServers了，即关于应用名称与ip端口的映射是从注册中心取的，再次请求</p>
+<p><img src="/image/1575553028036.png" alt="1575553028036"></p>
+<p>正确请求，再查看注册中心</p>
+<p><img src="/image/1575553046825.png" alt="1575553046825"></p>
+<p>正确装载两个节点</p>
+<h3 id="启动多服务提供方"><a href="#启动多服务提供方" class="headerlink" title="启动多服务提供方"></a>启动多服务提供方</h3><p>这时我们再启动两个服务提供方，用启动参数修改端口为9091与9092，来查看是否能正确负载均衡到各个节点，并查看他的调度算法</p>
+<p><img src="/image/1575553203567.png" alt="1575553203567"></p>
+<p><img src="/image/1575553212626.png" alt="1575553212626"></p>
+<p>启动了三个服务提供方</p>
+<p><img src="/image/1575553228485.png" alt="1575553228485"></p>
+<p><img src="/image/1575553281914.png" alt="1575553281914"></p>
+<p><img src="/image/1575553271056.png" alt="1575553271056"></p>
+<p>在请求三次后，可以发现，依次请求9090,9091,9092，说明使用的是轮询算法。</p>
+<h2 id="四、负载均衡-核心接口"><a href="#四、负载均衡-核心接口" class="headerlink" title="四、负载均衡 核心接口"></a>四、负载均衡 核心接口</h2><p>实际请求客户端</p>
+<ul>
+<li>LoadBalancerClient<ul>
+<li>RibbonLoadBalancerClient</li>
+</ul>
+</li>
+</ul>
+<p>负载均衡上下文</p>
+<ul>
+<li>LoadBalancerContext<ul>
+<li>RibbonLoadBalancerContext</li>
+</ul>
+</li>
+</ul>
+<p>负载均衡器</p>
+<ul>
+<li>ILoadBalancer<ul>
+<li>BaseLoadBalancer</li>
+<li>DynamicServerListLoadBalancer</li>
+<li>ZoneAwareLoadBalancer</li>
+<li>NoOpLoadBalancer</li>
+</ul>
+</li>
+</ul>
+<p>负载均衡规则</p>
+<p>核心规则接口</p>
+<ul>
+<li>IRule<ul>
+<li>随机规则：RandomRule</li>
+<li>最可用规则：BestAvailableRule</li>
+<li>轮训规则：RoundRobinRule</li>
+<li>重试实现：RetryRule</li>
+<li>客户端配置：ClientConfigEnabledRoundRobinRule</li>
+<li>可用性过滤规则：AvailabilityFilteringRule</li>
+<li>RT权重规则：WeightedResponseTimeRule</li>
+<li>规避区域规则：ZoneAvoidanceRule</li>
+</ul>
+</li>
+</ul>
+<p>PING 策略</p>
+<p>核心策略接口</p>
+<ul>
+<li>IPingStrategy</li>
+</ul>
+<p>PING 接口</p>
+<ul>
+<li>IPing<ul>
+<li>NoOpPing</li>
+<li>DummyPing</li>
+<li>PingConstant</li>
+<li>PingUrl</li>
+</ul>
+</li>
+</ul>
+<p>Discovery Client 实现</p>
+<ul>
+<li>NIWSDiscoveryPing</li>
+</ul>
+<p>对于这些接口的详细介绍以及Ribbon源码分析我们放到下一个笔记中讲解</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springcloud/" rel="tag"># springcloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/23/06-SpringCloud-Eureka-%E8%BF%9B%E9%98%B6/" rel="next" title="06.SpringCloud Eureka 进阶">
+                <i class="fa fa-chevron-left"></i> 06.SpringCloud Eureka 进阶
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/23/08-SpringCloud-Ribbon-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="08.SpringCloud Ribbon 源码分析">
+                08.SpringCloud Ribbon 源码分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、理论基础"><span class="nav-number">1.</span> <span class="nav-text">一、理论基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-客户端负载均衡（Ribbon）"><span class="nav-number">1.1.</span> <span class="nav-text">1.客户端负载均衡（Ribbon）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-服务端负载均衡（Zuul）"><span class="nav-number">1.2.</span> <span class="nav-text">2.服务端负载均衡（Zuul）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-调度算法"><span class="nav-number">1.3.</span> <span class="nav-text">3.调度算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、NetFlix-Ribbon"><span class="nav-number">2.</span> <span class="nav-text">二、NetFlix Ribbon</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-服务提供与消费"><span class="nav-number">2.1.</span> <span class="nav-text">1.服务提供与消费</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-不使用Ribbon的消费"><span class="nav-number">2.2.</span> <span class="nav-text">2.不使用Ribbon的消费</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#提供方"><span class="nav-number">2.2.1.</span> <span class="nav-text">提供方</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#消费方"><span class="nav-number">2.2.2.</span> <span class="nav-text">消费方</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-使用Ribbon"><span class="nav-number">2.3.</span> <span class="nav-text">3.使用Ribbon</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#原理"><span class="nav-number">2.3.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#问题"><span class="nav-number">2.3.2.</span> <span class="nav-text">问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、Ribbon整合Eureka"><span class="nav-number">3.</span> <span class="nav-text">三、Ribbon整合Eureka</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Eureka-Server"><span class="nav-number">3.1.</span> <span class="nav-text">Eureka Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调整服务提供方"><span class="nav-number">3.2.</span> <span class="nav-text">调整服务提供方</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调整Ribbon消费者"><span class="nav-number">3.3.</span> <span class="nav-text">调整Ribbon消费者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动多服务提供方"><span class="nav-number">3.4.</span> <span class="nav-text">启动多服务提供方</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、负载均衡-核心接口"><span class="nav-number">4.</span> <span class="nav-text">四、负载均衡 核心接口</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

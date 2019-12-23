@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springcloud," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、Zuul获取Routes规则在上面，我们可以看到，在配置文件中配置路由，或者注册到注册中心中，就可以获取路由配置。 那么问题来了，这是如何做到的呢？ 我们带着问题，可以先看下RoutesEndPoint这个类 RoutesEndPoint12345678910111213141516171819202122232425@ManagedResource(description &#x3D; &quot;Can be">
+<meta property="og:type" content="article">
+<meta property="og:title" content="13.SpringCloud Zuul 源码分析">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/13-SpringCloud-Zuul-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、Zuul获取Routes规则在上面，我们可以看到，在配置文件中配置路由，或者注册到注册中心中，就可以获取路由配置。 那么问题来了，这是如何做到的呢？ 我们带着问题，可以先看下RoutesEndPoint这个类 RoutesEndPoint12345678910111213141516171819202122232425@ManagedResource(description &#x3D; &quot;Can be">
+<meta property="og:image" content="http://yoursite.com/image/1576227590264.png">
+<meta property="og:image" content="http://yoursite.com/image/1576227050023.png">
+<meta property="og:image" content="http://yoursite.com/image/image_1ca2nppk7gn218991jjh3aing79.png">
+<meta property="og:image" content="http://yoursite.com/image/1576241074377.png">
+<meta property="og:image" content="http://yoursite.com/image/1576245049211.png">
+<meta property="og:image" content="http://yoursite.com/image/1576244563526.png">
+<meta property="og:image" content="http://yoursite.com/image/1576244648190.png">
+<meta property="og:image" content="http://yoursite.com/image/1576244673986.png">
+<meta property="og:image" content="http://yoursite.com/image/1576244709161.png">
+<meta property="article:published_time" content="2019-12-23T05:50:52.000Z">
+<meta property="article:modified_time" content="2019-12-23T05:53:48.602Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springcloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1576227590264.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/23/13-SpringCloud-Zuul-源码分析/"/>
+
+
+
+
+
+  <title>13.SpringCloud Zuul 源码分析 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/23/13-SpringCloud-Zuul-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">13.SpringCloud Zuul 源码分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-23T13:50:52+08:00">
+                2019-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springcloud/" itemprop="url" rel="index">
+                    <span itemprop="name">springcloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、Zuul获取Routes规则"><a href="#一、Zuul获取Routes规则" class="headerlink" title="一、Zuul获取Routes规则"></a>一、Zuul获取Routes规则</h2><p>在上面，我们可以看到，在配置文件中配置路由，或者注册到注册中心中，就可以获取路由配置。</p>
+<p>那么问题来了，这是如何做到的呢？</p>
+<p>我们带着问题，可以先看下<code>RoutesEndPoint</code>这个类</p>
+<h3 id="RoutesEndPoint"><a href="#RoutesEndPoint" class="headerlink" title="RoutesEndPoint"></a>RoutesEndPoint</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ManagedResource</span>(description = <span class="string">"Can be used to list the reverse proxy routes"</span>)</span><br><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"endpoints.routes"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RoutesEndpoint</span> <span class="keyword">extends</span> <span class="title">AbstractEndpoint</span>&lt;<span class="title">Map</span>&lt;<span class="title">String</span>, <span class="title">String</span>&gt;&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String ID = <span class="string">"routes"</span>;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> RouteLocator routes;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> ApplicationEventPublisher publisher;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Autowired</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="title">RoutesEndpoint</span><span class="params">(RouteLocator routes)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">super</span>(ID, <span class="keyword">true</span>);</span><br><span class="line">      <span class="keyword">this</span>.routes = routes;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@ManagedAttribute</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> Map&lt;String, String&gt; <span class="title">invoke</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      Map&lt;String, String&gt; map = <span class="keyword">new</span> LinkedHashMap&lt;&gt;();</span><br><span class="line">      <span class="keyword">for</span> (Route route : <span class="keyword">this</span>.routes.getRoutes()) &#123;</span><br><span class="line">         map.put(route.getFullPath(), route.getLocation());</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> map;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>这里首先看到一段介绍：Can be used to list the reverse proxy routes（可用于列出反向代理路由）</p>
+<p>说明我们找对了地方，然后我们可以看到有一个<code>@Autowired</code>类，<code>RouteLocator</code>，应该是我们要找的路由类</p>
+<h3 id="RouteLocator"><a href="#RouteLocator" class="headerlink" title="RouteLocator"></a>RouteLocator</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RouteLocator</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Ignored route paths (or patterns), if any.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function">Collection&lt;String&gt; <span class="title">getIgnoredPaths</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * A map of route path (pattern) to location (e.g. service id or URL).</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function">List&lt;Route&gt; <span class="title">getRoutes</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Maps a path to an actual route with full metadata.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function">Route <span class="title">getMatchingRoute</span><span class="params">(String path)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里有三个抽象方法</p>
+<ul>
+<li><code>getIgnoredPaths</code>：获取被忽略的路由</li>
+<li><code>getRoutes</code>：获取所有路由</li>
+<li><code>getMatchingRoute</code>：获取匹配的路由</li>
+</ul>
+<p>紧接着我们找他的实现类<code>DiscoveryClientRouteLocator</code></p>
+<h3 id="DiscoveryClientRouteLocator"><a href="#DiscoveryClientRouteLocator" class="headerlink" title="DiscoveryClientRouteLocator"></a>DiscoveryClientRouteLocator</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DiscoveryClientRouteLocator</span> <span class="keyword">extends</span> <span class="title">SimpleRouteLocator</span></span></span><br><span class="line"><span class="class">      <span class="keyword">implements</span> <span class="title">RefreshableRouteLocator</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> LinkedHashMap&lt;String, ZuulRoute&gt; <span class="title">locateRoutes</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      LinkedHashMap&lt;String, ZuulRoute&gt; routesMap = <span class="keyword">new</span> LinkedHashMap&lt;String, ZuulRoute&gt;();</span><br><span class="line">      routesMap.putAll(<span class="keyword">super</span>.locateRoutes());</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.discovery != <span class="keyword">null</span>) &#123;</span><br><span class="line">         Map&lt;String, ZuulRoute&gt; staticServices = <span class="keyword">new</span> LinkedHashMap&lt;String, ZuulRoute&gt;();</span><br><span class="line">         <span class="keyword">for</span> (ZuulRoute route : routesMap.values()) &#123;</span><br><span class="line">            String serviceId = route.getServiceId();</span><br><span class="line">            <span class="keyword">if</span> (serviceId == <span class="keyword">null</span>) &#123;</span><br><span class="line">               serviceId = route.getId();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (serviceId != <span class="keyword">null</span>) &#123;</span><br><span class="line">               staticServices.put(serviceId, route);</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="comment">// Add routes for discovery services by default</span></span><br><span class="line">         List&lt;String&gt; services = <span class="keyword">this</span>.discovery.getServices();</span><br><span class="line">         String[] ignored = <span class="keyword">this</span>.properties.getIgnoredServices()</span><br><span class="line">               .toArray(<span class="keyword">new</span> String[<span class="number">0</span>]);</span><br><span class="line">         <span class="keyword">for</span> (String serviceId : services) &#123;</span><br><span class="line">            <span class="comment">// Ignore specifically ignored services and those that were manually</span></span><br><span class="line">            <span class="comment">// configured</span></span><br><span class="line">            String key = <span class="string">"/"</span> + mapRouteToService(serviceId) + <span class="string">"/**"</span>;</span><br><span class="line">            <span class="keyword">if</span> (staticServices.containsKey(serviceId)</span><br><span class="line">                  &amp;&amp; staticServices.get(serviceId).getUrl() == <span class="keyword">null</span>) &#123;</span><br><span class="line">               <span class="comment">// Explicitly configured with no URL, cannot be ignored</span></span><br><span class="line">               <span class="comment">// all static routes are already in routesMap</span></span><br><span class="line">               <span class="comment">// Update location using serviceId if location is null</span></span><br><span class="line">               ZuulRoute staticRoute = staticServices.get(serviceId);</span><br><span class="line">               <span class="keyword">if</span> (!StringUtils.hasText(staticRoute.getLocation())) &#123;</span><br><span class="line">                  staticRoute.setLocation(serviceId);</span><br><span class="line">               &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (!PatternMatchUtils.simpleMatch(ignored, serviceId)</span><br><span class="line">                  &amp;&amp; !routesMap.containsKey(key)) &#123;</span><br><span class="line">               <span class="comment">// Not ignored</span></span><br><span class="line">               routesMap.put(key, <span class="keyword">new</span> ZuulRoute(key, serviceId));</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (routesMap.get(DEFAULT_ROUTE) != <span class="keyword">null</span>) &#123;</span><br><span class="line">         ZuulRoute defaultRoute = routesMap.get(DEFAULT_ROUTE);</span><br><span class="line">         <span class="comment">// Move the defaultServiceId to the end</span></span><br><span class="line">         routesMap.remove(DEFAULT_ROUTE);</span><br><span class="line">         routesMap.put(DEFAULT_ROUTE, defaultRoute);</span><br><span class="line">      &#125;</span><br><span class="line">      LinkedHashMap&lt;String, ZuulRoute&gt; values = <span class="keyword">new</span> LinkedHashMap&lt;&gt;();</span><br><span class="line">      <span class="keyword">for</span> (Entry&lt;String, ZuulRoute&gt; entry : routesMap.entrySet()) &#123;</span><br><span class="line">         String path = entry.getKey();</span><br><span class="line">         <span class="comment">// Prepend with slash if not already present.</span></span><br><span class="line">         <span class="keyword">if</span> (!path.startsWith(<span class="string">"/"</span>)) &#123;</span><br><span class="line">            path = <span class="string">"/"</span> + path;</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">if</span> (StringUtils.hasText(<span class="keyword">this</span>.properties.getPrefix())) &#123;</span><br><span class="line">            path = <span class="keyword">this</span>.properties.getPrefix() + path;</span><br><span class="line">            <span class="keyword">if</span> (!path.startsWith(<span class="string">"/"</span>)) &#123;</span><br><span class="line">               path = <span class="string">"/"</span> + path;</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         values.put(path, entry.getValue());</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> values;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>这里有个locateRoutes重要方法，在第7行我们可以看到</strong></p>
+<p><img src="/image/1576227590264.png" alt="1576226976764"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> Map&lt;String, ZuulRoute&gt; <span class="title">locateRoutes</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   LinkedHashMap&lt;String, ZuulRoute&gt; routesMap = <span class="keyword">new</span> LinkedHashMap&lt;String, ZuulRoute&gt;();</span><br><span class="line">   <span class="keyword">for</span> (ZuulRoute route : <span class="keyword">this</span>.properties.getRoutes().values()) &#123;</span><br><span class="line">      routesMap.put(route.getPath(), route);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> routesMap;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先获取本地配置中的路由，<code>locateRoutes</code>，然后循环将静态服务保存起来，这里的静态服务，其实就是我们在配置文件中配置的那些静态配置。</p>
+<p><strong>接着在第20行</strong></p>
+<p><img src="/image/1576227050023.png" alt="1576227050023"></p>
+<p>通过注释也可以得知，添加所有在注册中心上的服务，即将Eureka上的服务也添加到路由List中去。</p>
+<p>所以，大致就是通过这个方法，将配置和注册中心中的服务通通存储到List里，<strong>这里需要注意的是List是<code>LinkedArrayList</code></strong>，即有序插入，所以我们在刚刚看<code>routes</code>节点的时候，配置文件中的排在前面，服务排在后面</p>
+<h2 id="二、Zuul请求的生命周期"><a href="#二、Zuul请求的生命周期" class="headerlink" title="二、Zuul请求的生命周期"></a>二、Zuul请求的生命周期</h2><p>这里我们先放一张官方图（<strong>Zuul1.x</strong>）</p>
+<p> <img src="/image/image_1ca2nppk7gn218991jjh3aing79.png" alt="image_1ca2nppk7gn218991jjh3aing79.png-48.2kB"></p>
+<p>对于请求会经过<code>pre - routing - post</code>，其实就是过滤器，前置方法，执行方法，后置方法。</p>
+<p>这里使用到的过滤器是<code>ZuulServlet</code></p>
+<h3 id="ZuulServlet"><a href="#ZuulServlet" class="headerlink" title="ZuulServlet"></a>ZuulServlet</h3><p><code>ZuulServlet</code>定义了对zuul整个过程的处理，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">service</span><span class="params">(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        init((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Marks this request as having passed through the "Zuul engine", as opposed to servlets</span></span><br><span class="line">        <span class="comment">// explicitly bound in web.xml, for which requests will not have the same data attached</span></span><br><span class="line">        RequestContext context = RequestContext.getCurrentContext();</span><br><span class="line">        context.setZuulEngineRan();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            preRoute();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ZuulException e) &#123;</span><br><span class="line">            error(e);</span><br><span class="line">            postRoute();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            route();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ZuulException e) &#123;</span><br><span class="line">            error(e);</span><br><span class="line">            postRoute();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            postRoute();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ZuulException e) &#123;</span><br><span class="line">            error(e);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">        error(<span class="keyword">new</span> ZuulException(e, <span class="number">500</span>, <span class="string">"UNHANDLED_EXCEPTION_"</span> + e.getClass().getName()));</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        RequestContext.getCurrentContext().unset();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Pre阶段"><a href="#Pre阶段" class="headerlink" title="Pre阶段"></a>Pre阶段</h4><p>前置阶段是由 <code>PreDecorationFilter</code>过滤器来寻找路由规则：</p>
+<p><img src="/image/1576241074377.png" alt="1576241074377"></p>
+<p>如图，<code>getMatchingRoute()</code>就是我们上一节说到的，在<code>RouteLocator</code>中的方法，获取匹配的路由</p>
+<h4 id="Routing阶段"><a href="#Routing阶段" class="headerlink" title="Routing阶段"></a>Routing阶段</h4><p> <code>RibbonRoutingFilter</code>真正的对服务发起请求，并得到响应结果 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	RequestContext context = RequestContext.getCurrentContext();</span><br><span class="line">	<span class="keyword">this</span>.helper.addIgnoredHeaders();</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		RibbonCommandContext commandContext = buildCommandContext(context);</span><br><span class="line">		ClientHttpResponse response = forward(commandContext);</span><br><span class="line">		setResponse(response);</span><br><span class="line">		<span class="keyword">return</span> response;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">catch</span> (ZuulException ex) &#123;</span><br><span class="line">		<span class="keyword">throw</span> <span class="keyword">new</span> ZuulRuntimeException(ex);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">		<span class="keyword">throw</span> <span class="keyword">new</span> ZuulRuntimeException(ex);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过<code>run</code>方法，可以看到调用了<code>forward</code>方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> ClientHttpResponse <span class="title">forward</span><span class="params">(RibbonCommandContext context)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">	Map&lt;String, Object&gt; info = <span class="keyword">this</span>.helper.debug(context.getMethod(),</span><br><span class="line">			context.getUri(), context.getHeaders(), context.getParams(),</span><br><span class="line">			context.getRequestEntity());</span><br><span class="line"></span><br><span class="line">	RibbonCommand command = <span class="keyword">this</span>.ribbonCommandFactory.create(context);</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		ClientHttpResponse response = command.execute();</span><br><span class="line">		<span class="keyword">this</span>.helper.appendDebug(info, response.getStatusCode().value(),</span><br><span class="line">				response.getHeaders());</span><br><span class="line">		<span class="keyword">return</span> response;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">catch</span> (HystrixRuntimeException ex) &#123;</span><br><span class="line">		<span class="keyword">return</span> handleException(info, ex);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到，通过工厂创建出<code>RibbonCommand</code>，然后真正的服务调用<code>command.execute()</code></p>
+<p>接着回到<code>run()</code>方法中，下一行执行<code>setResponse(response);</code>方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">setResponse</span><span class="params">(ClientHttpResponse resp)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> ClientException, IOException </span>&#123;</span><br><span class="line">    RequestContext.getCurrentContext().set(<span class="string">"zuulResponse"</span>, resp);</span><br><span class="line">    <span class="keyword">this</span>.helper.setResponse(resp.getStatusCode().value(),</span><br><span class="line">                            resp.getBody() == <span class="keyword">null</span> ? <span class="keyword">null</span> : resp.getBody(), resp.getHeaders());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>即，将响应的内容写入到<code>RequestContext</code>中。</p>
+<p> <code>ROUTE</code>还有两个过滤器<code>SendForwardFilter（forward请求转发）</code>、<code>SimpleHostRoutingFilter（url请求转发）</code>，根据不同的路由类型匹配相应的过滤器。 </p>
+<h4 id="Post阶段"><a href="#Post阶段" class="headerlink" title="Post阶段"></a>Post阶段</h4><p><code>SendResponseFilter</code>对内容进行响应</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			addResponseHeaders();</span><br><span class="line">			writeResponse();</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">			ReflectionUtils.rethrowRuntimeException(ex);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>还是先看<code>run()</code>方法，这里对于响应，核心方法是<code>writeResponse();</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">writeResponse</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		RequestContext context = RequestContext.getCurrentContext();</span><br><span class="line">		<span class="comment">// there is no body to send</span></span><br><span class="line">		<span class="keyword">if</span> (context.getResponseBody() == <span class="keyword">null</span></span><br><span class="line">				&amp;&amp; context.getResponseDataStream() == <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		HttpServletResponse servletResponse = context.getResponse();</span><br><span class="line">		<span class="keyword">if</span> (servletResponse.getCharacterEncoding() == <span class="keyword">null</span>) &#123; <span class="comment">// only set if not set</span></span><br><span class="line">			servletResponse.setCharacterEncoding(<span class="string">"UTF-8"</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		OutputStream outStream = servletResponse.getOutputStream();</span><br><span class="line">		InputStream is = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> (RequestContext.getCurrentContext().getResponseBody() != <span class="keyword">null</span>) &#123;</span><br><span class="line">				String body = RequestContext.getCurrentContext().getResponseBody();</span><br><span class="line">				writeResponse(</span><br><span class="line">						<span class="keyword">new</span> ByteArrayInputStream(</span><br><span class="line">								body.getBytes(servletResponse.getCharacterEncoding())),</span><br><span class="line">						outStream);</span><br><span class="line">				<span class="keyword">return</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">boolean</span> isGzipRequested = <span class="keyword">false</span>;</span><br><span class="line">			<span class="keyword">final</span> String requestEncoding = context.getRequest()</span><br><span class="line">					.getHeader(ZuulHeaders.ACCEPT_ENCODING);</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> (requestEncoding != <span class="keyword">null</span></span><br><span class="line">					&amp;&amp; HTTPRequestUtils.getInstance().isGzipped(requestEncoding)) &#123;</span><br><span class="line">				isGzipRequested = <span class="keyword">true</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			is = context.getResponseDataStream();</span><br><span class="line">			InputStream inputStream = is;</span><br><span class="line">			<span class="keyword">if</span> (is != <span class="keyword">null</span>) &#123;</span><br><span class="line">				<span class="keyword">if</span> (context.sendZuulResponse()) &#123;</span><br><span class="line">					<span class="comment">// if origin response is gzipped, and client has not requested gzip,</span></span><br><span class="line">					<span class="comment">// decompress stream</span></span><br><span class="line">					<span class="comment">// before sending to client</span></span><br><span class="line">					<span class="comment">// else, stream gzip directly to client</span></span><br><span class="line">					<span class="keyword">if</span> (context.getResponseGZipped() &amp;&amp; !isGzipRequested) &#123;</span><br><span class="line">						<span class="comment">// If origin tell it's GZipped but the content is ZERO bytes,</span></span><br><span class="line">						<span class="comment">// don't try to uncompress</span></span><br><span class="line">						<span class="keyword">final</span> Long len = context.getOriginContentLength();</span><br><span class="line">						<span class="keyword">if</span> (len == <span class="keyword">null</span> || len &gt; <span class="number">0</span>) &#123;</span><br><span class="line">							<span class="keyword">try</span> &#123;</span><br><span class="line">								inputStream = <span class="keyword">new</span> GZIPInputStream(is);</span><br><span class="line">							&#125;</span><br><span class="line">							<span class="keyword">catch</span> (java.util.zip.ZipException ex) &#123;</span><br><span class="line">								log.debug(</span><br><span class="line">										<span class="string">"gzip expected but not "</span></span><br><span class="line">												+ <span class="string">"received assuming unencoded response "</span></span><br><span class="line">												+ RequestContext.getCurrentContext()</span><br><span class="line">												.getRequest().getRequestURL()</span><br><span class="line">												.toString());</span><br><span class="line">								inputStream = is;</span><br><span class="line">							&#125;</span><br><span class="line">						&#125;</span><br><span class="line">						<span class="keyword">else</span> &#123;</span><br><span class="line">							<span class="comment">// Already done : inputStream = is;</span></span><br><span class="line">						&#125;</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">else</span> <span class="keyword">if</span> (context.getResponseGZipped() &amp;&amp; isGzipRequested) &#123;</span><br><span class="line">						servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, <span class="string">"gzip"</span>);</span><br><span class="line">					&#125;</span><br><span class="line">					writeResponse(inputStream, outStream);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">finally</span> &#123;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				Object zuulResponse = RequestContext.getCurrentContext()</span><br><span class="line">						.get(<span class="string">"zuulResponse"</span>);</span><br><span class="line">				<span class="keyword">if</span> (zuulResponse <span class="keyword">instanceof</span> Closeable) &#123;</span><br><span class="line">					((Closeable) zuulResponse).close();</span><br><span class="line">				&#125;</span><br><span class="line">				outStream.flush();</span><br><span class="line">				<span class="comment">// The container will close the stream for us</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">			log.warn(<span class="string">"Error while sending response to client: "</span> + ex.getMessage());</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里源码比较长，大致的意思就是创建一些<code>IO</code>类，从之前<code>RequestContext</code>中取出<code>response</code>，然后进行一系列的判断，最后将<code>response</code>响应。</p>
+<h4 id="error阶段"><a href="#error阶段" class="headerlink" title="error阶段"></a>error阶段</h4><p>当<code>PRE</code>、<code>ROUTE</code>、<code>POST</code>阶段的过滤器发生错误时，会调用<code>ERROR</code>过滤器。默认的<code>error</code>过滤器有<code>SendErrorFilter</code></p>
+<h2 id="三、Zuul的自动装配"><a href="#三、Zuul的自动装配" class="headerlink" title="三、Zuul的自动装配"></a>三、Zuul的自动装配</h2><p>看自动装配前，我们先看下我们开启的注解</p>
+<h3 id="EnableZuulProxy"><a href="#EnableZuulProxy" class="headerlink" title="@EnableZuulProxy"></a>@EnableZuulProxy</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableCircuitBreaker</span></span><br><span class="line"><span class="meta">@Target</span>(ElementType.TYPE)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Import</span>(ZuulProxyMarkerConfiguration<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> @<span class="title">interface</span> <span class="title">EnableZuulProxy</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对此注解，<code>import</code>了<code>ZuulProxyMarkerConfiguration</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ZuulProxyMarkerConfiguration</span> </span>&#123;</span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Marker <span class="title">zuulProxyMarkerBean</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> Marker();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="class"><span class="keyword">class</span> <span class="title">Marker</span> </span>&#123;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，这里仅仅是往容器中添加了<code>ZuulProxyMarkerConfiguration.Marker</code>这个Bean</p>
+<p>所以<code>@EnableZuulProxy</code>的作用就是，向容器中添加<code>ZuulProxyMarkerConfiguration</code>与<code>ZuulProxyMarkerConfiguration.Marker</code></p>
+<p>接着，我们要看自动装配，就肯定要找<code>AutoConfiguration</code>类，即<code>ZuulProxyAutoConfiguration</code></p>
+<h3 id="ZuulProxyAutoConfiguration"><a href="#ZuulProxyAutoConfiguration" class="headerlink" title="ZuulProxyAutoConfiguration"></a>ZuulProxyAutoConfiguration</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@Import</span>(&#123; RibbonCommandFactoryConfiguration.RestClientRibbonConfiguration<span class="class">.<span class="keyword">class</span>,</span></span><br><span class="line"><span class="class">		<span class="title">RibbonCommandFactoryConfiguration</span>.<span class="title">OkHttpRibbonConfiguration</span>.<span class="title">class</span>,</span></span><br><span class="line"><span class="class">		<span class="title">RibbonCommandFactoryConfiguration</span>.<span class="title">HttpClientRibbonConfiguration</span>.<span class="title">class</span>,</span></span><br><span class="line"><span class="class">		<span class="title">HttpClientConfiguration</span>.<span class="title">class</span> &#125;)</span></span><br><span class="line"><span class="class">@<span class="title">ConditionalOnBean</span>(<span class="title">ZuulProxyMarkerConfiguration</span>.<span class="title">Marker</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">ZuulProxyAutoConfiguration</span> <span class="keyword">extends</span> <span class="title">ZuulServerAutoConfiguration</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">	<span class="comment">// pre filters</span></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> PreDecorationFilter <span class="title">preDecorationFilter</span><span class="params">(RouteLocator routeLocator,</span></span></span><br><span class="line"><span class="function"><span class="params">			ProxyRequestHelper proxyRequestHelper)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> PreDecorationFilter(routeLocator, <span class="keyword">this</span>.server.getServletPrefix(),</span><br><span class="line">				<span class="keyword">this</span>.zuulProperties, proxyRequestHelper);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// route filters</span></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> RibbonRoutingFilter <span class="title">ribbonRoutingFilter</span><span class="params">(ProxyRequestHelper helper,</span></span></span><br><span class="line"><span class="function"><span class="params">			RibbonCommandFactory&lt;?&gt; ribbonCommandFactory)</span> </span>&#123;</span><br><span class="line">		RibbonRoutingFilter filter = <span class="keyword">new</span> RibbonRoutingFilter(helper, ribbonCommandFactory,</span><br><span class="line">				<span class="keyword">this</span>.requestCustomizers);</span><br><span class="line">		<span class="keyword">return</span> filter;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean</span>(SimpleHostRoutingFilter<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">	<span class="title">public</span> <span class="title">SimpleHostRoutingFilter</span> <span class="title">simpleHostRoutingFilter</span>(<span class="title">ProxyRequestHelper</span> <span class="title">helper</span>, <span class="title">ZuulProperties</span> <span class="title">zuulProperties</span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> SimpleHostRoutingFilter(helper, zuulProperties);</span><br><span class="line">	&#125;</span><br><span class="line">	···</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里几个重点代码我保留了一下，</p>
+<h4 id="自动装配条件"><a href="#自动装配条件" class="headerlink" title="自动装配条件"></a>自动装配条件</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConditionalOnBean</span>(ZuulProxyMarkerConfiguration.Marker<span class="class">.<span class="keyword">class</span>)</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到，容器中有这个Bean时，自动配置才会加载，这也是我们开启<code>EnableZuulProxy</code>才能使用的原因</p>
+<h4 id="初始化类"><a href="#初始化类" class="headerlink" title="初始化类"></a>初始化类</h4><p>再往下可以清楚的看到，自动配置类向容器中添加了几个类</p>
+<ul>
+<li><code>PreDecorationFilter</code>：Pre阶段Filter</li>
+<li><code>RibbonRoutingFilter：Route</code>阶段Filter</li>
+<li><code>SimpleHostRoutingFilter</code>：URL请求转发时使用的Filter</li>
+</ul>
+<h4 id="继承父类Server"><a href="#继承父类Server" class="headerlink" title="继承父类Server"></a>继承父类Server</h4><p>还有一个重点<code>extends ZuulServerAutoConfiguration</code>，即扩展了父类，所以我们再到父类一看</p>
+<h3 id="ZuulServerAutoConfiguration"><a href="#ZuulServerAutoConfiguration" class="headerlink" title="ZuulServerAutoConfiguration"></a>ZuulServerAutoConfiguration</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties</span>(&#123; ZuulProperties<span class="class">.<span class="keyword">class</span> &#125;)</span></span><br><span class="line"><span class="class">@<span class="title">ConditionalOnClass</span>(<span class="title">ZuulServlet</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">ConditionalOnBean</span>(<span class="title">ZuulServerMarkerConfiguration</span>.<span class="title">Marker</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class">// <span class="title">Make</span> <span class="title">sure</span> <span class="title">to</span> <span class="title">get</span> <span class="title">the</span> <span class="title">ServerProperties</span> <span class="title">from</span> <span class="title">the</span> <span class="title">same</span> <span class="title">place</span> <span class="title">as</span> <span class="title">a</span> <span class="title">normal</span> <span class="title">web</span> <span class="title">app</span> <span class="title">would</span></span></span><br><span class="line"><span class="class">@<span class="title">Import</span>(<span class="title">ServerPropertiesAutoConfiguration</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">ZuulServerAutoConfiguration</span> </span>&#123;</span><br><span class="line">    ···</span><br><span class="line">        </span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> ZuulController <span class="title">zuulController</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> ZuulController();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> ZuulHandlerMapping <span class="title">zuulHandlerMapping</span><span class="params">(RouteLocator routes)</span> </span>&#123;</span><br><span class="line">		ZuulHandlerMapping mapping = <span class="keyword">new</span> ZuulHandlerMapping(routes, zuulController());</span><br><span class="line">		mapping.setErrorController(<span class="keyword">this</span>.errorController);</span><br><span class="line">		<span class="keyword">return</span> mapping;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean</span>(name = <span class="string">"zuulServlet"</span>)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> ServletRegistrationBean <span class="title">zuulServlet</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		ServletRegistrationBean servlet = <span class="keyword">new</span> ServletRegistrationBean(<span class="keyword">new</span> ZuulServlet(),</span><br><span class="line">				<span class="keyword">this</span>.zuulProperties.getServletPattern());</span><br><span class="line">		<span class="comment">// The whole point of exposing this servlet is to provide a route that doesn't</span></span><br><span class="line">		<span class="comment">// buffer requests.</span></span><br><span class="line">		servlet.addInitParameter(<span class="string">"buffer-requests"</span>, <span class="string">"false"</span>);</span><br><span class="line">		<span class="keyword">return</span> servlet;</span><br><span class="line">	&#125;</span><br><span class="line">    ···</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个类的重点，自动装配了</p>
+<ul>
+<li><code>ZuulController</code></li>
+<li><code>ZuulHandlerMapping</code></li>
+<li><code>ZuulServlet</code></li>
+</ul>
+<p>这几个类都是Zuul的重点类</p>
+<h3 id="Zuul重点类"><a href="#Zuul重点类" class="headerlink" title="Zuul重点类"></a>Zuul重点类</h3><h4 id="RibbonRoutingFilter"><a href="#RibbonRoutingFilter" class="headerlink" title="RibbonRoutingFilter"></a>RibbonRoutingFilter</h4><p>这里我们一层层向上递进，我们知道，请求时最终调用的是<code>ZuulFilter</code>即<code>RibbonRoutingFilter</code></p>
+<h4 id="ZuulServlet-1"><a href="#ZuulServlet-1" class="headerlink" title="ZuulServlet"></a>ZuulServlet</h4><p>由第二章代码可知，是由``ZuulServlet<code>调用的</code>ZuulFilter<code>的</code>run()`方法</p>
+<h4 id="ZuulController"><a href="#ZuulController" class="headerlink" title="ZuulController"></a>ZuulController</h4><p><img src="/image/1576245049211.png" alt="1576245049211"></p>
+<p>由<code>ZuulController</code>代码可知，<code>ZuulServlet</code>是由他委派</p>
+<h4 id="ZuulHandlerMapping"><a href="#ZuulHandlerMapping" class="headerlink" title="ZuulHandlerMapping"></a>ZuulHandlerMapping</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ZuulHandlerMapping <span class="title">zuulHandlerMapping</span><span class="params">(RouteLocator routes)</span> </span>&#123;</span><br><span class="line">	ZuulHandlerMapping mapping = <span class="keyword">new</span> ZuulHandlerMapping(routes, zuulController());</span><br><span class="line">	mapping.setErrorController(<span class="keyword">this</span>.errorController);</span><br><span class="line">	<span class="keyword">return</span> mapping;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而在刚刚<code>Server</code>的自动配置类中，<code>ZuulHandlerMapping</code>的实例化又添加了<code>ZuulController</code></p>
+<h4 id="DispatchServlet"><a href="#DispatchServlet" class="headerlink" title="DispatchServlet"></a>DispatchServlet</h4><p>最后我们开始探查<code>ZuulHandlerMapping</code>的<code>lookupHandler</code>即请求调用者</p>
+<p><img src="/image/1576244563526.png" alt="1576244563526"></p>
+<p><img src="/image/1576244648190.png" alt="1576244648190"></p>
+<p><img src="/image/1576244673986.png" alt="1576244673986"></p>
+<p><img src="/image/1576244709161.png" alt="1576244709161">    </p>
+<p>通过一步步向上探查，最后发现是<code>DIspatchServlet</code>的<code>doDispatch()</code>方法调用，这个方法我们并不陌生，就是前端控制器的请求分发方法，即<code>SpringMVC</code>中的类。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>所以最后总结一下request请求Zuul过程</p>
+<ul>
+<li>DispatchServlet —&gt; doDispatch()<ul>
+<li>ZuulHandlerMapping —&gt; lookupHandler()<ul>
+<li>ZuulController —&gt; handleRequest()<ul>
+<li>ZuulServlet —&gt; service()<ul>
+<li>ZuulFilter(RibbonRoutingFilter) —&gt; run()</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springcloud/" rel="tag"># springcloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/23/12-SpringCloud-Zuul-Basic/" rel="next" title="12.SpringCloud Zuul Basic">
+                <i class="fa fa-chevron-left"></i> 12.SpringCloud Zuul Basic
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/23/14-SpringCloud-Stream-Basic/" rel="prev" title="14.SpringCloud Stream Basic">
+                14.SpringCloud Stream Basic <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、Zuul获取Routes规则"><span class="nav-number">1.</span> <span class="nav-text">一、Zuul获取Routes规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RoutesEndPoint"><span class="nav-number">1.1.</span> <span class="nav-text">RoutesEndPoint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RouteLocator"><span class="nav-number">1.2.</span> <span class="nav-text">RouteLocator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DiscoveryClientRouteLocator"><span class="nav-number">1.3.</span> <span class="nav-text">DiscoveryClientRouteLocator</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、Zuul请求的生命周期"><span class="nav-number">2.</span> <span class="nav-text">二、Zuul请求的生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ZuulServlet"><span class="nav-number">2.1.</span> <span class="nav-text">ZuulServlet</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Pre阶段"><span class="nav-number">2.1.1.</span> <span class="nav-text">Pre阶段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Routing阶段"><span class="nav-number">2.1.2.</span> <span class="nav-text">Routing阶段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Post阶段"><span class="nav-number">2.1.3.</span> <span class="nav-text">Post阶段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#error阶段"><span class="nav-number">2.1.4.</span> <span class="nav-text">error阶段</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、Zuul的自动装配"><span class="nav-number">3.</span> <span class="nav-text">三、Zuul的自动装配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#EnableZuulProxy"><span class="nav-number">3.1.</span> <span class="nav-text">@EnableZuulProxy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ZuulProxyAutoConfiguration"><span class="nav-number">3.2.</span> <span class="nav-text">ZuulProxyAutoConfiguration</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#自动装配条件"><span class="nav-number">3.2.1.</span> <span class="nav-text">自动装配条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#初始化类"><span class="nav-number">3.2.2.</span> <span class="nav-text">初始化类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#继承父类Server"><span class="nav-number">3.2.3.</span> <span class="nav-text">继承父类Server</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ZuulServerAutoConfiguration"><span class="nav-number">3.3.</span> <span class="nav-text">ZuulServerAutoConfiguration</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Zuul重点类"><span class="nav-number">3.4.</span> <span class="nav-text">Zuul重点类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#RibbonRoutingFilter"><span class="nav-number">3.4.1.</span> <span class="nav-text">RibbonRoutingFilter</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZuulServlet-1"><span class="nav-number">3.4.2.</span> <span class="nav-text">ZuulServlet</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZuulController"><span class="nav-number">3.4.3.</span> <span class="nav-text">ZuulController</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZuulHandlerMapping"><span class="nav-number">3.4.4.</span> <span class="nav-text">ZuulHandlerMapping</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DispatchServlet"><span class="nav-number">3.4.5.</span> <span class="nav-text">DispatchServlet</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">3.4.6.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

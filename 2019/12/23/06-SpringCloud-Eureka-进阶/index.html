@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springcloud," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、基础架构Spring Cloud Eureke作为服务治理架构，有三个核心要素：  服务注册中心：Eureka Server，提供注册发现服务功能 服务提供方：Eureka Client，将自己的服务注册到注册中心，以供消费 服务消费方：消费者从注册中心获取服务，并且调用，实现方式有Ribbon或Fegin  下面我们详细说下从服务注册，到服务治理，到服务调用各个要素所涉及的重要通信行为">
+<meta property="og:type" content="article">
+<meta property="og:title" content="06.SpringCloud Eureka 进阶">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/06-SpringCloud-Eureka-%E8%BF%9B%E9%98%B6/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、基础架构Spring Cloud Eureke作为服务治理架构，有三个核心要素：  服务注册中心：Eureka Server，提供注册发现服务功能 服务提供方：Eureka Client，将自己的服务注册到注册中心，以供消费 服务消费方：消费者从注册中心获取服务，并且调用，实现方式有Ribbon或Fegin  下面我们详细说下从服务注册，到服务治理，到服务调用各个要素所涉及的重要通信行为">
+<meta property="og:image" content="http://yoursite.com/image/1575379519102.png">
+<meta property="og:image" content="http://yoursite.com/image/1575382236037.png">
+<meta property="og:image" content="http://yoursite.com/image/eureka-code-1.png">
+<meta property="og:image" content="http://yoursite.com/image/1575382365933.png">
+<meta property="og:image" content="http://yoursite.com/image/1575383067450.png">
+<meta property="og:image" content="http://yoursite.com/image/1575383384039.png">
+<meta property="article:published_time" content="2019-12-23T05:40:43.000Z">
+<meta property="article:modified_time" content="2019-12-23T05:42:25.372Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springcloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1575379519102.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/23/06-SpringCloud-Eureka-进阶/"/>
+
+
+
+
+
+  <title>06.SpringCloud Eureka 进阶 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/23/06-SpringCloud-Eureka-%E8%BF%9B%E9%98%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">06.SpringCloud Eureka 进阶</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-23T13:40:43+08:00">
+                2019-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springcloud/" itemprop="url" rel="index">
+                    <span itemprop="name">springcloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、基础架构"><a href="#一、基础架构" class="headerlink" title="一、基础架构"></a>一、基础架构</h2><p>Spring Cloud Eureke作为服务治理架构，有三个核心要素：</p>
+<ul>
+<li>服务注册中心：Eureka Server，提供注册发现服务功能</li>
+<li>服务提供方：Eureka Client，将自己的服务注册到注册中心，以供消费</li>
+<li>服务消费方：消费者从注册中心获取服务，并且调用，实现方式有Ribbon或Fegin</li>
+</ul>
+<p>下面我们详细说下从服务注册，到服务治理，到服务调用各个要素所涉及的重要通信行为</p>
+<p><img src="/image/1575379519102.png" alt="1575379519102"></p>
+<a id="more"></a>
+
+<h3 id="服务提供方"><a href="#服务提供方" class="headerlink" title="服务提供方"></a>服务提供方</h3><h4 id="服务注册"><a href="#服务注册" class="headerlink" title="服务注册"></a>服务注册</h4><p>服务提供者需要将自己的注册到Server，一般是通过REST请求，并携带自己独有的元信息，比如ip，端口，服务名等等。</p>
+<p>服务注册需要开启配置：<code>eureka.client.register-with-eureka=true</code>（默认开启）</p>
+<h4 id="服务同步"><a href="#服务同步" class="headerlink" title="服务同步"></a>服务同步</h4><p>注意，如图所示，有两个服务提供方分别到不同的注册中心注册，这时，因为注册中心高可用相互注册，所以当一个服务提供者注册时会请求转发到另一个注册中心，实现服务同步的功能。</p>
+<h4 id="服务续约"><a href="#服务续约" class="headerlink" title="服务续约"></a>服务续约</h4><p>在服务注册完毕后，服务提供者会维护一个心跳，来告诉注册中心我还活着，防止注册中心的“失效剔除”将此服务排除。</p>
+<p>服务续约有两个重要配置：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 用于定义心跳时间，默认30s续约一次</span></span><br><span class="line"><span class="meta">eureka.instance.lease-renewal-interval-in-seconds</span>=<span class="string">30</span></span><br><span class="line"><span class="comment"># 用于定义服务失效时间 默认90s</span></span><br><span class="line"><span class="meta">eureka.instance.lease-expiration-duration-in-seconds</span>=<span class="string">90</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="服务消费者"><a href="#服务消费者" class="headerlink" title="服务消费者"></a>服务消费者</h3><h4 id="服务获取"><a href="#服务获取" class="headerlink" title="服务获取"></a>服务获取</h4><p>当服务消费者获取服务时，会请求注册中心，注册中心为了性能考虑，会维护一份只读的服务列表副本，同时该缓存30秒更新一次。</p>
+<p>获取服务必须开启配置：<code>eureka.client.fetch-registry=true</code></p>
+<p>修改缓存更新时间：<code>eureka.client.registry-fetch-interval-seconds=30</code></p>
+<h4 id="服务调用"><a href="#服务调用" class="headerlink" title="服务调用"></a>服务调用</h4><p>服务消费者获取清单后，根据返回的服务元数据信息，通过一些算法来进行服务调用，比如Ribbon使用轮询方式实现负载均衡的服务调用。</p>
+<h4 id="服务下线"><a href="#服务下线" class="headerlink" title="服务下线"></a>服务下线</h4><p>在Client关闭时，会通过REST请求告知注册中心下线信息，注册中心会把服务状态改为DOWN，并传播给其他注册中心。</p>
+<h3 id="服务注册中心"><a href="#服务注册中心" class="headerlink" title="服务注册中心"></a>服务注册中心</h3><h4 id="失效剔除"><a href="#失效剔除" class="headerlink" title="失效剔除"></a>失效剔除</h4><p>当一段时间没有接收到客户端信息时，会将服务剔除，默认每隔60秒查询一次，如果有超过90秒没有续约的服务将被剔除</p>
+<h4 id="自我保护"><a href="#自我保护" class="headerlink" title="自我保护"></a>自我保护</h4><p>当有些时候，查看Eureka图形化界面时，会发现一段话：</p>
+<blockquote>
+<p>EMERGENCY! EUREKA MAY BE INCORRECTLY CLAIMING INSTANCES ARE UP WHEN THEY’RE NOT.<br>RENEWALS ARE LESSER THAN THRESHOLD AND HENCE THE INSTANCES ARE NOT BEING EXPIRED JUST<br>TO BE SAFE.</p>
+</blockquote>
+<p>这是Eureka Server的自我保护机制，当Eureka Server运行期间，心跳失败比例在15分钟内低于85%，就会出现这个提示，将实力注册信息保护，不会过期，这个在单机调试时很经常出现。</p>
+<p>本地开发时，添加配置来关闭自我保护<code>eureka.server.enable-self-preservation=false</code></p>
+<h2 id="二、源码分析"><a href="#二、源码分析" class="headerlink" title="二、源码分析"></a>二、源码分析</h2><p>我们通过一步步的源码，探究服务注册，获取，续约等实现</p>
+<p>首先，我们知道Eureka Client非常简单，只需两步便可以将自己服务注册到Server上，即</p>
+<ul>
+<li>开启注解<code>@EnableDiscoveryClient</code></li>
+<li>配置<code>eureka.client.serviceUrl.defaultZone</code></li>
+</ul>
+<p>我们根据这两点进行探寻，先进入注解查看</p>
+<p><img src="/image/1575382236037.png" alt="1575382236037"></p>
+<p>可以发现，非常简单，介绍中说是<code>DisCoverClient</code>的实现类，通过搜索<code>DiscoveryClient</code>，我们可以发现有一个类和一个接口。通过梳理可以得到如下图的关系：</p>
+<p><a href="http://blog.didispace.com/assets/eureka-code-1.png" target="_blank" rel="noopener"><img src="/image/eureka-code-1.png" alt="img"></a></p>
+<p>主要的实现还是通过<code>netflix</code>的<code>DiscoveryClient</code>实现，我们进入查看；</p>
+<p>首先源码非常多，我们先搜索<code>serviceUrl</code>试试</p>
+<p><img src="/image/1575382365933.png" alt="1575382365933"></p>
+<p>通过搜索发现一个过时方法，从配置中获取<code>ServiceUrl</code>，他是直接调用了<code>EndpointUtils</code>中的同名方法，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;String&gt; <span class="title">getServiceUrlsFromConfig</span><span class="params">(EurekaClientConfig clientConfig, String instanceZone, <span class="keyword">boolean</span> preferSameZone)</span> </span>&#123;</span><br><span class="line">        List&lt;String&gt; orderedUrls = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line">        String region = getRegion(clientConfig);</span><br><span class="line">        String[] availZones = clientConfig.getAvailabilityZones(clientConfig.getRegion());</span><br><span class="line">        <span class="keyword">if</span> (availZones == <span class="keyword">null</span> || availZones.length == <span class="number">0</span>) &#123;</span><br><span class="line">            availZones = <span class="keyword">new</span> String[<span class="number">1</span>];</span><br><span class="line">            availZones[<span class="number">0</span>] = DEFAULT_ZONE;</span><br><span class="line">        &#125;</span><br><span class="line">        logger.debug(<span class="string">"The availability zone for the given region &#123;&#125; are &#123;&#125;"</span>, region, Arrays.toString(availZones));</span><br><span class="line">        <span class="keyword">int</span> myZoneOffset = getZoneOffset(instanceZone, preferSameZone, availZones);</span><br><span class="line"></span><br><span class="line">        List&lt;String&gt; serviceUrls = clientConfig.getEurekaServerServiceUrls(availZones[myZoneOffset]);</span><br><span class="line">    ···</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Region、Zone"><a href="#Region、Zone" class="headerlink" title="Region、Zone"></a>Region、Zone</h3><p>这里只放出我们需要的一些内容，如<code>getRegion</code>与<code>getAvailabilityZones</code>方法</p>
+<ul>
+<li><code>getRegion</code>：如果没有配置，默认去<code>defaultRegion</code>，一个<code>Client</code>只会有一个<code>Region</code>；可以通过配置<code>eureka.client.region</code>属性特殊定义</li>
+<li><code>getAvailabilityZones</code>：如果没有配置，默认取<code>defaultZone</code>，由逗号分隔，可以有多个<code>Zones</code>，即<code>Region</code>与<code>Zones</code>是一对多关系，可以通过配置：<code>eureka.client.availability-zones</code>属性配置</li>
+</ul>
+<h3 id="ServiceUrl"><a href="#ServiceUrl" class="headerlink" title="ServiceUrl"></a>ServiceUrl</h3><p>紧接着可以看到，<code>getEurekaServerServiceUrls()</code>方法被调用了，用来获取<code>ServiceUrls</code>。</p>
+<p>这个方法是由<code>EurekaClientConfigBean</code>实现的，这个方法在之前笔记中也有讲过：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">getEurekaServerServiceUrls</span><span class="params">(String myZone)</span> </span>&#123;</span><br><span class="line">		String serviceUrls = <span class="keyword">this</span>.serviceUrl.get(myZone);</span><br><span class="line">		<span class="keyword">if</span> (serviceUrls == <span class="keyword">null</span> || serviceUrls.isEmpty()) &#123;</span><br><span class="line">			serviceUrls = <span class="keyword">this</span>.serviceUrl.get(DEFAULT_ZONE);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (!StringUtils.isEmpty(serviceUrls)) &#123;</span><br><span class="line">			<span class="keyword">final</span> String[] serviceUrlsSplit = StringUtils.commaDelimitedListToStringArray(serviceUrls);</span><br><span class="line">			List&lt;String&gt; eurekaServiceUrls = <span class="keyword">new</span> ArrayList&lt;&gt;(serviceUrlsSplit.length);</span><br><span class="line">			<span class="keyword">for</span> (String eurekaServiceUrl : serviceUrlsSplit) &#123;</span><br><span class="line">				<span class="keyword">if</span> (!endsWithSlash(eurekaServiceUrl)) &#123;</span><br><span class="line">					eurekaServiceUrl += <span class="string">"/"</span>;</span><br><span class="line">				&#125;</span><br><span class="line">				eurekaServiceUrls.add(eurekaServiceUrl);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span> eurekaServiceUrls;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>做了几件事：</p>
+<ul>
+<li>判断配置文件中是否修改了<code>defaultZone</code>,比如叫<code>DevZone</code></li>
+<li>如果不存在 使用默认的<code>defaultZone</code></li>
+<li>判断值是否存在，如果存在，将其转为String数组</li>
+<li>循环添加到<code>eurekaServiceUrls</code>这个List中，并返回</li>
+</ul>
+<h3 id="服务注册-1"><a href="#服务注册-1" class="headerlink" title="服务注册"></a>服务注册</h3><p>看完这些必要的注册中心信息后，在回头查看<code>NetFlix</code>实现的<code>DiscoveryClient</code>类，来寻找服务注册的代码，</p>
+<p>根据逻辑来说，服务注册，续约都是定时任务，应该找带有<code>Scheduled</code>的方法，查询一下</p>
+<p><img src="/image/1575383067450.png" alt="1575383067450"></p>
+<p>应该是这个<code>initScheduledTasks()</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initScheduledTasks</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span> (clientConfig.shouldRegisterWithEureka()) &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="comment">// InstanceInfo replicator</span></span><br><span class="line">        instanceInfoReplicator = <span class="keyword">new</span> InstanceInfoReplicator(</span><br><span class="line">                <span class="keyword">this</span>,</span><br><span class="line">               instanceInfo,</span><br><span class="line">                clientConfig.getInstanceInfoReplicationIntervalSeconds(),</span><br><span class="line">                <span class="number">2</span>); <span class="comment">// burstSize</span></span><br><span class="line">        ...</span><br><span class="line">        instanceInfoReplicator.start(clientConfig.getInitialInstanceInfoReplicationIntervalSeconds());</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        logger.info(<span class="string">"Not registering with Eureka server per configuration"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>if (clientConfig.shouldRegisterWithEureka())</code>这个条件，即注册服务，他实例化了一个<code>InstanceInfoReplicator</code>对象，应该是一个线程，进入看看它的<code>run</code>方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            discoveryClient.refreshInstanceInfo();</span><br><span class="line"></span><br><span class="line">            Long dirtyTimestamp = instanceInfo.isDirtyWithTime();</span><br><span class="line">            <span class="keyword">if</span> (dirtyTimestamp != <span class="keyword">null</span>) &#123;</span><br><span class="line">                discoveryClient.register();</span><br><span class="line">                instanceInfo.unsetIsDirty(dirtyTimestamp);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">            logger.warn(<span class="string">"There was a problem with the instance info replicator"</span>, t);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            Future next = scheduler.schedule(<span class="keyword">this</span>, replicationIntervalSeconds, TimeUnit.SECONDS);</span><br><span class="line">            scheduledPeriodicRef.set(next);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，最重要的一行，就是<code>discoveryClient.register();</code>进入查看</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">register</span><span class="params">()</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        logger.info(PREFIX + appPathIdentifier + <span class="string">": registering service..."</span>);</span><br><span class="line">        EurekaHttpResponse&lt;Void&gt; httpResponse;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            httpResponse = eurekaTransport.registrationClient.register(instanceInfo);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            logger.warn(<span class="string">"&#123;&#125; - registration failed &#123;&#125;"</span>, PREFIX + appPathIdentifier, e.getMessage(), e);</span><br><span class="line">            <span class="keyword">throw</span> e;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (logger.isInfoEnabled()) &#123;</span><br><span class="line">            logger.info(<span class="string">"&#123;&#125; - registration status: &#123;&#125;"</span>, PREFIX + appPathIdentifier, httpResponse.getStatusCode());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> httpResponse.getStatusCode() == <span class="number">204</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>再进入查看<code>eurekaTransport.registrationClient.register(instanceInfo);</code></p>
+<p>找到<code>EurekaHttpClientDecorator</code>这个类，但是这个类是抽象类，我们需要找到它的子实现类</p>
+<p><img src="/image/1575383384039.png" alt="1575383384039"></p>
+<p>经过一一查看找到了<code>RetryableEurekaHttpClient</code>这个类，这个类发现了两个重要方法</p>
+<ul>
+<li>execut()</li>
+<li>getHostCandidates()</li>
+</ul>
+<p>我们一一探索</p>
+<h4 id="1-execut"><a href="#1-execut" class="headerlink" title="1.execut()"></a>1.execut()</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> &lt;R&gt; <span class="function">EurekaHttpResponse&lt;R&gt; <span class="title">execute</span><span class="params">(RequestExecutor&lt;R&gt; requestExecutor)</span> </span>&#123;</span><br><span class="line">    List&lt;EurekaEndpoint&gt; candidateHosts = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">int</span> endpointIdx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> retry = <span class="number">0</span>; retry &lt; numberOfRetries; retry++) &#123;</span><br><span class="line">        EurekaHttpClient currentHttpClient = delegate.get();</span><br><span class="line">        EurekaEndpoint currentEndpoint = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (currentHttpClient == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (candidateHosts == <span class="keyword">null</span>) &#123;</span><br><span class="line">                candidateHosts = getHostCandidates();</span><br><span class="line">                <span class="keyword">if</span> (candidateHosts.isEmpty()) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> TransportException(<span class="string">"There is no known eureka server; cluster server list is empty"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (endpointIdx &gt;= candidateHosts.size()) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> TransportException(<span class="string">"Cannot execute request on any known server"</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            currentEndpoint = candidateHosts.get(endpointIdx++);</span><br><span class="line">            currentHttpClient = clientFactory.newClient(currentEndpoint);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            EurekaHttpResponse&lt;R&gt; response = requestExecutor.execute(currentHttpClient);</span><br><span class="line">            <span class="keyword">if</span> (serverStatusEvaluator.accept(response.getStatusCode(), requestExecutor.getRequestType())) &#123;</span><br><span class="line">                delegate.set(currentHttpClient);</span><br><span class="line">                <span class="keyword">if</span> (retry &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                    logger.info(<span class="string">"Request execution succeeded on retry #&#123;&#125;"</span>, retry);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> response;</span><br><span class="line">            &#125;</span><br><span class="line">            logger.warn(<span class="string">"Request execution failure with status code &#123;&#125;; retrying on another server if available"</span>, response.getStatusCode());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            logger.warn(<span class="string">"Request execution failed with message: &#123;&#125;"</span>, e.getMessage());  <span class="comment">// just log message as the underlying client should log the stacktrace</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Connection error or 5xx from the server that must be retried on another server</span></span><br><span class="line">        delegate.compareAndSet(currentHttpClient, <span class="keyword">null</span>);</span><br><span class="line">        <span class="keyword">if</span> (currentEndpoint != <span class="keyword">null</span>) &#123;</span><br><span class="line">            quarantineSet.add(currentEndpoint);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> TransportException(<span class="string">"Retry limit reached; giving up on completing the request"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为代码长度过长，这里我们缩减一下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> endpointIdx = <span class="number">0</span>;</span><br><span class="line"><span class="comment">//用来保存所有Eureka Server信息(8761、8762、8763、8764)</span></span><br><span class="line">List&lt;EurekaEndpoint&gt; candidateHosts = <span class="keyword">null</span>;</span><br><span class="line"><span class="comment">//numberOfRetries的值代码写死默认为3次</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> retry = <span class="number">0</span>; retry &lt; numberOfRetries; retry++) &#123;</span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 *首次进入循环时，获取全量的Eureka Server信息(8761、8762、8763、8764)</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">if</span> (candidateHosts == <span class="keyword">null</span>) &#123;</span><br><span class="line">        candidateHosts = getHostCandidates();</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 *通过endpointIdx自增，依次获取Eureka Server信息，然后发送</span></span><br><span class="line"><span class="comment">	 *注册的Post请求.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">    currentEndpoint = candidateHosts.get(endpointIdx++);</span><br><span class="line">    currentHttpClient = clientFactory.newClient(currentEndpoint);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">       <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 	*发送注册的Post请求动作，注意如果成功，则跳出循环，如果失败则</span></span><br><span class="line"><span class="comment">	 	*根据endpointIdx依次获取下一个Eureka Server.</span></span><br><span class="line"><span class="comment">	 	*/</span></span><br><span class="line">        response = requestExecutor.execute(currentHttpClient);</span><br><span class="line">        <span class="keyword">return</span> respones;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="comment">//向注册中心(Eureka Server)发起注册的post出现异常时，打印日志...</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//如果此次注册动作失败，将当前的信息保存到quarantineSet中(一个Set集合)</span></span><br><span class="line">    <span class="keyword">if</span> (currentEndpoint != <span class="keyword">null</span>) &#123;</span><br><span class="line">        quarantineSet.add(currentEndpoint);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//如果都失败,则以异常形式抛出...</span></span><br><span class="line"><span class="keyword">throw</span> <span class="keyword">new</span> TransportException(<span class="string">"Retry limit reached; giving up on completing the request"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>在第10行，还有一个重要方法getHostCandidates()，我们也把源码贴出，一并查看</p>
+<h4 id="2-getHostCandidates"><a href="#2-getHostCandidates" class="headerlink" title="2.getHostCandidates()"></a>2.getHostCandidates()</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> List&lt;EurekaEndpoint&gt; <span class="title">getHostCandidates</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    List&lt;EurekaEndpoint&gt; candidateHosts = clusterResolver.getClusterEndpoints();</span><br><span class="line">    quarantineSet.retainAll(candidateHosts);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If enough hosts are bad, we have no choice but start over again</span></span><br><span class="line">    <span class="keyword">int</span> threshold = (<span class="keyword">int</span>) (candidateHosts.size() * transportConfig.getRetryableClientQuarantineRefreshPercentage());</span><br><span class="line">    <span class="keyword">if</span> (quarantineSet.isEmpty()) &#123;</span><br><span class="line">        <span class="comment">// no-op</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (quarantineSet.size() &gt;= threshold) &#123;</span><br><span class="line">        logger.debug(<span class="string">"Clearing quarantined list of size &#123;&#125;"</span>, quarantineSet.size());</span><br><span class="line">        quarantineSet.clear();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        List&lt;EurekaEndpoint&gt; remainingHosts = <span class="keyword">new</span> ArrayList&lt;&gt;(candidateHosts.size());</span><br><span class="line">        <span class="keyword">for</span> (EurekaEndpoint endpoint : candidateHosts) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!quarantineSet.contains(endpoint)) &#123;</span><br><span class="line">                remainingHosts.add(endpoint);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        candidateHosts = remainingHosts;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> candidateHosts;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们也精简一下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> List&lt;EurekaEndpoint&gt; <span class="title">getHostCandidates</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取所有defaultZone配置的注册中心信息(Eureka Server)，</span></span><br><span class="line"><span class="comment">     * 在本文例子中代表4个(8761、8762、8763、8764)Eureka Server</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    List candidateHosts = clusterResolver.getClusterEndpoints();</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * quarantineSet这个Set集合中保存的是不可用的Eureka Server</span></span><br><span class="line"><span class="comment">     * 此处是拿不可用的Eureka Server与全量的Eureka Server取交集</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    quarantineSet.retainAll(candidateHosts);</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据RetryableClientQuarantineRefreshPercentage参数计算阈值</span></span><br><span class="line"><span class="comment">     * 该阈值后续会和quarantineSet中保存的不可用的Eureka Server个数</span></span><br><span class="line"><span class="comment">     * 作比较，从而判断是否返回全量的Eureka Server还是过滤掉不可用的</span></span><br><span class="line"><span class="comment">     * Eureka Server。</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">int</span> threshold = </span><br><span class="line">       (<span class="keyword">int</span>) (</span><br><span class="line">        candidateHosts.size()</span><br><span class="line">              *</span><br><span class="line">        transportConfig.getRetryableClientQuarantineRefreshPercentage()</span><br><span class="line">        );</span><br><span class="line">    <span class="keyword">if</span> (quarantineSet.isEmpty()) &#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 首次进入的时候，此时quarantineSet为空，直接返回全量的</span></span><br><span class="line"><span class="comment">         * Eureka Server列表</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (quarantineSet.size() &gt;= threshold) &#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 将不可用的Eureka Server与threshold值相比较，如果不可</span></span><br><span class="line"><span class="comment">         * 用的Eureka Server个数大于阈值，则将之间保存的Eureka</span></span><br><span class="line"><span class="comment">         * Server内容直接清空，并返回全量的Eureka Server列表。</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        quarantineSet.clear();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 通过quarantineSet集合保存不可用的Eureka Server来过滤</span></span><br><span class="line"><span class="comment">         * 全量的EurekaServer，从而获取此次Eureka Client要注册要</span></span><br><span class="line"><span class="comment">         * 注册的Eureka Server实例地址。</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        List&lt;EurekaEndpoint&gt; remainingHosts = <span class="keyword">new</span> ArrayList&lt;&gt;(candidateHosts.size());</span><br><span class="line">        <span class="keyword">for</span> (EurekaEndpoint endpoint : candidateHosts) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!quarantineSet.contains(endpoint)) &#123;</span><br><span class="line">                remainingHosts.add(endpoint);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        candidateHosts = remainingHosts;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> candidateHosts;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-总结两个方法"><a href="#3-总结两个方法" class="headerlink" title="3.总结两个方法"></a>3.总结两个方法</h4><h5 id="getHostCandidates"><a href="#getHostCandidates" class="headerlink" title="getHostCandidates"></a>getHostCandidates</h5><ol>
+<li>先从配置文件中获取所有Zone配置</li>
+<li>将这些信息与<code>quarantineSet</code>集合中信息取交集，为不可用Eureka Server的集合</li>
+<li>计算阈值<code>threshold</code>（这个值很有用，后面会说到）</li>
+<li>判断是否第一次进入，如果是直接返回全部信息</li>
+<li>判断不可用集合是否大于阈值，如果是清空Set，即返回空</li>
+<li>最后的else进行添加，将可用的Server保存到List返回</li>
+</ol>
+<h5 id="execut"><a href="#execut" class="headerlink" title="execut"></a>execut</h5><ol>
+<li>首先循环3次，这个次数是固定的，<code>DEFAULT_NUMBER_OF_RETRIES = 3;</code></li>
+<li>调用<code>getHostCandidates()</code>方法获取可用的<code>Eureka Server List</code></li>
+<li>获取完毕循环请求再此集合中的Server</li>
+<li>如果成功，跳出返回</li>
+<li>如果失败，<code>endpointIdx++</code>，并将此Server保存到<code>quarantineSet</code>中，即不可用Eureka Server</li>
+<li>如果全部都失败，抛出异常</li>
+</ol>
+<p><strong>这里会有一个问题，我们一会再说</strong></p>
+<h3 id="服务续约-1"><a href="#服务续约-1" class="headerlink" title="服务续约"></a>服务续约</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (clientConfig.shouldRegisterWithEureka()) &#123;</span><br><span class="line">		<span class="keyword">int</span> renewalIntervalInSecs = instanceInfo.getLeaseInfo().getRenewalIntervalInSecs();</span><br><span class="line">        <span class="keyword">int</span> expBackOffBound = clientConfig.getHeartbeatExecutorExponentialBackOffBound();</span><br><span class="line">        logger.info(<span class="string">"Starting heartbeat executor: "</span> + <span class="string">"renew interval is: "</span> + renewalIntervalInSecs);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Heartbeat timer</span></span><br><span class="line">        scheduler.schedule(</span><br><span class="line">                <span class="keyword">new</span> TimedSupervisorTask(</span><br><span class="line">                        <span class="string">"heartbeat"</span>,</span><br><span class="line">                        scheduler,</span><br><span class="line">                        heartbeatExecutor,</span><br><span class="line">                        renewalIntervalInSecs,</span><br><span class="line">                        TimeUnit.SECONDS,</span><br><span class="line">                        expBackOffBound,</span><br><span class="line">                        <span class="keyword">new</span> HeartbeatThread()</span><br><span class="line">                ),</span><br><span class="line">                renewalIntervalInSecs, TimeUnit.SECONDS);</span><br><span class="line">		<span class="comment">// InstanceInfo replicator</span></span><br><span class="line">		……</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从源码中，“服务续约”与“服务注册”在同一个if逻辑中，这个不难理解，服务注册到Eureka Server后，自然需要一个心跳去续约，防止被剔除，所以他们肯定是成对出现的。从源码中，我们可以清楚看到了，对于服务续约相关的时间控制参数：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">eureka.instance.lease-renewal-interval-in-seconds</span>=<span class="string">30</span></span><br><span class="line"><span class="meta">eureka.instance.lease-expiration-duration-in-seconds</span>=<span class="string">90</span></span><br></pre></td></tr></table></figure>
+
+<p>而“服务获取”的逻辑在独立的一个if判断中，其判断依据就是我们之前所提到的<code>eureka.client.fetch-registry=true</code>参数，它默认是为true的，大部分情况下我们不需要关心。为了定期的更新客户端的服务清单，以保证服务访问的正确性。</p>
+<p>这里看到服务续约为<code>new HeartbeatThread()</code>，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">HeartbeatThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (renew()) &#123;</span><br><span class="line">            lastSuccessfulHeartbeatTimestamp = System.currentTimeMillis();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里调用了<code>renew</code>方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">renew</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        EurekaHttpResponse&lt;InstanceInfo&gt; httpResponse;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            httpResponse = eurekaTransport.registrationClient.sendHeartBeat(instanceInfo.getAppName(), instanceInfo.getId(), instanceInfo, <span class="keyword">null</span>);</span><br><span class="line">            logger.debug(<span class="string">"&#123;&#125; - Heartbeat status: &#123;&#125;"</span>, PREFIX + appPathIdentifier, httpResponse.getStatusCode());</span><br><span class="line">            <span class="keyword">if</span> (httpResponse.getStatusCode() == <span class="number">404</span>) &#123;</span><br><span class="line">                REREGISTER_COUNTER.increment();</span><br><span class="line">                logger.info(<span class="string">"&#123;&#125; - Re-registering apps/&#123;&#125;"</span>, PREFIX + appPathIdentifier, instanceInfo.getAppName());</span><br><span class="line">                <span class="keyword">return</span> register();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> httpResponse.getStatusCode() == <span class="number">200</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">            logger.error(<span class="string">"&#123;&#125; - was unable to send heartbeat!"</span>, PREFIX + appPathIdentifier, e);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现相对简单，直接以REST请求进行续约，如果续约失败，返回404会进行register，成功返回true并开始计时，等待下一次心跳</p>
+<h3 id="服务获取-1"><a href="#服务获取-1" class="headerlink" title="服务获取"></a>服务获取</h3><p>紧接着，我们看看服务获取，这个实现也在刚刚看到的<code>initScheduledTasks</code>中，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (clientConfig.shouldFetchRegistry()) &#123;</span><br><span class="line">    <span class="comment">// registry cache refresh timer</span></span><br><span class="line">    <span class="keyword">int</span> registryFetchIntervalSeconds = clientConfig.getRegistryFetchIntervalSeconds();</span><br><span class="line">    <span class="keyword">int</span> expBackOffBound = clientConfig.getCacheRefreshExecutorExponentialBackOffBound();</span><br><span class="line">    scheduler.schedule(</span><br><span class="line">        <span class="keyword">new</span> TimedSupervisorTask(</span><br><span class="line">            <span class="string">"cacheRefresh"</span>,</span><br><span class="line">            scheduler,</span><br><span class="line">            cacheRefreshExecutor,</span><br><span class="line">            registryFetchIntervalSeconds,</span><br><span class="line">            TimeUnit.SECONDS,</span><br><span class="line">            expBackOffBound,</span><br><span class="line">            <span class="keyword">new</span> CacheRefreshThread()</span><br><span class="line">        ),</span><br><span class="line">        registryFetchIntervalSeconds, TimeUnit.SECONDS);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>if (clientConfig.shouldFetchRegistry())</code>即我们之前开启的配置，其实他是默认开启的，<code>eureka.client.fetch-registry=true</code></p>
+<p>还可以发现<code>getRegistryFetchIntervalSeconds()</code>方法就是我们刚刚说的，修改缓存更新时间配置</p>
+<p>因为源码相对复杂，就不细细探究了，主要会根据是否是第一次获取，来发起不同的REST请求和对应的处理，具体逻辑和之前类似。</p>
+<h3 id="注册中心注册"><a href="#注册中心注册" class="headerlink" title="注册中心注册"></a>注册中心注册</h3><p>接下来我们看下注册中心是如何接收请求的， Eureka Server对于各类REST请求的定义都位于：<code>com.netflix.eureka.resources</code>包下。</p>
+<p>在<code>ApplicationResource</code>中有一个<code>addInstance()</code>方法，应该是添加实例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@POST</span></span><br><span class="line"><span class="meta">@Consumes</span>(&#123;<span class="string">"application/json"</span>, <span class="string">"application/xml"</span>&#125;)</span><br><span class="line"><span class="function"><span class="keyword">public</span> Response <span class="title">addInstance</span><span class="params">(InstanceInfo info,</span></span></span><br><span class="line"><span class="function"><span class="params">                            @HeaderParam(PeerEurekaNode.HEADER_REPLICATION)</span> String isReplication) </span>&#123;</span><br><span class="line">    logger.debug(<span class="string">"Registering instance &#123;&#125; (replication=&#123;&#125;)"</span>, info.getId(), isReplication);</span><br><span class="line">    <span class="comment">// validate that the instanceinfo contains all the necessary required fields</span></span><br><span class="line">    <span class="keyword">if</span> (isBlank(info.getId())) &#123;</span><br><span class="line">        <span class="keyword">return</span> Response.status(<span class="number">400</span>).entity(<span class="string">"Missing instanceId"</span>).build();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isBlank(info.getHostName())) &#123;</span><br><span class="line">        <span class="keyword">return</span> Response.status(<span class="number">400</span>).entity(<span class="string">"Missing hostname"</span>).build();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isBlank(info.getAppName())) &#123;</span><br><span class="line">        <span class="keyword">return</span> Response.status(<span class="number">400</span>).entity(<span class="string">"Missing appName"</span>).build();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!appName.equals(info.getAppName())) &#123;</span><br><span class="line">        <span class="keyword">return</span> Response.status(<span class="number">400</span>).entity(<span class="string">"Mismatched appName, expecting "</span> + appName + <span class="string">" but was "</span> + info.getAppName()).build();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (info.getDataCenterInfo() == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> Response.status(<span class="number">400</span>).entity(<span class="string">"Missing dataCenterInfo"</span>).build();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (info.getDataCenterInfo().getName() == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> Response.status(<span class="number">400</span>).entity(<span class="string">"Missing dataCenterInfo Name"</span>).build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// handle cases where clients may be registering with bad DataCenterInfo with missing data</span></span><br><span class="line">    DataCenterInfo dataCenterInfo = info.getDataCenterInfo();</span><br><span class="line">    <span class="keyword">if</span> (dataCenterInfo <span class="keyword">instanceof</span> UniqueIdentifier) &#123;</span><br><span class="line">        String dataCenterInfoId = ((UniqueIdentifier) dataCenterInfo).getId();</span><br><span class="line">        <span class="keyword">if</span> (isBlank(dataCenterInfoId)) &#123;</span><br><span class="line">            <span class="keyword">boolean</span> experimental = <span class="string">"true"</span>.equalsIgnoreCase(serverConfig.getExperimental(<span class="string">"registration.validation.dataCenterInfoId"</span>));</span><br><span class="line">            <span class="keyword">if</span> (experimental) &#123;</span><br><span class="line">                String entity = <span class="string">"DataCenterInfo of type "</span> + dataCenterInfo.getClass() + <span class="string">" must contain a valid id"</span>;</span><br><span class="line">                <span class="keyword">return</span> Response.status(<span class="number">400</span>).entity(entity).build();</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (dataCenterInfo <span class="keyword">instanceof</span> AmazonInfo) &#123;</span><br><span class="line">                AmazonInfo amazonInfo = (AmazonInfo) dataCenterInfo;</span><br><span class="line">                String effectiveId = amazonInfo.get(AmazonInfo.MetaDataKey.instanceId);</span><br><span class="line">                <span class="keyword">if</span> (effectiveId == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    amazonInfo.getMetadata().put(AmazonInfo.MetaDataKey.instanceId.getName(), info.getId());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                logger.warn(<span class="string">"Registering DataCenterInfo of type &#123;&#125; without an appropriate id"</span>, dataCenterInfo.getClass());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    registry.register(info, <span class="string">"true"</span>.equals(isReplication));</span><br><span class="line">    <span class="keyword">return</span> Response.status(<span class="number">204</span>).build();  <span class="comment">// 204 to be backwards compatible</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里可以发现，上面一大段都是判断实例的值是否存在等等，真正进行注册是<code>registry.register(info, &quot;true&quot;.equals(isReplication));</code>调用了<code>InstanceRegistry</code>类的注册方法，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">register</span><span class="params">(<span class="keyword">final</span> InstanceInfo info, <span class="keyword">final</span> <span class="keyword">boolean</span> isReplication)</span> </span>&#123;</span><br><span class="line">   handleRegistration(info, resolveInstanceLeaseDuration(info), isReplication);</span><br><span class="line">   <span class="keyword">super</span>.register(info, isReplication);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们之间查看父类<code>register</code>方法，对于handle看名字知道是对实例信息的处理：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">register</span><span class="params">(InstanceInfo registrant, <span class="keyword">int</span> leaseDuration, <span class="keyword">boolean</span> isReplication)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 判断实例是否存在</span></span><br><span class="line">    Map&lt;String, Lease&lt;InstanceInfo&gt;&gt; gMap = registry.get(registrant.getAppName());</span><br><span class="line">    <span class="comment">// 不存在进行添加到Map中</span></span><br><span class="line">    <span class="keyword">if</span> (gMap == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">final</span> ConcurrentHashMap&lt;String, Lease&lt;InstanceInfo&gt;&gt; gNewMap = <span class="keyword">new</span> ConcurrentHashMap&lt;String, Lease&lt;InstanceInfo&gt;&gt;();</span><br><span class="line">        gMap = registry.putIfAbsent(registrant.getAppName(), gNewMap);</span><br><span class="line">        <span class="keyword">if</span> (gMap == <span class="keyword">null</span>) &#123;</span><br><span class="line">            gMap = gNewMap;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ···</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为代码太长，我们精简一下，这里主要的注册就是将实例信息放<code>ConcurrentHashMap</code>中，即<code>registry</code>对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ConcurrentHashMap&lt;String, Map&lt;String, Lease&lt;InstanceInfo&gt;&gt;&gt; registry</span><br><span class="line">        = <span class="keyword">new</span> ConcurrentHashMap&lt;String, Map&lt;String, Lease&lt;InstanceInfo&gt;&gt;&gt;();</span><br></pre></td></tr></table></figure>
+
+<p>它是一个两层Map结构，第一层的key存储服务名：<code>InstanceInfo</code>中的<code>appName</code>属性，第二层的key存储实例名：<code>InstanceInfo</code>中的<code>instanceId</code>属性。</p>
+<p>对于其他注册中心中的方法，都比较类似，就不一一查看了。</p>
+<h2 id="三、服务注册中的问题"><a href="#三、服务注册中的问题" class="headerlink" title="三、服务注册中的问题"></a>三、服务注册中的问题</h2><p>因为默认只请求3次，那么比如我们的例子，有4个Server，前面三个都挂了，便不会再尝试8764了，直到下一次轮询请求连接Server。</p>
+<p>这时因为不可用Set中已经保存了8761,8762,8763，所以，在我们的想法中，这一次请求会直接尝试8764，然后成功连接，然而这时错的，==它并不会走到这个分支，而是被上面的<code>else if (quarantineSet.size() &gt;= threshold)</code>这个分支所拦截==，因为Set的容量为3，<code>threshold</code>是小于3的！</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">else</span> <span class="keyword">if</span> (quarantineSet.size() &gt;= threshold) &#123;</span><br><span class="line">    logger.debug(<span class="string">"Clearing quarantined list of size &#123;&#125;"</span>, quarantineSet.size());</span><br><span class="line">    quarantineSet.clear();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时会把Set清空，那么再次循环请求的三次还是8761,8762,8763。并且再次注册失败！</p>
+<p>那么，问题的关键是什么？</p>
+<p>问题的关键就是<code>threshold</code>这个值的由来，因为此时<code>quarantineSet.size()</code>的值为3，而3这个值大于<code>threshold</code>，从而导致，会将<code>quarantineSet</code>集合清空，返回全量的Server列表。</p>
+<h3 id="threshold"><a href="#threshold" class="headerlink" title="threshold"></a>threshold</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> threshold = (<span class="keyword">int</span>) (candidateHosts.size() * transportConfig.getRetryableClientQuarantineRefreshPercentage());</span><br></pre></td></tr></table></figure>
+
+<p>先看代码，他是由配置的host数量乘以一个方法，我们看下这个方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">double</span> retryableClientQuarantineRefreshPercentage = <span class="number">0.66</span>D;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">getRetryableClientQuarantineRefreshPercentage</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.retryableClientQuarantineRefreshPercentage;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，他是一个默认值，为0.66，所以<code>4*0.66=2.64</code>，所以<code>3&gt;2.64</code>导致了这个问题，那么我们就应该尝试修改这个值，来达到我们的目的，在<code>application.properties</code>修改：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">eureka.client.transport.retryableClientQuarantineRefreshPercentage</span>=<span class="string">1</span></span><br></pre></td></tr></table></figure>
+
+<p>这样当判断是，阈值<code>threshold=4</code>，便会直接尝试注册8764了，如果是UP状态会成功连接，达到我们想要的效果</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springcloud/" rel="tag"># springcloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/23/05-SpringCloud-Eureka-%E9%AB%98%E5%8F%AF%E7%94%A8/" rel="next" title="05.SpringCloud Eureka 高可用">
+                <i class="fa fa-chevron-left"></i> 05.SpringCloud Eureka 高可用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/23/07-SpringCloud-Ribbon-Basic/" rel="prev" title="07.SpringCloud Ribbon Basic">
+                07.SpringCloud Ribbon Basic <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、基础架构"><span class="nav-number">1.</span> <span class="nav-text">一、基础架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#服务提供方"><span class="nav-number">1.1.</span> <span class="nav-text">服务提供方</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#服务注册"><span class="nav-number">1.1.1.</span> <span class="nav-text">服务注册</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务同步"><span class="nav-number">1.1.2.</span> <span class="nav-text">服务同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务续约"><span class="nav-number">1.1.3.</span> <span class="nav-text">服务续约</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务消费者"><span class="nav-number">1.2.</span> <span class="nav-text">服务消费者</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#服务获取"><span class="nav-number">1.2.1.</span> <span class="nav-text">服务获取</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务调用"><span class="nav-number">1.2.2.</span> <span class="nav-text">服务调用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务下线"><span class="nav-number">1.2.3.</span> <span class="nav-text">服务下线</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务注册中心"><span class="nav-number">1.3.</span> <span class="nav-text">服务注册中心</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#失效剔除"><span class="nav-number">1.3.1.</span> <span class="nav-text">失效剔除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自我保护"><span class="nav-number">1.3.2.</span> <span class="nav-text">自我保护</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、源码分析"><span class="nav-number">2.</span> <span class="nav-text">二、源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Region、Zone"><span class="nav-number">2.1.</span> <span class="nav-text">Region、Zone</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ServiceUrl"><span class="nav-number">2.2.</span> <span class="nav-text">ServiceUrl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务注册-1"><span class="nav-number">2.3.</span> <span class="nav-text">服务注册</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-execut"><span class="nav-number">2.3.1.</span> <span class="nav-text">1.execut()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-getHostCandidates"><span class="nav-number">2.3.2.</span> <span class="nav-text">2.getHostCandidates()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-总结两个方法"><span class="nav-number">2.3.3.</span> <span class="nav-text">3.总结两个方法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#getHostCandidates"><span class="nav-number">2.3.3.1.</span> <span class="nav-text">getHostCandidates</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#execut"><span class="nav-number">2.3.3.2.</span> <span class="nav-text">execut</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务续约-1"><span class="nav-number">2.4.</span> <span class="nav-text">服务续约</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务获取-1"><span class="nav-number">2.5.</span> <span class="nav-text">服务获取</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注册中心注册"><span class="nav-number">2.6.</span> <span class="nav-text">注册中心注册</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、服务注册中的问题"><span class="nav-number">3.</span> <span class="nav-text">三、服务注册中的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#threshold"><span class="nav-number">3.1.</span> <span class="nav-text">threshold</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

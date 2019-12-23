@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springcloud," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、前景回顾1.回顾SpringBoot的配置具有application.yaml和application.properties两种，在源码中也反应出来： 通过PropertySourcesLoader.load()中的PropertySourceLoader，具有两种实现方式  YamlPropertySourceLoader PropertiesPropertySourceLoader   因">
+<meta property="og:type" content="article">
+<meta property="og:title" content="02.SpringCloud Config Client">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/02springcloud-config-client/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、前景回顾1.回顾SpringBoot的配置具有application.yaml和application.properties两种，在源码中也反应出来： 通过PropertySourcesLoader.load()中的PropertySourceLoader，具有两种实现方式  YamlPropertySourceLoader PropertiesPropertySourceLoader   因">
+<meta property="og:image" content="http://yoursite.com/image/1574836731046.png">
+<meta property="og:image" content="http://yoursite.com/image/1574837641321.png">
+<meta property="og:image" content="http://yoursite.com/image/1574837967374.png">
+<meta property="og:image" content="http://yoursite.com/image/1574838093612.png">
+<meta property="og:image" content="http://yoursite.com/image/1574838424909.png">
+<meta property="og:image" content="http://yoursite.com/image/1574838508386.png">
+<meta property="og:image" content="http://yoursite.com/image/1574839542443.png">
+<meta property="og:image" content="http://yoursite.com/image/1574840742243.png">
+<meta property="og:image" content="http://yoursite.com/image/1574841054949.png">
+<meta property="og:image" content="http://yoursite.com/image/1574841067961.png">
+<meta property="og:image" content="http://yoursite.com/image/1574841360506.png">
+<meta property="og:image" content="http://yoursite.com/image/1574841537530.png">
+<meta property="og:image" content="http://yoursite.com/image/1574842697435.png">
+<meta property="og:image" content="http://yoursite.com/image/1574842644062.png">
+<meta property="og:image" content="http://yoursite.com/image/1574847680998.png">
+<meta property="article:published_time" content="2019-12-23T05:21:07.000Z">
+<meta property="article:modified_time" content="2019-12-23T05:32:53.766Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springcloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1574836731046.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/23/02springcloud-config-client/"/>
+
+
+
+
+
+  <title>02.SpringCloud Config Client | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/23/02springcloud-config-client/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">02.SpringCloud Config Client</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-23T13:21:07+08:00">
+                2019-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springcloud/" itemprop="url" rel="index">
+                    <span itemprop="name">springcloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、前景回顾"><a href="#一、前景回顾" class="headerlink" title="一、前景回顾"></a>一、前景回顾</h2><h3 id="1-回顾SpringBoot的配置"><a href="#1-回顾SpringBoot的配置" class="headerlink" title="1.回顾SpringBoot的配置"></a>1.回顾SpringBoot的配置</h3><p>具有application.yaml和application.properties两种，在源码中也反应出来：</p>
+<p>通过<code>PropertySourcesLoader.load()</code>中的<code>PropertySourceLoader</code>，具有两种实现方式</p>
+<ul>
+<li>YamlPropertySourceLoader</li>
+<li>PropertiesPropertySourceLoader</li>
+</ul>
+<p><img src="/image/1574836731046.png" alt="1574836731046"></p>
+<p>因为对于配置文件的加载也是事件监听模式，所以对于Application配置文件的监听器为<code>ConfigFileApplicationListener</code></p>
+<a id="more"></a>
+
+<h3 id="2-Environment-端点"><a href="#2-Environment-端点" class="headerlink" title="2.Environment 端点"></a>2.Environment 端点</h3><p>上节我们了解到使用<code>/env</code>可以观察应用的一些环境信息，其实环境信息就是配置。</p>
+<h4 id="环境与配置的关系"><a href="#环境与配置的关系" class="headerlink" title="环境与配置的关系"></a>环境与配置的关系</h4><p>简单说下<code>Environment</code>和<code>PropertySources</code>和<code>PropertySource</code>的关系：</p>
+<p><code>Environment</code>：<code>PropertySources</code>（1：1）</p>
+<p><code>PropertySources</code>：<code>PropertySource</code>（1：n）</p>
+<p>例如：我们在<code>application.propertis</code>添加些配置，当然，需要先关闭<code>env</code>安全</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">spring.application.name</span> = <span class="string">spring-cloud-config-client</span></span><br><span class="line"><span class="comment">## 关闭 env 安全</span></span><br><span class="line"><span class="meta">endpoints.env.sensitive</span> = <span class="string">false</span></span><br></pre></td></tr></table></figure>
+
+<p>访问<code>localhost:8080/env</code>查看：</p>
+<p><img src="/image/1574837641321.png" alt="1574837641321"></p>
+<p>可以看到正确显示在<code>Environment</code>环境中，便应证了我们说法</p>
+<h4 id="HTTP请求修改配置"><a href="#HTTP请求修改配置" class="headerlink" title="HTTP请求修改配置"></a>HTTP请求修改配置</h4><p>这些配置可以通过http请求进行修改，这里我们使用<code>postman</code></p>
+<p>首先get请求一下：</p>
+<p><img src="/image/1574837967374.png" alt="1574837967374"></p>
+<p>可以看到正确显示</p>
+<p><img src="/image/1574838093612.png" alt="1574838093612"></p>
+<p>修改后再去浏览器访问：</p>
+<p><img src="/image/1574838424909.png" alt=""></p>
+<p>可以看到正确修改，这里我们还可以发现一个问题，<code>manager</code>这个property跑到第一位去了，可以翻阅源码看一下</p>
+<p><img src="/image/1574838508386.png" alt="1574838508386"></p>
+<p>可以清楚的看到，确实在修改时，会调用<code>addFirst()</code>的方法，将<code>manager</code>放到第一位</p>
+<hr>
+<p>下面开始研究我们的重点内容，BootStrap配置属性</p>
+<h2 id="二、BootStrap配置属性"><a href="#二、BootStrap配置属性" class="headerlink" title="二、BootStrap配置属性"></a>二、BootStrap配置属性</h2><h3 id="1-BootStrap的配置文件"><a href="#1-BootStrap的配置文件" class="headerlink" title="1.BootStrap的配置文件"></a>1.BootStrap的配置文件</h3><p>首先，关于BootStrap配置可以参考<code>BootstrapApplicationListener</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String configName = environment</span><br><span class="line">				.resolvePlaceholders(<span class="string">"$&#123;spring.cloud.bootstrap.name:bootstrap&#125;"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，源码中如果<code>spring.cloud.bootstrap.name</code>不存在，则使用默认的<code>bootstrap</code>作为配置文件名称</p>
+<p>我们创建一个<code>bootstrap.properties</code>看看效果：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">spring.application.name</span>=<span class="string">spring-cloud-bootstrap-config</span></span><br></pre></td></tr></table></figure>
+
+<p>和<code>application</code>相同，也设置一个<code>application.name</code></p>
+<p><img src="/image/1574839542443.png" alt="1574839542443"></p>
+<ul>
+<li>首先，bootstrap.properties被正确加载到容器中</li>
+<li>其次，新添加的bootstrap配置文件排在了后面</li>
+<li>因为，application.properties先进入配置List，所以先被读取，而bootstrap的便没有再被读取</li>
+</ul>
+<h3 id="2-调整BootStrap配置"><a href="#2-调整BootStrap配置" class="headerlink" title="2.调整BootStrap配置"></a>2.调整BootStrap配置</h3><h4 id="1-调整BootStrap上下文不被加载"><a href="#1-调整BootStrap上下文不被加载" class="headerlink" title="1.调整BootStrap上下文不被加载"></a>1.调整BootStrap上下文不被加载</h4><p>在<code>BootStrapApplicationListener</code>源码中可以看到这么一个配置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!environment.getProperty(<span class="string">"spring.cloud.bootstrap.enabled"</span>, Boolean<span class="class">.<span class="keyword">class</span>,</span></span><br><span class="line"><span class="class">				<span class="title">true</span>)) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>即当配置<code>spring.cloud.bootstrap.enabled</code>为false时，BootStrapContext便不会再加载</p>
+<p>我们在application.properties添加这个配置试一下：</p>
+<p><img src="/image/1574840742243.png" alt="1574840742243"></p>
+<p>debug启动时，发现并没有成功return，而且执行到下一行代码。原因是：</p>
+<blockquote>
+<p>BootstrapApplicationListener的启动顺序为：Ordered.HIGHEST_PRECEDENCE + 5;即6</p>
+<p>ConfigFileApplicationListener的启动顺序为：Ordered.HIGHEST_PRECEDENCE + 10;即11</p>
+<p>因为排序小的先执行，所以在application配置文件生效前，BootStrap上下文已经加载完毕了。</p>
+</blockquote>
+<p>所以我们应该在优先级更高的地方修改，比如应用的启动参数：</p>
+<p><img src="/image/1574841054949.png" alt="1574841054949"></p>
+<p><img src="/image/1574841067961.png" alt="1574841067961"></p>
+<p>可以看到，正确直接return回去，而没有往下执行创建上下文对象</p>
+<p>==所以，如果我们想调整BootStrap上下文行为配置，必须要更高优先级，比如启动项参数==</p>
+<h4 id="2-调整BootStrap配置文件名称"><a href="#2-调整BootStrap配置文件名称" class="headerlink" title="2.调整BootStrap配置文件名称"></a>2.调整BootStrap配置文件名称</h4><p>上面我们说到：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String configName = environment</span><br><span class="line">				.resolvePlaceholders(<span class="string">"$&#123;spring.cloud.bootstrap.name:bootstrap&#125;"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>默认使用的bootstrap配置文件名称为bootstrap</p>
+<p>我们修改一下试试：改为spring-cloud</p>
+<p><img src="/image/1574841360506.png" alt="1574841360506"></p>
+<p>这时我们有三个配置文件，看看他们的加载情况，以及application.name的值</p>
+<ul>
+<li>application.properties：<code>spring.application.name = spring-cloud-config-client</code></li>
+<li>bootstrap.properties：<code>spring.application.name=spring-cloud-bootstrap-config</code></li>
+<li>spring-cloud.properties：<code>spring.application.name=spring-cloud</code></li>
+</ul>
+<p><img src="/image/1574841537530.png" alt="1574841537530"></p>
+<p>可以看到，和我们想的一样，修改后名称被加载，而值还是根据先后顺序使用的application配置文件中的值</p>
+<h4 id="3-修改BootStrap配置文件路径"><a href="#3-修改BootStrap配置文件路径" class="headerlink" title="3.修改BootStrap配置文件路径"></a>3.修改BootStrap配置文件路径</h4><p>也是一样，在启动参数上加上location：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--spring.cloud.bootstrap.location&#x3D;config</span><br></pre></td></tr></table></figure>
+
+<p>我们在resource路径下添加一个config文件夹：</p>
+<p><img src="/image/1574842697435.png" alt="1574842697435"></p>
+<p>启动访问查看：</p>
+<p><img src="/image/1574842644062.png" alt="1574842644062"></p>
+<h4 id="4-覆盖远程配置属性"><a href="#4-覆盖远程配置属性" class="headerlink" title="4.覆盖远程配置属性"></a>4.覆盖远程配置属性</h4><p>主要针对我们上面说的HTTP请求修改配置，</p>
+<p><code>spring.cloud.config.allowOverride=true</code></p>
+<p>通过程序启动参数，调整这个值为”<strong>false</strong>“</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">--spring.cloud.config.allowOverride</span>=<span class="string">false</span></span><br></pre></td></tr></table></figure>
+
+<p>启动后，重新Postman 发送 POST 请求，调整<code>spring.application.name</code> 值为 “<strong>spring-cloud-new</strong>“</p>
+<blockquote>
+<p>注意官方文档的说明：the remote property source has to grant it permission by setting <code>spring.cloud.config.allowOverride=true</code> (it doesn’t work to set this locally).</p>
+<p>即，本地服务不会生效，所以无法本地测试</p>
+</blockquote>
+<h4 id="5-自定义BootStrap配置"><a href="#5-自定义BootStrap配置" class="headerlink" title="5.自定义BootStrap配置"></a>5.自定义BootStrap配置</h4><p>根据官方文档可知，自定义一个BootStrap配置分三步走：</p>
+<p>1.创建一个自己的配置类：<code>MyPropertySource</code></p>
+<p>2.在配置类里向容器添加一个自己配置的PropertySource</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyPropertySource</span> <span class="keyword">implements</span> <span class="title">ApplicationContextInitializer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initialize</span><span class="params">(ConfigurableApplicationContext applicationContext)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 1. 从上下文对象中获取环境对象</span></span><br><span class="line">        ConfigurableEnvironment environment = applicationContext.getEnvironment();</span><br><span class="line">        <span class="comment">// 2. 从环境对象中获取可修改配置</span></span><br><span class="line">        MutablePropertySources propertySources = environment.getPropertySources();</span><br><span class="line">        <span class="comment">// 3. 添加我们自己的配置</span></span><br><span class="line">        propertySources.addFirst(createPropertySource());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建自己的PropertySource</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> PropertySource <span class="title">createPropertySource</span><span class="params">()</span></span>&#123;</span><br><span class="line">        Map&lt;String,Object&gt; source = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        source.put(<span class="string">"spring.application.name"</span>,<span class="string">"pace-spring-cloud"</span>);</span><br><span class="line">        PropertySource propertySource = <span class="keyword">new</span> MapPropertySource(<span class="string">"my-property-source"</span>,source);</span><br><span class="line">        <span class="keyword">return</span> propertySource;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要步骤：</p>
+<ul>
+<li>实现<code>ApplicationContextInitiallzer</code>，这样容器初始化的时候就会执行我们的初始化方法</li>
+<li>创建一个自己的<code>PropertySource</code>，通过``new MapPropertySource`</li>
+<li>从上下文中获取环境对象，根据环境对象获取可修改<code>PropertySource</code>对象</li>
+<li>在<code>MutablePropertySource</code>中添加我们自己的<code>PropertySource</code></li>
+</ul>
+<p>3.创建一个<code>META-INF/spring.factories</code>文件，并添加BootStrapConfiguration映射我们的类</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">org.springframework.cloud.bootstrap.BootstrapConfiguration</span>= <span class="string">\</span></span><br><span class="line"><span class="attr">com.segmentfault.springcloudlesson2.bootstrap.MyPropertySource</span></span><br></pre></td></tr></table></figure>
+
+<p>这样在项目启动时，就会加载我们的Configuration类</p>
+<h4 id="6-自定义BootStrap配置属性源"><a href="#6-自定义BootStrap配置属性源" class="headerlink" title="6.自定义BootStrap配置属性源"></a>6.自定义BootStrap配置属性源</h4><p>其实这个和上面的实现方式基本雷同，区别是：</p>
+<ul>
+<li>一个是实现Spring的<code>ApplicationContextInitializer</code></li>
+<li>一个是实现SpringCloud的<code>PropertySourceLocator</code></li>
+</ul>
+<p>1.创建一个MyPropertySourceLocator</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyPropertySourceLocator</span> <span class="keyword">implements</span> <span class="title">PropertySourceLocator</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> PropertySource&lt;?&gt; locate(Environment environment) &#123;</span><br><span class="line">        <span class="keyword">if</span>(environment <span class="keyword">instanceof</span> ConfigurableEnvironment)&#123;</span><br><span class="line">            ConfigurableEnvironment configurableEnvironment = ConfigurableEnvironment<span class="class">.<span class="keyword">class</span>.<span class="title">cast</span>(<span class="title">environment</span>)</span>;</span><br><span class="line">            MutablePropertySources propertySources = configurableEnvironment.getPropertySources();</span><br><span class="line">            propertySources.addFirst(createPropertySource());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建自己的PropertySource</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> PropertySource <span class="title">createPropertySource</span><span class="params">()</span></span>&#123;</span><br><span class="line">        Map&lt;String,Object&gt; source = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        source.put(<span class="string">"spring.application.name"</span>,<span class="string">"pace-spring-cloud-locator"</span>);</span><br><span class="line">        PropertySource propertySource = <span class="keyword">new</span> MapPropertySource(<span class="string">"my-property-source-locator"</span>,source);</span><br><span class="line">        <span class="keyword">return</span> propertySource;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2.在<code>META-INF/spring.factories</code>中添加此Configuration类</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">org.springframework.cloud.bootstrap.BootstrapConfiguration</span>= <span class="string">\</span></span><br><span class="line">com.segmentfault.springcloudlesson2.bootstrap.MyPropertySource,\</span><br><span class="line"><span class="attr">com.segmentfault.springcloudlesson2.bootstrap.MyPropertySourceLocator</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1574847680998.png" alt="1574847243757"></p>
+<p>可以看到效果，两个BootStrap配置都加载到<code>Environment</code>中了，并且由于优先顺序，下面几个配置文件中的属性也都变成我们所配置的<code>pace-spring-cloud</code></p>
+<p>对于我们自定义的BootStrap配置，SpringCloud官方文档推荐使用<code>@Order</code>注解来进行排序</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springcloud/" rel="tag"># springcloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/23/01springcloud-basic/" rel="next" title="01.SpringCloud Basic BootstrapContext">
+                <i class="fa fa-chevron-left"></i> 01.SpringCloud Basic BootstrapContext
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/23/03springcloud-config-server/" rel="prev" title="03.Springcloud Config Server">
+                03.Springcloud Config Server <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、前景回顾"><span class="nav-number">1.</span> <span class="nav-text">一、前景回顾</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-回顾SpringBoot的配置"><span class="nav-number">1.1.</span> <span class="nav-text">1.回顾SpringBoot的配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Environment-端点"><span class="nav-number">1.2.</span> <span class="nav-text">2.Environment 端点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#环境与配置的关系"><span class="nav-number">1.2.1.</span> <span class="nav-text">环境与配置的关系</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HTTP请求修改配置"><span class="nav-number">1.2.2.</span> <span class="nav-text">HTTP请求修改配置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、BootStrap配置属性"><span class="nav-number">2.</span> <span class="nav-text">二、BootStrap配置属性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-BootStrap的配置文件"><span class="nav-number">2.1.</span> <span class="nav-text">1.BootStrap的配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-调整BootStrap配置"><span class="nav-number">2.2.</span> <span class="nav-text">2.调整BootStrap配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-调整BootStrap上下文不被加载"><span class="nav-number">2.2.1.</span> <span class="nav-text">1.调整BootStrap上下文不被加载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-调整BootStrap配置文件名称"><span class="nav-number">2.2.2.</span> <span class="nav-text">2.调整BootStrap配置文件名称</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-修改BootStrap配置文件路径"><span class="nav-number">2.2.3.</span> <span class="nav-text">3.修改BootStrap配置文件路径</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-覆盖远程配置属性"><span class="nav-number">2.2.4.</span> <span class="nav-text">4.覆盖远程配置属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-自定义BootStrap配置"><span class="nav-number">2.2.5.</span> <span class="nav-text">5.自定义BootStrap配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-自定义BootStrap配置属性源"><span class="nav-number">2.2.6.</span> <span class="nav-text">6.自定义BootStrap配置属性源</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

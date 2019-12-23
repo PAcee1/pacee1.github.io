@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springcloud," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、简介高可用：一般用于生产环境，由客户端应用关联注册中心集群，这样避免注册中心的单点故障。 常见的配置手段：  多注册中心主机 注册中心DNS 广播">
+<meta property="og:type" content="article">
+<meta property="og:title" content="05.SpringCloud Eureka 高可用">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/05-SpringCloud-Eureka-%E9%AB%98%E5%8F%AF%E7%94%A8/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、简介高可用：一般用于生产环境，由客户端应用关联注册中心集群，这样避免注册中心的单点故障。 常见的配置手段：  多注册中心主机 注册中心DNS 广播">
+<meta property="og:image" content="http://yoursite.com/image/1575337915374.png">
+<meta property="og:image" content="http://yoursite.com/image/1575342446788.png">
+<meta property="og:image" content="http://yoursite.com/image/1575342466791.png">
+<meta property="og:image" content="http://yoursite.com/image/1575342545238.png">
+<meta property="og:image" content="http://yoursite.com/image/1575342573762.png">
+<meta property="og:image" content="http://yoursite.com/image/1575342946573.png">
+<meta property="og:image" content="http://yoursite.com/image/1575342988354.png">
+<meta property="og:image" content="http://yoursite.com/image/1575343203339.png">
+<meta property="og:image" content="http://yoursite.com/image/1575354971476.png">
+<meta property="og:image" content="http://yoursite.com/image/1575355046730.png">
+<meta property="og:image" content="http://yoursite.com/image/1575355089086.png">
+<meta property="og:image" content="http://yoursite.com/image/1575362147241.png">
+<meta property="og:image" content="http://yoursite.com/image/1575362190716.png">
+<meta property="og:image" content="http://yoursite.com/image/1575362232944.png">
+<meta property="og:image" content="http://yoursite.com/image/1575362428100.png">
+<meta property="og:image" content="http://yoursite.com/image/1575362604170.png">
+<meta property="og:image" content="http://yoursite.com/image/1575362656629.png">
+<meta property="og:image" content="http://yoursite.com/image/1575362765131.png">
+<meta property="og:image" content="http://yoursite.com/image/1575362841325.png">
+<meta property="og:image" content="http://yoursite.com/image/1575363013619.png">
+<meta property="article:published_time" content="2019-12-23T05:40:34.000Z">
+<meta property="article:modified_time" content="2019-12-23T05:41:32.325Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springcloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1575337915374.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/23/05-SpringCloud-Eureka-高可用/"/>
+
+
+
+
+
+  <title>05.SpringCloud Eureka 高可用 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/23/05-SpringCloud-Eureka-%E9%AB%98%E5%8F%AF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">05.SpringCloud Eureka 高可用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-23T13:40:34+08:00">
+                2019-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springcloud/" itemprop="url" rel="index">
+                    <span itemprop="name">springcloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>高可用：一般用于生产环境，由客户端应用关联注册中心集群，这样避免注册中心的单点故障。</p>
+<p>常见的配置手段：</p>
+<ul>
+<li>多注册中心主机</li>
+<li>注册中心DNS</li>
+<li>广播</li>
+</ul>
+<p><img src="/image/1575337915374.png" alt="1575337915374"></p>
+<a id="more"></a>
+
+<h2 id="二、高可用Eureka"><a href="#二、高可用Eureka" class="headerlink" title="二、高可用Eureka"></a>二、高可用Eureka</h2><h3 id="Eureka-Client"><a href="#Eureka-Client" class="headerlink" title="Eureka Client"></a>Eureka Client</h3><p>如果一个Eureka客户端应用配置了多个<code>Eureka Server</code>，默认只会选择一台可用的注册中心，当这台注册中心DOWN掉之后，才会选择其他的可用注册中心。</p>
+<h4 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h4><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span> = <span class="string">spring-cloud-eureka-client</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 客户端 端口随即可用</span></span><br><span class="line"><span class="meta">server.port</span> = <span class="string">8080</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 管理端安全失效</span></span><br><span class="line"><span class="meta">management.security.enabled</span> = <span class="string">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置连接eureka server</span></span><br><span class="line"><span class="meta">eureka.client.service-url.defaultZone</span>=<span class="string">http://127.0.0.1:9090/eureka,http://127.0.0.1:9091/eureka</span></span><br></pre></td></tr></table></figure>
+
+<p>这里可以发现，与之前不同的是<code>defaultZone</code>配置了两个，并用逗号分隔，这样简单的配置，<code>EurekaClient</code>就会随机选择一个作为当前的注册中心，而当此注册中心挂掉时，才会选择另外的。</p>
+<h4 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h4><p>我们在idea中设置可以启动多个实例，然后将启动参数改为9091，再启动一个<code>eureka server</code>试试。</p>
+<p><img src="/image/1575342446788.png" alt="1575342446788"></p>
+<p><img src="/image/1575342466791.png" alt="1575342466791"></p>
+<p>这时我们启动了9090和9091，再<strong>重启客户端</strong>试试</p>
+<p><img src="/image/1575342545238.png" alt="1575342545238"></p>
+<p><img src="/image/1575342573762.png" alt="1575342573762"></p>
+<p>发现<strong>绑定到9090端口的服务器</strong>上了，而9091没有任何客户端绑定</p>
+<p>这时我们<strong>关闭9090这台Server</strong></p>
+<p><img src="/image/1575342946573.png" alt="1575342946573"></p>
+<p>可以发现一段时间后会报错，然后<strong>尝试连接9091的Server，并成功连接上</strong></p>
+<p><img src="/image/1575342988354.png" alt="1575342988354"></p>
+<h4 id="源码查看"><a href="#源码查看" class="headerlink" title="源码查看"></a>源码查看</h4><p>我们进入源码看看<code>defaultZone</code>这个配置是如何生效的，因为前缀是<code>eureka.client</code>所以直接进入到<code>EurekaClientConfigBean</code>中查看</p>
+<p><img src="/image/1575343203339.png" alt="1575343203339"></p>
+<p>可以找到这样一段代码，做了几件事：</p>
+<ul>
+<li>判断配置文件中是否修改了<code>defaultZone</code>,比如叫<code>DevZone</code></li>
+<li>如果不存在 使用默认的<code>defaultZone</code></li>
+<li>判断值是否存在，如果存在，将其转为String数组</li>
+<li>循环添加到<code>eurekaServiceUrls</code>这个List中，并返回</li>
+<li>这样就结束了此方法，当Eureka寻找服务器连接时，就会从<code>eurekaServiceUrls</code>里随机挑选一个进行连接</li>
+</ul>
+<h4 id="其他的一些配置"><a href="#其他的一些配置" class="headerlink" title="其他的一些配置"></a>其他的一些配置</h4><p>还有两个比较重要的配置：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取全部应用元信息的时间间隔</span></span><br><span class="line"><span class="meta">eureka.client.registryFetchIntervalSeconds</span>=<span class="string">5</span></span><br><span class="line"><span class="comment"># 调整应用元信息间隔时间</span></span><br><span class="line"><span class="meta">eureka.client.instanceInfoReplicationIntervalSeconds</span>=<span class="string">5</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Eureka-Server"><a href="#Eureka-Server" class="headerlink" title="Eureka Server"></a>Eureka Server</h3><p>Server高可用不但需要提供集群环境，解决单点故障问题。同时，<strong>还需要处理各个注册中心间的信息同步问题</strong>。</p>
+<p>在刚刚的测试中，我们开启了两个Server，9090和9091，但是可以看到，当Eureka Client8080连接注册中心的时候，<strong>只能和一个绑定，另一个是没有任何信息的</strong>，这就没有解决注册中心信息同步的问题。</p>
+<p>接下来我们进行Server的配置，来让Eureka注册中心实现高可用。</p>
+<h4 id="公共配置"><a href="#公共配置" class="headerlink" title="公共配置"></a>公共配置</h4><p>针对信息同步问题，<code>SpringCloudEureka</code>有一种很简单的方法，也就是我们上个笔记中写到的，<code>Eureka Server</code>在启动时会报错，因为会默认连接8761这个端口，因为它默认是集群状态的，所以会连接另外一台机器，而这时我们便只需将<code>defaultZone</code>那个参数的值改为我们第二台机器即可，即9090绑定9091,9091绑定9090。</p>
+<p>首先说下公共配置，可以将两者都需要的配置写在<code>appliction.properties</code>中：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置名称</span></span><br><span class="line"><span class="meta">spring.application.name</span>=<span class="string">spring-cloud-eureka-server</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 管理端安全失效</span></span><br><span class="line"><span class="meta">management.security.enabled</span>=<span class="string">false</span></span><br><span class="line"></span><br><span class="line"><span class="meta">eureka.client.register-with-eureka</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">eureka.client.fetch-registry</span>=<span class="string">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置信息</span></span><br><span class="line"><span class="meta">eureka.instance.prefer-ip-address</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">eureka.instance.instance-id</span>=<span class="string">$&#123;spring.cloud.client.ipAddress&#125;:$&#123;server.port&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，我们需要把之前关闭的注册到eureka以及获取注册中心的两个配置打开，而不是false，这个默认打开，再写一遍是为了对比之前的配置。</p>
+<h4 id="配置Peer1"><a href="#配置Peer1" class="headerlink" title="配置Peer1"></a>配置Peer1</h4><p>配置第一个注册中心，我们把它端口改为9090，<code>application-peer1.properties</code>:</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置peer1端口为9090</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">9090</span></span><br><span class="line"><span class="comment"># 设置连接到peer2的Server地址</span></span><br><span class="line"><span class="meta">eureka.client.service-url.defaultZone</span>=<span class="string">http://localhost:9091/eureka</span></span><br><span class="line"><span class="comment"># 设置hostname为peer1，可设可不设</span></span><br><span class="line"><span class="meta">eureka.instance.hostname</span>=<span class="string">peer1</span></span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，主要配置就两个：</p>
+<ul>
+<li>端口</li>
+<li>连接地址：连接地址的ip与port都写另一台机器的，而不是本机器</li>
+</ul>
+<p>并且这个文件的名称并不是固定的<code>-peer1</code>可以设置为其他的，在启动时修改为横线后面的值即可</p>
+<h4 id="配置Peer2"><a href="#配置Peer2" class="headerlink" title="配置Peer2"></a>配置Peer2</h4><p><code>application-peer2.properties</code>：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置peer1端口为9091</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">9091</span></span><br><span class="line"><span class="comment"># 设置连接到peer2的Server地址</span></span><br><span class="line"><span class="meta">eureka.client.service-url.defaultZone</span>=<span class="string">http://localhost:9090/eureka</span></span><br><span class="line"><span class="comment"># 设置hostname为peer1，可设可不设</span></span><br><span class="line"><span class="meta">eureka.instance.hostname</span>=<span class="string">peer2</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="启动测试"><a href="#启动测试" class="headerlink" title="启动测试"></a>启动测试</h4><p>1.设置启动参数为<code>--spring.profiles.active=peer1</code>，并且关闭<code>single install</code></p>
+<p><img src="/image/1575354971476.png" alt="1575354971476"></p>
+<p>然后启动</p>
+<p>2.再次设置启动参数为<code>--spring.profiles.active=peer2</code>，修改完后再启动</p>
+<p>这时两个Server都启动起来了，打开网页查看<a href="http://localhost:9090/" target="_blank" rel="noopener">http://localhost:9090/</a></p>
+<p><img src="/image/1575355046730.png" alt="1575355046730"></p>
+<p>可以看到Eureka-Server连接了两个，说明高可用集群搭建成功，并且Client也连接上去</p>
+<p>再查看<a href="http://localhost:9091/" target="_blank" rel="noopener">http://localhost:9091/</a></p>
+<p><img src="/image/1575355089086.png" alt="1575355089086"></p>
+<p>发现也是一模一样的，说明信息同步也成功。</p>
+<h2 id="三、SpringCloud-Consul"><a href="#三、SpringCloud-Consul" class="headerlink" title="三、SpringCloud Consul"></a>三、SpringCloud Consul</h2><p>在springboot2以后，Eureka便不再维护了，Consul成功上位，这里简单学习下Consul，因为大多数公司还是在使用稳定的Dalston版本的Eureka。</p>
+<h3 id="Consul-介绍"><a href="#Consul-介绍" class="headerlink" title="Consul 介绍"></a>Consul 介绍</h3><p>Spring Cloud Consul项目是针对Consul的服务治理实现。Consul是一个分布式高可用的系统，<strong>它具有比较均衡的一致性与高可用性</strong>，它包含多个组件，但是作为一个整体，在微服务架构中为我们的基础设施提供服务发现和服务配置的工具。它包含了下面几个特性：</p>
+<ul>
+<li>服务发现</li>
+<li>健康检查</li>
+<li>Key/Value存储</li>
+<li>多数据中心</li>
+</ul>
+<p>由于Spring Cloud Consul项目的实现，我们可以轻松的将基于Spring Boot的微服务应用注册到Consul上，并通过此实现微服务架构中的服务治理。</p>
+<h3 id="Consul-Server"><a href="#Consul-Server" class="headerlink" title="Consul Server"></a>Consul Server</h3><p>在上面学习时，Eureka的Server也是在springCloud中配置并启动的，但是Consul的服务端是需要在<a href="https://www.consul.io/" target="_blank" rel="noopener">https://www.consul.io/</a>官网下载的。</p>
+<p>我这里使用windows版本，下载后解压到文件夹中</p>
+<p><img src="/image/1575362147241.png" alt="1575362147241"></p>
+<p>启动cmd使服务启动，启动命令为<code>consul agent -dev</code></p>
+<p><img src="/image/1575362190716.png" alt="1575362190716"></p>
+<p>成功启动后可以登录<a href="http://localhost:8500/ui" target="_blank" rel="noopener">http://localhost:8500/ui</a>查看可视化界面</p>
+<p><img src="/image/1575362232944.png" alt="1575362232944"></p>
+<p>默认会将自己注册到服务器中。</p>
+<p>这时，Consul的Server就准备好了，下一步便是SpringCloud整合Consul实现Client端</p>
+<h3 id="Consul-Client"><a href="#Consul-Client" class="headerlink" title="Consul Client"></a>Consul Client</h3><h4 id="添加Maven依赖"><a href="#添加Maven依赖" class="headerlink" title="添加Maven依赖"></a>添加Maven依赖</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-consul-discovery<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="开启注解"><a href="#开启注解" class="headerlink" title="开启注解"></a>开启注解</h4><p>注解还是和之前一样，使用<code>@EnableDiscoveryClient</code></p>
+<h4 id="添加配置"><a href="#添加配置" class="headerlink" title="添加配置"></a>添加配置</h4><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span> = <span class="string">spring-cloud-consul</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 服务端口</span></span><br><span class="line"><span class="meta">server.port</span> = <span class="string">8080</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 管理安全失效</span></span><br><span class="line"><span class="meta">management.security.enabled</span> = <span class="string">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 连接 Consul 服务器的配置</span></span><br><span class="line"><span class="comment">### Consul 主机地址</span></span><br><span class="line"><span class="meta">spring.cloud.consul.host</span> = <span class="string">localhost</span></span><br><span class="line"><span class="comment">### Consul 服务端口</span></span><br><span class="line"><span class="meta">spring.cloud.consul.port</span> = <span class="string">8500</span></span><br></pre></td></tr></table></figure>
+
+<p>consul的主要配置的前缀为<code>spring.cloud.consul</code>，其配置可以到配置类中查看<code>ConsulProperties</code></p>
+<p><img src="/image/1575362428100.png" alt="1575362428100"></p>
+<p>也就只有三个配置，很简单</p>
+<h4 id="启动测试-1"><a href="#启动测试-1" class="headerlink" title="启动测试"></a>启动测试</h4><p><img src="/image/1575362604170.png" alt="1575362604170"></p>
+<h5 id="健康问题"><a href="#健康问题" class="headerlink" title="健康问题"></a>健康问题</h5><p>cmd控制台可以发现Client已经被注册，再查看Consul的服务端</p>
+<p><img src="/image/1575362656629.png" alt="1575362656629"></p>
+<p>可以发现是没有通过健康检查的，这里是一个Bug，原因是：</p>
+<p><img src="/image/1575362765131.png" alt="1575362765131"></p>
+<p>这里如果没有配置config这些值，那么config.getXxx是为null的，但是builder这个withDetail()方法是禁止为null的，不然会抛出异常，这里看下<a href="http://localhost:8080/health" target="_blank" rel="noopener">http://localhost:8080/health</a>：</p>
+<p><img src="/image/1575362841325.png" alt="1575362841325"></p>
+<p>可以发现status为DOWN，并且错误原因就是value为null，这里也没有什么特别好的解决方法，一种解决方法是写一个Controller返回ok，然后配置健康检查通过这个controller进行，便可以跳过健康检查。</p>
+<h5 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CheckController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/check"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">check</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"OK"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>application.properties</code></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### 调整 Health Check 路劲，使其传递到 Consul 服务器，帮助回调</span></span><br><span class="line"><span class="meta">spring.cloud.consul.discovery.healthCheckPath</span> = <span class="string">/check</span></span><br></pre></td></tr></table></figure>
+
+<p>这样Consul健康检查会走我们的路径，必然是通过的，重启Client</p>
+<p><img src="/image/1575363013619.png" alt="1575363013619"></p>
+<p>可以发现正确注册进去了</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springcloud/" rel="tag"># springcloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/23/04-SpringCloud-Eureka-Basic/" rel="next" title="04.SpringCloud Eureka Basic">
+                <i class="fa fa-chevron-left"></i> 04.SpringCloud Eureka Basic
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/23/06-SpringCloud-Eureka-%E8%BF%9B%E9%98%B6/" rel="prev" title="06.SpringCloud Eureka 进阶">
+                06.SpringCloud Eureka 进阶 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、简介"><span class="nav-number">1.</span> <span class="nav-text">一、简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、高可用Eureka"><span class="nav-number">2.</span> <span class="nav-text">二、高可用Eureka</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Eureka-Client"><span class="nav-number">2.1.</span> <span class="nav-text">Eureka Client</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#配置"><span class="nav-number">2.1.1.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试"><span class="nav-number">2.1.2.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#源码查看"><span class="nav-number">2.1.3.</span> <span class="nav-text">源码查看</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他的一些配置"><span class="nav-number">2.1.4.</span> <span class="nav-text">其他的一些配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Eureka-Server"><span class="nav-number">2.2.</span> <span class="nav-text">Eureka Server</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#公共配置"><span class="nav-number">2.2.1.</span> <span class="nav-text">公共配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置Peer1"><span class="nav-number">2.2.2.</span> <span class="nav-text">配置Peer1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置Peer2"><span class="nav-number">2.2.3.</span> <span class="nav-text">配置Peer2</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动测试"><span class="nav-number">2.2.4.</span> <span class="nav-text">启动测试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、SpringCloud-Consul"><span class="nav-number">3.</span> <span class="nav-text">三、SpringCloud Consul</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Consul-介绍"><span class="nav-number">3.1.</span> <span class="nav-text">Consul 介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consul-Server"><span class="nav-number">3.2.</span> <span class="nav-text">Consul Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consul-Client"><span class="nav-number">3.3.</span> <span class="nav-text">Consul Client</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#添加Maven依赖"><span class="nav-number">3.3.1.</span> <span class="nav-text">添加Maven依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开启注解"><span class="nav-number">3.3.2.</span> <span class="nav-text">开启注解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#添加配置"><span class="nav-number">3.3.3.</span> <span class="nav-text">添加配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动测试-1"><span class="nav-number">3.3.4.</span> <span class="nav-text">启动测试</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#健康问题"><span class="nav-number">3.3.4.1.</span> <span class="nav-text">健康问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#解决方案"><span class="nav-number">3.3.4.2.</span> <span class="nav-text">解决方案</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

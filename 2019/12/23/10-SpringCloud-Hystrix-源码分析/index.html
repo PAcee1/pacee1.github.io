@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springcloud," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、SpringCloud CircuitBreaker首先我们从SpringCloud的官方断路器注解@EnableCircuitBreaker入手 @EnableCircuitBreake12345678@Target(ElementType.TYPE)@Retention(RetentionPolicy.RUNTIME)@Documented@Inherited@Import(EnableC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="10.SpringCloud Hystrix 源码分析">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/10-SpringCloud-Hystrix-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、SpringCloud CircuitBreaker首先我们从SpringCloud的官方断路器注解@EnableCircuitBreaker入手 @EnableCircuitBreake12345678@Target(ElementType.TYPE)@Retention(RetentionPolicy.RUNTIME)@Documented@Inherited@Import(EnableC">
+<meta property="og:image" content="http://yoursite.com/image/1575947807445.png">
+<meta property="og:image" content="http://yoursite.com/image/1575947827188.png">
+<meta property="og:image" content="http://yoursite.com/image/1575961756881.png">
+<meta property="og:image" content="http://yoursite.com/image/1575962054823.png">
+<meta property="article:published_time" content="2019-12-23T05:46:31.000Z">
+<meta property="article:modified_time" content="2019-12-23T05:49:46.970Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springcloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1575947807445.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/23/10-SpringCloud-Hystrix-源码分析/"/>
+
+
+
+
+
+  <title>10.SpringCloud Hystrix 源码分析 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/23/10-SpringCloud-Hystrix-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">10.SpringCloud Hystrix 源码分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-23T13:46:31+08:00">
+                2019-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springcloud/" itemprop="url" rel="index">
+                    <span itemprop="name">springcloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、SpringCloud-CircuitBreaker"><a href="#一、SpringCloud-CircuitBreaker" class="headerlink" title="一、SpringCloud CircuitBreaker"></a>一、SpringCloud CircuitBreaker</h2><p>首先我们从SpringCloud的官方断路器注解<code>@EnableCircuitBreaker</code>入手</p>
+<h3 id="EnableCircuitBreake"><a href="#EnableCircuitBreake" class="headerlink" title="@EnableCircuitBreake"></a>@EnableCircuitBreake</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(ElementType.TYPE)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@Import</span>(EnableCircuitBreakerImportSelector<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> @<span class="title">interface</span> <span class="title">EnableCircuitBreaker</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+
+<p>可以看到，真正有用的代码就是<code>@Import</code>那一行：</p>
+<p><code>@Import(EnableCircuitBreakerImportSelector.class)</code></p>
+<p>这里Import了一个选择器，是选择什么呢？就是这个断路器的实现类，即Hystrix</p>
+<h3 id="EnableCircuitBreakerImportSelector"><a href="#EnableCircuitBreakerImportSelector" class="headerlink" title="EnableCircuitBreakerImportSelector"></a>EnableCircuitBreakerImportSelector</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Order</span>(Ordered.LOWEST_PRECEDENCE - <span class="number">100</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EnableCircuitBreakerImportSelector</span> <span class="keyword">extends</span></span></span><br><span class="line"><span class="class">      <span class="title">SpringFactoryImportSelector</span>&lt;<span class="title">EnableCircuitBreaker</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">isEnabled</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> RelaxedPropertyResolver(getEnvironment()).getProperty(</span><br><span class="line">            <span class="string">"spring.cloud.circuit.breaker.enabled"</span>, Boolean<span class="class">.<span class="keyword">class</span>, <span class="title">Boolean</span>.<span class="title">TRUE</span>)</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>进入到断路器导入选择器中，可以看到代码很少，主要有两个重点</p>
+<ul>
+<li>继承<code>SpringFactoryImportSelector</code>父类，并且泛型为<code>EnableCircuitBreaker</code></li>
+<li>可以在配置文件中通过<code>spring.cloud.circuit.breaker.enabled</code>，进行断路器的开启和关闭</li>
+</ul>
+<p>这样我们再进入<code>SpringFactoryImportSelector</code></p>
+<h3 id="SpringFactoryImportSelector"><a href="#SpringFactoryImportSelector" class="headerlink" title="SpringFactoryImportSelector"></a>SpringFactoryImportSelector</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@CommonsLog</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringFactoryImportSelector</span>&lt;<span class="title">T</span>&gt;</span></span><br><span class="line"><span class="class">      <span class="keyword">implements</span> <span class="title">DeferredImportSelector</span>, <span class="title">BeanClassLoaderAware</span>, <span class="title">EnvironmentAware</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> ClassLoader beanClassLoader;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> Class&lt;T&gt; annotationClass;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> Environment environment;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">   <span class="function"><span class="keyword">protected</span> <span class="title">SpringFactoryImportSelector</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">this</span>.annotationClass = (Class&lt;T&gt;) GenericTypeResolver</span><br><span class="line">            .resolveTypeArgument(<span class="keyword">this</span>.getClass(), SpringFactoryImportSelector<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="keyword">public</span> String[] selectImports(AnnotationMetadata metadata) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!isEnabled()) &#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">new</span> String[<span class="number">0</span>];</span><br><span class="line">      &#125;</span><br><span class="line">      AnnotationAttributes attributes = AnnotationAttributes.fromMap(</span><br><span class="line">            metadata.getAnnotationAttributes(<span class="keyword">this</span>.annotationClass.getName(), <span class="keyword">true</span>));</span><br><span class="line"></span><br><span class="line">      Assert.notNull(attributes, <span class="string">"No "</span> + getSimpleName() + <span class="string">" attributes found. Is "</span></span><br><span class="line">            + metadata.getClassName() + <span class="string">" annotated with @"</span> + getSimpleName() + <span class="string">"?"</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// Find all possible auto configuration classes, filtering duplicates</span></span><br><span class="line">      List&lt;String&gt; factories = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="keyword">new</span> LinkedHashSet&lt;&gt;(SpringFactoriesLoader</span><br><span class="line">            .loadFactoryNames(<span class="keyword">this</span>.annotationClass, <span class="keyword">this</span>.beanClassLoader)));</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (factories.isEmpty() &amp;&amp; !hasDefaultFactory()) &#123;</span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Annotation @"</span> + getSimpleName()</span><br><span class="line">               + <span class="string">" found, but there are no implementations. Did you forget to include a starter?"</span>);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (factories.size() &gt; <span class="number">1</span>) &#123;</span><br><span class="line">         <span class="comment">// there should only ever be one DiscoveryClient, but there might be more than</span></span><br><span class="line">         <span class="comment">// one factory</span></span><br><span class="line">         log.warn(<span class="string">"More than one implementation "</span> + <span class="string">"of @"</span> + getSimpleName()</span><br><span class="line">               + <span class="string">" (now relying on @Conditionals to pick one): "</span> + factories);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> factories.toArray(<span class="keyword">new</span> String[factories.size()]);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   ···· <span class="comment">// 一些代码省略</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码较多，我们一点一点看</p>
+<h4 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h4><p>首先看他的构造方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="title">SpringFactoryImportSelector</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   <span class="keyword">this</span>.annotationClass = (Class&lt;T&gt;) GenericTypeResolver</span><br><span class="line">         .resolveTypeArgument(<span class="keyword">this</span>.getClass(), SpringFactoryImportSelector<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里主要是将注解类进行实例化，其实现，就是刚刚的那个泛型<code>EnableCircuitBreaker</code></p>
+<h4 id="selectImport"><a href="#selectImport" class="headerlink" title="selectImport"></a>selectImport</h4><p>然后我们再看selectImport方法，这个方法主要目的就是选择一个类，为我们的断路器实现类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> String[] selectImports(AnnotationMetadata metadata) &#123;</span><br><span class="line">   <span class="keyword">if</span> (!isEnabled()) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> String[<span class="number">0</span>];</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">// 获取注解类中的属性</span></span><br><span class="line">   AnnotationAttributes attributes = AnnotationAttributes.fromMap(</span><br><span class="line">         metadata.getAnnotationAttributes(<span class="keyword">this</span>.annotationClass.getName(), <span class="keyword">true</span>));</span><br><span class="line"></span><br><span class="line">   ··· <span class="comment">// 省略</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// 从spring.factories中加载自动配置类</span></span><br><span class="line">   <span class="comment">// Find all possible auto configuration classes, filtering duplicates</span></span><br><span class="line">   List&lt;String&gt; factories = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="keyword">new</span> LinkedHashSet&lt;&gt;(SpringFactoriesLoader</span><br><span class="line">         .loadFactoryNames(<span class="keyword">this</span>.annotationClass, <span class="keyword">this</span>.beanClassLoader)));</span><br><span class="line"></span><br><span class="line">   ··· <span class="comment">// 省略</span></span><br><span class="line">   <span class="keyword">return</span> factories.toArray(<span class="keyword">new</span> String[factories.size()]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="1-获取注解类中的属性"><a href="#1-获取注解类中的属性" class="headerlink" title="1.获取注解类中的属性"></a>1.获取注解类中的属性</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">AnnotationAttributes attributes = AnnotationAttributes.fromMap(</span><br><span class="line">         metadata.getAnnotationAttributes(<span class="keyword">this</span>.annotationClass.getName(), <span class="keyword">true</span>));</span><br></pre></td></tr></table></figure>
+
+<p>这里代码的意思就是将注解类里的注解信息进行保存</p>
+<p>因为<code>EnableCircuitBreaker</code>中是空的，属性对于他来说不明显，这里我们换个类来解析下，比如<code>@EnableCaching</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(ElementType.TYPE)</span><br><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Import</span>(CachingConfigurationSelector<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> @<span class="title">interface</span> <span class="title">EnableCaching</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">boolean</span> <span class="title">proxyTargetClass</span><span class="params">()</span> <span class="keyword">default</span> <span class="keyword">false</span></span>;</span><br><span class="line"></span><br><span class="line">   <span class="function">AdviceMode <span class="title">mode</span><span class="params">()</span> <span class="keyword">default</span> AdviceMode.PROXY</span>;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">int</span> <span class="title">order</span><span class="params">()</span> <span class="keyword">default</span> Ordered.LOWEST_PRECEDENCE</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到有三个属性，对于<code>AnnotationAttributes</code>来说，是将这些属性保存在<code>LinkedHashMap</code>里的，其方法名为<code>key</code>，值为<code>value</code>，即<code>proxyTargetClass</code>为<code>key</code>，<code>false</code>为<code>value</code></p>
+<h5 id="2-从spring-factories中加载自动配置类"><a href="#2-从spring-factories中加载自动配置类" class="headerlink" title="2.从spring.factories中加载自动配置类"></a>2.从spring.factories中加载自动配置类</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; factories = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="keyword">new</span> LinkedHashSet&lt;&gt;(SpringFactoriesLoader</span><br><span class="line">         .loadFactoryNames(<span class="keyword">this</span>.annotationClass, <span class="keyword">this</span>.beanClassLoader)));</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到<code>SpringFactoriesLoader</code>，即从<code>META-INF/spring.factories</code>中加载名称叫<code>this.annotationClass</code>，即<code>EnableCircuitBreaker</code>的自动配置类，这里我们可以全局搜一下<code>EnableCircuitBreaker</code></p>
+<p><img src="/image/1575947807445.png" alt="1575947807445"></p>
+<p><img src="/image/1575947827188.png" alt="1575947827188"></p>
+<p>即会获取到<code>HystrixCircuitBreakerConfiguration</code>，这个自动配置类</p>
+<h5 id="3-返回数组"><a href="#3-返回数组" class="headerlink" title="3.返回数组"></a>3.返回数组</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> factories.toArray(<span class="keyword">new</span> String[factories.size()]);</span><br></pre></td></tr></table></figure>
+
+<p>将获取到的自动配置类集合转成数组返回</p>
+<h2 id="二、NetFlix-Hystrix"><a href="#二、NetFlix-Hystrix" class="headerlink" title="二、NetFlix Hystrix"></a>二、NetFlix Hystrix</h2><p>我们接着<code>HystrixCircuitBreakerConfiguration</code>分析，因为接下来的源码都属于Hystrix包，所以另开了一个标题</p>
+<h3 id="HystrixCircuitBreakerConfiguration"><a href="#HystrixCircuitBreakerConfiguration" class="headerlink" title="HystrixCircuitBreakerConfiguration"></a>HystrixCircuitBreakerConfiguration</h3><p>在这个配置类中，有几个重要的组件</p>
+<h4 id="HystrixShutdownHook"><a href="#HystrixShutdownHook" class="headerlink" title="HystrixShutdownHook"></a>HystrixShutdownHook</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">HystrixShutdownHook</span> <span class="keyword">implements</span> <span class="title">DisposableBean</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">      <span class="comment">// Just call Hystrix to reset thread pool etc.</span></span><br><span class="line">      Hystrix.reset();</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个组件主要功能是在<code>Hystrix shutdown</code>的时候，做一些清理工作</p>
+<h4 id="HystrixWebConfiguration"><a href="#HystrixWebConfiguration" class="headerlink" title="HystrixWebConfiguration"></a>HystrixWebConfiguration</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty</span>(value = <span class="string">"hystrix.stream.endpoint.enabled"</span>, matchIfMissing = <span class="keyword">true</span>)</span><br><span class="line"><span class="meta">@ConditionalOnWebApplication</span></span><br><span class="line"><span class="meta">@ConditionalOnClass</span>(&#123; Endpoint<span class="class">.<span class="keyword">class</span>, <span class="title">HystrixMetricsStreamServlet</span>.<span class="title">class</span> &#125;)</span></span><br><span class="line"><span class="class"><span class="title">protected</span> <span class="title">static</span> <span class="title">class</span> <span class="title">HystrixWebConfiguration</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Bean</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> HystrixStreamEndpoint <span class="title">hystrixStreamEndpoint</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> HystrixStreamEndpoint();</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Bean</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> HasFeatures <span class="title">hystrixStreamFeature</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> HasFeatures.namedFeature(<span class="string">"Hystrix Stream Servlet"</span>, HystrixStreamEndpoint<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个组件主要是开启Hystrix的<code>Stream EndPoint</code>，即可以访问<code>/hystrix.stream</code>来查看流信息，以及配合<code>HystrixDashboard</code>进行监控</p>
+<h4 id="HystrixMetricsPollerConfiguration"><a href="#HystrixMetricsPollerConfiguration" class="headerlink" title="HystrixMetricsPollerConfiguration"></a>HystrixMetricsPollerConfiguration</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty</span>(value = <span class="string">"hystrix.metrics.enabled"</span>, matchIfMissing = <span class="keyword">true</span>)</span><br><span class="line"><span class="meta">@ConditionalOnClass</span>(&#123; HystrixMetricsPoller<span class="class">.<span class="keyword">class</span>, <span class="title">GaugeService</span>.<span class="title">class</span> &#125;)</span></span><br><span class="line"><span class="class">@<span class="title">EnableConfigurationProperties</span>(<span class="title">HystrixMetricsProperties</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">protected</span> <span class="title">static</span> <span class="title">class</span> <span class="title">HystrixMetricsPollerConfiguration</span> <span class="keyword">implements</span> <span class="title">SmartLifecycle</span> </span>&#123;</span><br></pre></td></tr></table></figure>
+
+<p>这个类是配置Hystrix的<code>metrics</code>指标，也不做过多介绍了</p>
+<h4 id="HystrixCommandAspect"><a href="#HystrixCommandAspect" class="headerlink" title="HystrixCommandAspect"></a>HystrixCommandAspect</h4><p>Hystrix的命令切面，也是主要实现熔断的切面类，也是Hystrix最重要的类之一</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HystrixCommandAspect</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Pointcut</span>(<span class="string">"@annotation(com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand)"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">hystrixCommandAnnotationPointcut</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Pointcut</span>(<span class="string">"@annotation(com.netflix.hystrix.contrib.javanica.annotation.HystrixCollapser)"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">hystrixCollapserAnnotationPointcut</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个类中，首先可以看到两个切点</p>
+<ul>
+<li><code>HystrixCommand</code>：我们常用的配置熔断的注解</li>
+<li><code>HystrixCollapser</code>：批量熔断的一个注解，不常用</li>
+</ul>
+<p>接着往下看重要的方法<code>methodsAnnotatedWithHystrixCommand()</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Around</span>(<span class="string">"hystrixCommandAnnotationPointcut() || hystrixCollapserAnnotationPointcut()"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">methodsAnnotatedWithHystrixCommand</span><span class="params">(<span class="keyword">final</span> ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">    Method method = getMethodFromTarget(joinPoint);</span><br><span class="line">    Validate.notNull(method, <span class="string">"failed to get method from joinPoint: %s"</span>, joinPoint);</span><br><span class="line">    <span class="keyword">if</span> (method.isAnnotationPresent(HystrixCommand<span class="class">.<span class="keyword">class</span>) &amp;&amp; <span class="title">method</span>.<span class="title">isAnnotationPresent</span>(<span class="title">HystrixCollapser</span>.<span class="title">class</span>)) </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"method cannot be annotated with HystrixCommand and HystrixCollapser "</span> +</span><br><span class="line">                <span class="string">"annotations at the same time"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    MetaHolderFactory metaHolderFactory = META_HOLDER_FACTORY_MAP.get(HystrixPointcutType.of(method));</span><br><span class="line">    MetaHolder metaHolder = metaHolderFactory.create(joinPoint);</span><br><span class="line">    HystrixInvokable invokable = HystrixCommandFactory.getInstance().create(metaHolder);</span><br><span class="line">    ExecutionType executionType = metaHolder.isCollapserAnnotationPresent() ?</span><br><span class="line">            metaHolder.getCollapserExecutionType() : metaHolder.getExecutionType();</span><br><span class="line"></span><br><span class="line">    Object result;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (!metaHolder.isObservable()) &#123;</span><br><span class="line">            result = CommandExecutor.execute(invokable, executionType, metaHolder);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            result = executeObservable(invokable, executionType, metaHolder);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (HystrixBadRequestException e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> e.getCause() != <span class="keyword">null</span> ? e.getCause() : e;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (HystrixRuntimeException e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> hystrixRuntimeExceptionToThrowable(metaHolder, e);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们一步步的分析：</p>
+<h5 id="切点拦截"><a href="#切点拦截" class="headerlink" title="切点拦截"></a>切点拦截</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Around</span>(<span class="string">"hystrixCommandAnnotationPointcut() || hystrixCollapserAnnotationPointcut()"</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这里，第一眼可以看到<code>@Around</code>中添加了上面所说的那两个切点，所以，当有方法添加了这两个注解时，便会被这个切面类拦截。</p>
+<h5 id="Method信息保存"><a href="#Method信息保存" class="headerlink" title="Method信息保存"></a>Method信息保存</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Method method = getMethodFromTarget(joinPoint);</span><br></pre></td></tr></table></figure>
+
+<p>接着来到了这个方法，是获取被拦截方法的信息，保存到<code>Method</code>中。</p>
+<h5 id="MetaHolderFactory的初始化"><a href="#MetaHolderFactory的初始化" class="headerlink" title="MetaHolderFactory的初始化"></a>MetaHolderFactory的初始化</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MetaHolderFactory metaHolderFactory = META_HOLDER_FACTORY_MAP.get(HystrixPointcutType.of(method));</span><br></pre></td></tr></table></figure>
+
+<p>再接着，是根据这个方法的Hystrix注解，判断是<code>@HystrixCommand</code>还是<code>@HystrixCollapser</code>来进行<code>MetaHolderFactory</code>的初始化，这里debug查看一下：</p>
+<p><img src="/image/1575961756881.png" alt="1575961756881"></p>
+<p>这里可以清楚的看到，因为方法上我们添加的是<code>@HystrixCommand</code>，所以工厂的实现是<code>CommandMetaHolderFactory</code>。</p>
+<h5 id="MetaHolder的实例化"><a href="#MetaHolder的实例化" class="headerlink" title="MetaHolder的实例化"></a>MetaHolder的实例化</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MetaHolder metaHolder = metaHolderFactory.create(joinPoint);</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到，通过工厂创建了一个<code>MetaHolder</code>对象，对于此对象，保存的是方法信息，熔断设置等等。</p>
+<p>比如方法名，返回值类型，熔断条件，<code>fallback</code>方法等，其实就是我们在那个类上设置的信息：</p>
+<p><img src="/image/1575962054823.png" alt="1575962054823"></p>
+<h5 id="HystrixInvokable的实例化"><a href="#HystrixInvokable的实例化" class="headerlink" title="HystrixInvokable的实例化"></a>HystrixInvokable的实例化</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HystrixInvokable invokable = HystrixCommandFactory.getInstance().create(metaHolder);</span><br></pre></td></tr></table></figure>
+
+<p><code>HystrixInvokable</code>看名字，可以猜到是Hystrix熔断的可执行器，它本身是一个空方法，主要实现还是由下面的初始化来进行选择。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> HystrixInvokable <span class="title">create</span><span class="params">(MetaHolder metaHolder)</span> </span>&#123;</span><br><span class="line">    HystrixInvokable executable;</span><br><span class="line">    <span class="keyword">if</span> (metaHolder.isCollapserAnnotationPresent()) &#123;</span><br><span class="line">        executable = <span class="keyword">new</span> CommandCollapser(metaHolder);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (metaHolder.isObservable()) &#123;</span><br><span class="line">        executable = <span class="keyword">new</span> GenericObservableCommand(HystrixCommandBuilderFactory.getInstance().create(metaHolder));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        executable = <span class="keyword">new</span> GenericCommand(HystrixCommandBuilderFactory.getInstance().create(metaHolder));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> executable;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里有三个判断</p>
+<ul>
+<li>对于<code>Collasper</code>注解的使用<code>CommandCollapser</code>实现</li>
+<li>对于实现了<code>isObservable</code>，观察者模式的，使用<code>GenericObservableCommand</code>实现（属于<code>RxJava</code>的东西）</li>
+<li>其他情况，即普通情况，使用<code>GenericCommand</code>，也是最常用的实现方法</li>
+</ul>
+<p>所以，实际实现是由<code>GenericCommand</code>实现</p>
+<p>这个类也很简单，就是对<code>execute</code>和<code>fallback</code>方法的执行做了实现，主要使用的是==反射==</p>
+<h5 id="方法的执行"><a href="#方法的执行" class="headerlink" title="方法的执行"></a>方法的执行</h5><p>最终来到最重要的一步，拦截方法的执行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result = CommandExecutor.execute(invokable, executionType, metaHolder);</span><br></pre></td></tr></table></figure>
+
+<p>进一步跟进</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title">execute</span><span class="params">(HystrixInvokable invokable, ExecutionType executionType, MetaHolder metaHolder)</span> <span class="keyword">throws</span> RuntimeException </span>&#123;</span><br><span class="line">    Validate.notNull(invokable);</span><br><span class="line">    Validate.notNull(metaHolder);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (executionType) &#123;</span><br><span class="line">        <span class="keyword">case</span> SYNCHRONOUS: &#123;</span><br><span class="line">            <span class="keyword">return</span> castToExecutable(invokable, executionType).execute();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">case</span> ASYNCHRONOUS: &#123;</span><br><span class="line">            HystrixExecutable executable = castToExecutable(invokable, executionType);</span><br><span class="line">            <span class="keyword">if</span> (metaHolder.hasFallbackMethodCommand()</span><br><span class="line">                    &amp;&amp; ExecutionType.ASYNCHRONOUS == metaHolder.getFallbackExecutionType()) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> FutureDecorator(executable.queue());</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> executable.queue();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">case</span> OBSERVABLE: &#123;</span><br><span class="line">            HystrixObservable observable = castToObservable(invokable);</span><br><span class="line">            <span class="keyword">return</span> ObservableExecutionMode.EAGER == metaHolder.getObservableExecutionMode() ? observable.observe() : observable.toObservable();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"unsupported execution type: "</span> + executionType);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到，会判断是异步，同步 或者观察者模式的，进行不同的实现</p>
+<p>常用的还是异步，即<code>castToExecutable()</code>方法，把<code>HystrixInvokable</code>转成<code>HystrixExecutable</code>，进而使用<code>HystrixCommand</code>的<code>execute</code>方法执行。</p>
+<p>这里就不往下跟进了，实际就是使用了<code>Future</code>，异步多线程执行方法，也是在这里判断是否需要熔断的，真正触发的调用还是由<code>GenericCommand</code>完成。</p>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><ol>
+<li>拦截标注 <code>@HystrixCommand</code> 或 <code>@HystrixCollapser</code> 的方法（<code>@Around</code>）</li>
+<li>生成拦截⽅方法原信息，通过<code>MetaHolderFactory</code>，对于不同的注解<code>Command</code>或<code>Collasper</code>，使用的工厂不同</li>
+<li>生成 <code>HystrixInvokable</code>，通过<code>HystrixCommandFactory</code>，通过情况下由<code>GenericCommand</code>实现</li>
+<li>执行方法，判断异步，同步或观察者模式，进行不同的转换</li>
+<li>通过情况下，把<code>HystrixInvokable</code>转成<code>HystrixExecutable</code>，进而使用<code>HystrixCommand</code>的<code>execute</code>方法执行。</li>
+<li>最后通过<code>Future</code>异步执行，判断是否需要熔断，最终方法的调用或者<code>fallback</code>方法的调用是由<code>GenericCommand</code>完成</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springcloud/" rel="tag"># springcloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/23/08-SpringCloud-Ribbon-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="next" title="08.SpringCloud Ribbon 源码分析">
+                <i class="fa fa-chevron-left"></i> 08.SpringCloud Ribbon 源码分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/23/09-SpringCloud-Hystrix-Basic/" rel="prev" title="09.SpringCloud Hystrix Basic">
+                09.SpringCloud Hystrix Basic <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、SpringCloud-CircuitBreaker"><span class="nav-number">1.</span> <span class="nav-text">一、SpringCloud CircuitBreaker</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#EnableCircuitBreake"><span class="nav-number">1.1.</span> <span class="nav-text">@EnableCircuitBreake</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EnableCircuitBreakerImportSelector"><span class="nav-number">1.2.</span> <span class="nav-text">EnableCircuitBreakerImportSelector</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SpringFactoryImportSelector"><span class="nav-number">1.3.</span> <span class="nav-text">SpringFactoryImportSelector</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#构造方法"><span class="nav-number">1.3.1.</span> <span class="nav-text">构造方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#selectImport"><span class="nav-number">1.3.2.</span> <span class="nav-text">selectImport</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-获取注解类中的属性"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">1.获取注解类中的属性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-从spring-factories中加载自动配置类"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">2.从spring.factories中加载自动配置类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-返回数组"><span class="nav-number">1.3.2.3.</span> <span class="nav-text">3.返回数组</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、NetFlix-Hystrix"><span class="nav-number">2.</span> <span class="nav-text">二、NetFlix Hystrix</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#HystrixCircuitBreakerConfiguration"><span class="nav-number">2.1.</span> <span class="nav-text">HystrixCircuitBreakerConfiguration</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#HystrixShutdownHook"><span class="nav-number">2.1.1.</span> <span class="nav-text">HystrixShutdownHook</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HystrixWebConfiguration"><span class="nav-number">2.1.2.</span> <span class="nav-text">HystrixWebConfiguration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HystrixMetricsPollerConfiguration"><span class="nav-number">2.1.3.</span> <span class="nav-text">HystrixMetricsPollerConfiguration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HystrixCommandAspect"><span class="nav-number">2.1.4.</span> <span class="nav-text">HystrixCommandAspect</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#切点拦截"><span class="nav-number">2.1.4.1.</span> <span class="nav-text">切点拦截</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Method信息保存"><span class="nav-number">2.1.4.2.</span> <span class="nav-text">Method信息保存</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MetaHolderFactory的初始化"><span class="nav-number">2.1.4.3.</span> <span class="nav-text">MetaHolderFactory的初始化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MetaHolder的实例化"><span class="nav-number">2.1.4.4.</span> <span class="nav-text">MetaHolder的实例化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#HystrixInvokable的实例化"><span class="nav-number">2.1.4.5.</span> <span class="nav-text">HystrixInvokable的实例化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方法的执行"><span class="nav-number">2.1.4.6.</span> <span class="nav-text">方法的执行</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#总结"><span class="nav-number">2.1.4.7.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

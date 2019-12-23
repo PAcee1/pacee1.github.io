@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springcloud," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、简单介绍1.服务发现在计算机网络中，一种自动发现设备或服务的技术，一般通过服务发现协议来实现。 常见的协议有：  Java：jini REST Web Service  2.服务注册在计算机网络中，为了更好的去治理服务，将服务注册到一个注册中心，统一管理，以便更好的被发现和消费，即服务注册。 常见的注册中心：  zookeeper：高一致性，损失高可用性，性能最差 Netflix Eureka">
+<meta property="og:type" content="article">
+<meta property="og:title" content="04.SpringCloud Eureka Basic">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/04-SpringCloud-Eureka-Basic/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、简单介绍1.服务发现在计算机网络中，一种自动发现设备或服务的技术，一般通过服务发现协议来实现。 常见的协议有：  Java：jini REST Web Service  2.服务注册在计算机网络中，为了更好的去治理服务，将服务注册到一个注册中心，统一管理，以便更好的被发现和消费，即服务注册。 常见的注册中心：  zookeeper：高一致性，损失高可用性，性能最差 Netflix Eureka">
+<meta property="og:image" content="http://yoursite.com/image/1575256930557.png">
+<meta property="og:image" content="http://yoursite.com/image/1575273528637.png">
+<meta property="og:image" content="http://yoursite.com/image/1575273728951.png">
+<meta property="og:image" content="http://yoursite.com/image/1575278784277.png">
+<meta property="og:image" content="http://yoursite.com/image/1575278972637.png">
+<meta property="og:image" content="http://yoursite.com/image/1575279066626.png">
+<meta property="og:image" content="http://yoursite.com/image/1575279400078.png">
+<meta property="og:image" content="http://yoursite.com/image/1575279469452.png">
+<meta property="og:image" content="http://yoursite.com/image/1575271730320.png">
+<meta property="og:image" content="http://yoursite.com/image/1575272095359.png">
+<meta property="og:image" content="http://yoursite.com/image/1575343701154.png">
+<meta property="og:image" content="http://yoursite.com/image/1575343770804.png">
+<meta property="og:image" content="http://yoursite.com/image/1575275305726.png">
+<meta property="og:image" content="http://yoursite.com/image/1575276075676.png">
+<meta property="og:image" content="http://yoursite.com/image/1575276768668.png">
+<meta property="article:published_time" content="2019-12-23T05:38:25.000Z">
+<meta property="article:modified_time" content="2019-12-23T05:39:33.917Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springcloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1575256930557.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/23/04-SpringCloud-Eureka-Basic/"/>
+
+
+
+
+
+  <title>04.SpringCloud Eureka Basic | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/23/04-SpringCloud-Eureka-Basic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">04.SpringCloud Eureka Basic</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-23T13:38:25+08:00">
+                2019-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springcloud/" itemprop="url" rel="index">
+                    <span itemprop="name">springcloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、简单介绍"><a href="#一、简单介绍" class="headerlink" title="一、简单介绍"></a>一、简单介绍</h2><h3 id="1-服务发现"><a href="#1-服务发现" class="headerlink" title="1.服务发现"></a>1.服务发现</h3><p>在计算机网络中，一种自动发现设备或服务的技术，一般通过服务发现协议来实现。</p>
+<p>常见的协议有：</p>
+<ul>
+<li>Java：jini</li>
+<li>REST</li>
+<li>Web Service</li>
+</ul>
+<h3 id="2-服务注册"><a href="#2-服务注册" class="headerlink" title="2.服务注册"></a>2.服务注册</h3><p>在计算机网络中，为了更好的去治理服务，将服务注册到一个注册中心，统一管理，以便更好的被发现和消费，即服务注册。</p>
+<p>常见的注册中心：</p>
+<ul>
+<li>zookeeper：高一致性，损失高可用性，性能最差</li>
+<li>Netflix Eureka：高可用但不高一致性</li>
+<li>Consul：两者结合，又高可用又高一致性，比较均衡，而且不止是注册中心，还能充当配置中心的角色，并且<strong>去中心化</strong></li>
+</ul>
+<a id="more"></a>
+
+<h3 id="3-Eureka"><a href="#3-Eureka" class="headerlink" title="3.Eureka"></a>3.Eureka</h3><p>Eureka是网飞公司发明的一种服务发现中间件，包括服务发现客户端与服务器 </p>
+<h2 id="二、Eureka-Server"><a href="#二、Eureka-Server" class="headerlink" title="二、Eureka Server"></a>二、Eureka Server</h2><p>Eureka服务端：是Eureka Client的注册中心，用于服务的注册，管理以及实例状态信息的管理。</p>
+<p>要在SpringCloud中使用Eureka Server，必要的两个条件为依赖与注解</p>
+<p>==注意：使用的SpringCloud的版本为Dalston.SR4，对于Finchley可能会有不同！==</p>
+<h3 id="添加Maven依赖"><a href="#添加Maven依赖" class="headerlink" title="添加Maven依赖"></a>添加Maven依赖</h3><p>在SpringCloud的基础上添加</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="添加SpringBoot配置"><a href="#添加SpringBoot配置" class="headerlink" title="添加SpringBoot配置"></a>添加SpringBoot配置</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## Spring Cloud Eureka 服务器应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span> = <span class="string">spring-cloud-eureka-server</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Spring Cloud Eureka 服务器服务端口</span></span><br><span class="line"><span class="meta">server.port</span> = <span class="string">9090</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 管理端口安全失效</span></span><br><span class="line"><span class="meta">management.security.enabled</span>= <span class="string">false</span></span><br></pre></td></tr></table></figure>
+
+<p>还是和之前一样，开启管理端点，配置应用名称与端口，一般来说，作为Server使用9090端口，而Client使用8080</p>
+<h3 id="激活Server"><a href="#激活Server" class="headerlink" title="激活Server"></a>激活Server</h3><p>在启动器类上添加<code>@EnableEurekaServer</code>注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableEurekaServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringCloudLesson4EurekaServerApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">      SpringApplication.run(SpringCloudLesson4EurekaServerApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="一些问题"><a href="#一些问题" class="headerlink" title="一些问题"></a>一些问题</h3><h4 id="1-启动报错"><a href="#1-启动报错" class="headerlink" title="1.启动报错"></a>1.启动报错</h4><blockquote>
+<p>com.netflix.discovery.shared.transport.TransportException: Cannot execute request on any known server</p>
+</blockquote>
+<p>在启动时，会发现报错，这时我们访问9090是可以访问的，再查看下健康状态：</p>
+<p><img src="/image/1575256930557.png" alt="1575256930557"></p>
+<p>可以发现是正常的，并且有一个猫腻：<code>Spring Cloud Eureka Discovery Client</code></p>
+<p>这说明SpringCloud Eureka Server既是服务端又是客户端，所以：</p>
+<p>==eureka默认会把自己也作为客户端注册自己，所以便会出现这个问题==</p>
+<p>解决方法：关闭eureka自注册功能与向注册中心获取注册信息</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 关闭eureka自注册</span></span><br><span class="line"><span class="meta">eureka.client.register-with-eureka</span>=<span class="string">false</span></span><br><span class="line"><span class="comment">### 取消向注册中心获取注册信息（服务、实例信息）</span></span><br><span class="line"><span class="meta">eureka.client.fetch-registry</span> = <span class="string">false</span></span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是：==这个配置是在单节点时添加的，如果是集群状态，就不需要配置了==</p>
+<h4 id="2-连接报错"><a href="#2-连接报错" class="headerlink" title="2.连接报错"></a>2.连接报错</h4><p>在控制台，启动后会一直刷新报错：</p>
+<blockquote>
+<p>Caused by: org.apache.http.conn.ConnectTimeoutException: Connect to localhost:8761 timed out</p>
+</blockquote>
+<p>这个原因是在Eureka的<code>EurekaClientConfigBean</code>中，默认的服务器配置为</p>
+<p><img src="/image/1575273528637.png" alt="1575273528637"></p>
+<h5 id="自连接解决"><a href="#自连接解决" class="headerlink" title="自连接解决"></a>自连接解决</h5><p>我们8761这个端口并没有应用，所以我们一种解决方法就是覆盖此配置，在配置文件中设置让其Server自己连自己：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">eureka.client.service-url.defaultZone</span>=<span class="string">http://localhost:9090/eureka</span></span><br></pre></td></tr></table></figure>
+
+<p>更改后可以发现，服务端注册地址改为了我们自己，并且控制台不再报错</p>
+<p><img src="/image/1575273728951.png" alt="1575273728951"></p>
+<h5 id="修改配置解决"><a href="#修改配置解决" class="headerlink" title="修改配置解决"></a>修改配置解决</h5><p>碰到这个问题，我们还有一种思考方式，进入源码查看，看看这个peer集群在单机情况下能否关闭</p>
+<p><img src="/image/1575278784277.png" alt="1575278784277"></p>
+<p>启动时可以看到，是在<code>PeerEurekaNodes</code>类中进行的添加集群节点，进入查看源码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> List&lt;String&gt; <span class="title">resolvePeerUrls</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    InstanceInfo myInfo = applicationInfoManager.getInfo();</span><br><span class="line">    String zone = InstanceInfo.getZone(clientConfig.getAvailabilityZones(clientConfig.getRegion()), myInfo);</span><br><span class="line">    List&lt;String&gt; replicaUrls = EndpointUtils</span><br><span class="line">            .getDiscoveryServiceUrls(clientConfig, zone, <span class="keyword">new</span> EndpointUtils.InstanceInfoBasedUrlRandomizer(myInfo));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> idx = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (idx &lt; replicaUrls.size()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (isThisMyUrl(replicaUrls.get(idx))) &#123;</span><br><span class="line">            replicaUrls.remove(idx);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            idx++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> replicaUrls;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>会发现有一个<code>resolvePeerUrls</code>的方法，我们打断点看看，会不会进来：</p>
+<p><img src="/image/1575278972637.png" alt="1575278972637"></p>
+<p>正确进入，并且发现，如果<code>isThisMyUrl()</code>判断为true的话，会将这个默认节点删除，这就是我们想要的！</p>
+<p>再进入<code>isThisMyUrl</code>打断点看看：</p>
+<p><img src="/image/1575279066626.png" alt="1575278676012"></p>
+<p>会发现格式化后url为<code>localhost</code>，而<code>instance.getHostName()</code>为计算机的名称，这里就有说法了，是不是只要在<code>EurekaInstanceConfigBean</code>中配置<code>hostName</code>这个属性，就能实现8761这个节点的去除，即不再报错呢？</p>
+<p>先看下这个类中是否有这个属性：</p>
+<p><img src="/image/1575279400078.png" alt="1575279400078"></p>
+<p>果然有，进入到配置文件中配置试一下</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">eureka.instance.hostname</span> = <span class="string">localhost</span></span><br></pre></td></tr></table></figure>
+
+<p>再次启动，看看节点是否被删除</p>
+<p><img src="/image/1575279469452.png" alt="1575279469452"></p>
+<p>果然执行了删除节点的方法，并且控制台不报错了。</p>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 直接删除peer节点，单机启动</span></span><br><span class="line"><span class="meta">eureka.instance.hostname</span> = <span class="string">localhost</span></span><br><span class="line"><span class="comment">#自连接解决</span></span><br><span class="line"><span class="comment">#eureka.client.service-url.defaultZone=http://localhost:9090/eureka</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="三、Eureka-Client"><a href="#三、Eureka-Client" class="headerlink" title="三、Eureka Client"></a>三、Eureka Client</h2><p>Eureka Client为当前服务提供注册，同步的功能，同步注册到Server上，并且具有查找服务，获取实例信息的能力等。</p>
+<h3 id="添加Maven依赖-1"><a href="#添加Maven依赖-1" class="headerlink" title="添加Maven依赖"></a>添加Maven依赖</h3><p>在SpringCloud的基础上</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="添加SpringBoot配置-1"><a href="#添加SpringBoot配置-1" class="headerlink" title="添加SpringBoot配置"></a>添加SpringBoot配置</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## Spring Cloud Eureka 客户端应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span> = <span class="string">spring-cloud-eureka-client</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Spring Cloud Eureka 客户端服务端口</span></span><br><span class="line"><span class="meta">server.port</span> = <span class="string">8080</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 管理端口安全失效</span></span><br><span class="line"><span class="meta">management.security.enabled</span> = <span class="string">false</span></span><br></pre></td></tr></table></figure>
+
+<p>这里使用8080做客户端端口</p>
+<h3 id="激活Client"><a href="#激活Client" class="headerlink" title="激活Client"></a>激活Client</h3><p>激活方式也很简单，一样是添加注解，这里有两种注解以供选择：</p>
+<ul>
+<li>@EnableEurekaClient：Eureka的客户端，如果是使用其他方式如Consul便需要修改</li>
+<li>@EnableDiscoveryClient：推荐使用这种，因为支持所有客户端实现，修改时只需重启即可</li>
+</ul>
+<h3 id="添加Eureka-Client配置"><a href="#添加Eureka-Client配置" class="headerlink" title="添加Eureka Client配置"></a>添加Eureka Client配置</h3><p><code>bootstrap.properties</code></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">eureka.client.serviceUrl.defaultZone</span> = <span class="string">http://localhost:9090/eureka</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="其他的一些配置"><a href="#其他的一些配置" class="headerlink" title="其他的一些配置"></a>其他的一些配置</h3><h4 id="1-调整状态页面"><a href="#1-调整状态页面" class="headerlink" title="1.调整状态页面"></a>1.调整状态页面</h4><p><img src="/image/1575271730320.png" alt="1575271730320"></p>
+<p>启动成功后，如果点开应用Status，默认前往info页面，可以添加一些配置来修改此跳转地址</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 调整状态页面</span></span><br><span class="line"><span class="meta">eureka.instance.status-page-url-path</span>=<span class="string">/status</span></span><br><span class="line"><span class="comment"># 调整健康检查页面</span></span><br><span class="line"><span class="meta">eureka.instance.health-check-url-path</span>=<span class="string">/health</span></span><br></pre></td></tr></table></figure>
+
+<p>修改后再次查看</p>
+<p><img src="/image/1575272095359.png" alt="1575272095359"></p>
+<p>发现地址正确修改，点击也转跳到status页面，注：status是自己写的一个controller，仅返回OK字符串</p>
+<h4 id="2-调整Client显示信息"><a href="#2-调整Client显示信息" class="headerlink" title="2.调整Client显示信息"></a>2.调整Client显示信息</h4><p><img src="/image/1575343701154.png" alt="1575343701154"></p>
+<p>Eureka Server上显示的客户端信息为<code>主机名+应用名称+PORT</code>，</p>
+<p>但是一般情况下都是使用<code>IP：PORT</code>，就需要我们修改下配置文件：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置信息</span></span><br><span class="line"><span class="meta">eureka.instance.prefer-ip-address</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">eureka.instance.instance-id</span>=<span class="string">$&#123;spring.cloud.client.ipAddress&#125;:$&#123;server.port&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1575343770804.png" alt="1575343770804"></p>
+<p>修改完后正确显示信息</p>
+<h2 id="四、整合SpringCloud-Config"><a href="#四、整合SpringCloud-Config" class="headerlink" title="四、整合SpringCloud Config"></a>四、整合SpringCloud Config</h2><p>首先我们要做的是把Config也当做Eureka Client注册到Eureka Server中</p>
+<h3 id="配置Config"><a href="#配置Config" class="headerlink" title="配置Config"></a>配置Config</h3><p><strong>1.添加Maven依赖</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 增加 Eureka Client --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-config-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>2.修改<code>application.properties</code></strong></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 修改应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span>=<span class="string">spring-cloud-client-server</span></span><br><span class="line"><span class="comment"># 修改端口 7070</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">7070</span></span><br><span class="line"><span class="comment"># 关闭actouator</span></span><br><span class="line"><span class="meta">management.security.enabled</span>=<span class="string">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置远程git仓库</span></span><br><span class="line"><span class="meta">spring.cloud.config.server.git.url</span>=<span class="string">https://github.com/PAcee1/temp</span></span><br><span class="line"><span class="comment"># 强制拉取git信息</span></span><br><span class="line"><span class="meta">spring.cloud.config.server.git.force-pull</span>=<span class="string">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 注册到Eureka</span></span><br><span class="line"><span class="meta">eureka.clent.service-url.defaultZone</span>=<span class="string">http://localhost:9090/eureka</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>3.启动类添加组件</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableConfigServer</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringCloudLesson4ConfigServerApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">      SpringApplication.run(SpringCloudLesson4ConfigServerApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>4.启动测试</p>
+<p><img src="/image/1575275305726.png" alt="1575275305726"></p>
+<p>正确注册到Eureka服务器中</p>
+<h3 id="配置Eureka-Client"><a href="#配置Eureka-Client" class="headerlink" title="配置Eureka Client"></a>配置Eureka Client</h3><p>第二步需要在之前配置的Eureka Client中连接SpringCloud Config</p>
+<p><strong>1.添加Config依赖</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 增加 Spring Cloud Config 客户端依赖 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-config<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>2.在bootstrap.propertis中配置Config信息进行连接</strong></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 配置SpringCloud Config</span></span><br><span class="line"><span class="comment"># Config 名称</span></span><br><span class="line"><span class="meta">spring.cloud.config.name</span>=<span class="string">enbuys</span></span><br><span class="line"><span class="comment"># Config 的 profile</span></span><br><span class="line"><span class="meta">spring.cloud.config.profile</span>=<span class="string">prod</span></span><br><span class="line"><span class="comment"># Config 的 label</span></span><br><span class="line"><span class="meta">spring.cloud.config.label</span>=<span class="string">master</span></span><br><span class="line"><span class="comment"># 配置Config 服务发现</span></span><br><span class="line"><span class="meta">spring.cloud.config.discovery.enabled</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.cloud.config.discovery.service-id</span>=<span class="string">spring-cloud-config-server</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>3.启动测试</strong></p>
+<p><img src="/image/1575276075676.png" alt="1575276075676"></p>
+<p>可以看到成功连接，并且打印出文件信息，访问<a href="http://localhost:8080/env" target="_blank" rel="noopener">http://localhost:8080/env</a></p>
+<p><img src="/image/1575276768668.png" alt="1575276768668"></p>
+<p>也正确被加载</p>
+<h3 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h3><p>之前Client直接连接ConfigServer，使用的配置文件为：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">spring.cloud.config.name</span> = <span class="string">enbuys</span></span><br><span class="line"><span class="meta">spring.cloud.config.profile</span> = <span class="string">prod</span></span><br><span class="line"><span class="meta">spring.cloud.config.label</span> = <span class="string">master</span></span><br><span class="line"></span><br><span class="line"><span class="meta">spring.cloud.config.uri</span> = <span class="string">http://127.0.0.1:9090/</span></span><br></pre></td></tr></table></figure>
+
+<p>可以发现前三个都一样，最后一个绑定config的uri时，使用的写死的地址，这时如果我们配置中心地址修改等，不仅配置中心需要重启服务，客户端也需要修改，这样就降低了高可用性。</p>
+<p>现在Client连接Config Server，是通过Eureka Server进行连接的，配置文件为：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置Config 服务发现</span></span><br><span class="line"><span class="meta">spring.cloud.config.discovery.enabled</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.cloud.config.discovery.service-id</span>=<span class="string">spring-cloud-config-server</span></span><br></pre></td></tr></table></figure>
+
+<p>所以，当Config Server修改了地址，只要不修改应用名称，都不用重启服务</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springcloud/" rel="tag"># springcloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/23/03springcloud-config-server/" rel="next" title="03.Springcloud Config Server">
+                <i class="fa fa-chevron-left"></i> 03.Springcloud Config Server
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/23/05-SpringCloud-Eureka-%E9%AB%98%E5%8F%AF%E7%94%A8/" rel="prev" title="05.SpringCloud Eureka 高可用">
+                05.SpringCloud Eureka 高可用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、简单介绍"><span class="nav-number">1.</span> <span class="nav-text">一、简单介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-服务发现"><span class="nav-number">1.1.</span> <span class="nav-text">1.服务发现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-服务注册"><span class="nav-number">1.2.</span> <span class="nav-text">2.服务注册</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Eureka"><span class="nav-number">1.3.</span> <span class="nav-text">3.Eureka</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、Eureka-Server"><span class="nav-number">2.</span> <span class="nav-text">二、Eureka Server</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#添加Maven依赖"><span class="nav-number">2.1.</span> <span class="nav-text">添加Maven依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加SpringBoot配置"><span class="nav-number">2.2.</span> <span class="nav-text">添加SpringBoot配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#激活Server"><span class="nav-number">2.3.</span> <span class="nav-text">激活Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一些问题"><span class="nav-number">2.4.</span> <span class="nav-text">一些问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-启动报错"><span class="nav-number">2.4.1.</span> <span class="nav-text">1.启动报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-连接报错"><span class="nav-number">2.4.2.</span> <span class="nav-text">2.连接报错</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#自连接解决"><span class="nav-number">2.4.2.1.</span> <span class="nav-text">自连接解决</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#修改配置解决"><span class="nav-number">2.4.2.2.</span> <span class="nav-text">修改配置解决</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#总结"><span class="nav-number">2.4.2.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、Eureka-Client"><span class="nav-number">3.</span> <span class="nav-text">三、Eureka Client</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#添加Maven依赖-1"><span class="nav-number">3.1.</span> <span class="nav-text">添加Maven依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加SpringBoot配置-1"><span class="nav-number">3.2.</span> <span class="nav-text">添加SpringBoot配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#激活Client"><span class="nav-number">3.3.</span> <span class="nav-text">激活Client</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加Eureka-Client配置"><span class="nav-number">3.4.</span> <span class="nav-text">添加Eureka Client配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他的一些配置"><span class="nav-number">3.5.</span> <span class="nav-text">其他的一些配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-调整状态页面"><span class="nav-number">3.5.1.</span> <span class="nav-text">1.调整状态页面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-调整Client显示信息"><span class="nav-number">3.5.2.</span> <span class="nav-text">2.调整Client显示信息</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、整合SpringCloud-Config"><span class="nav-number">4.</span> <span class="nav-text">四、整合SpringCloud Config</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#配置Config"><span class="nav-number">4.1.</span> <span class="nav-text">配置Config</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置Eureka-Client"><span class="nav-number">4.2.</span> <span class="nav-text">配置Eureka Client</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#好处"><span class="nav-number">4.3.</span> <span class="nav-text">好处</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

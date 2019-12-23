@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springcloud," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="SpringCloud 大整合首先放一张自己制作的SpringCloud拓扑图  根据这张图我们进行整合">
+<meta property="og:type" content="article">
+<meta property="og:title" content="99.SpringCloud 整合">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/99-SpringCloud-%E6%95%B4%E5%90%88/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="SpringCloud 大整合首先放一张自己制作的SpringCloud拓扑图  根据这张图我们进行整合">
+<meta property="og:image" content="http://yoursite.com/image/1576639341793.png">
+<meta property="og:image" content="http://yoursite.com/image/1576639659784.png">
+<meta property="og:image" content="http://yoursite.com/image/1576647613294.png">
+<meta property="og:image" content="http://yoursite.com/image/1576648288395.png">
+<meta property="og:image" content="http://yoursite.com/image/1576648445626.png">
+<meta property="og:image" content="http://yoursite.com/image/1576654443956.png">
+<meta property="og:image" content="http://yoursite.com/image/1576654585332.png">
+<meta property="og:image" content="http://yoursite.com/image/1576661976566.png">
+<meta property="og:image" content="http://yoursite.com/image/1576662231803.png">
+<meta property="og:image" content="http://yoursite.com/image/1576662537218.png">
+<meta property="og:image" content="http://yoursite.com/image/1576662506647.png">
+<meta property="og:image" content="http://yoursite.com/image/1576662487062.png">
+<meta property="og:image" content="http://yoursite.com/2019/12/23//image/1576662415017.png">
+<meta property="og:image" content="http://yoursite.com/image/1576662262264.png">
+<meta property="og:image" content="http://yoursite.com/image/1576662302567.png">
+<meta property="article:published_time" content="2019-12-23T05:51:57.000Z">
+<meta property="article:modified_time" content="2019-12-23T05:55:38.106Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springcloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1576639341793.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/23/99-SpringCloud-整合/"/>
+
+
+
+
+
+  <title>99.SpringCloud 整合 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/23/99-SpringCloud-%E6%95%B4%E5%90%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">99.SpringCloud 整合</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-23T13:51:57+08:00">
+                2019-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springcloud/" itemprop="url" rel="index">
+                    <span itemprop="name">springcloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="SpringCloud-大整合"><a href="#SpringCloud-大整合" class="headerlink" title="SpringCloud 大整合"></a>SpringCloud 大整合</h2><p>首先放一张自己制作的SpringCloud拓扑图</p>
+<p><img src="/image/1576639341793.png" alt="1576639341793"></p>
+<p>根据这张图我们进行整合</p>
+<a id="more"></a>
+<ul>
+<li>SpringCloud Eureka</li>
+<li>SpringCloud Config</li>
+<li>SpringCloud Feign</li>
+<li>SpringCloud Hystrix</li>
+<li>SpringCloud Zuul</li>
+</ul>
+<h3 id="1-工程创建"><a href="#1-工程创建" class="headerlink" title="1.工程创建"></a>1.工程创建</h3><p>首先我们要创建一个工程，Maven工程</p>
+<p><img src="/image/1576639659784.png" alt="1576639659784"></p>
+<h3 id="2-依赖添加"><a href="#2-依赖添加" class="headerlink" title="2.依赖添加"></a>2.依赖添加</h3><p>这里我们直接在pom中添加我们需要的依赖，SpringBoot，SpringCloud等</p>
+<p>SpringBoot版本：1.5.8</p>
+<p>SpringCloud版本：Dalston.SR4</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Spring Boot 依赖 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.8.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">&lt;!-- Spring Cloud 依赖 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>Dalston.SR4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- SpringBoot相关 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 依赖 Spring Cloud Netflix Eureka --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 依赖 Ribbon --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-ribbon<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 依赖 Fegin --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-feign<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 依赖 Hystrix --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-hystrix<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 依赖 Zuul --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-zuul<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里有个小细节，除了Spring Cloud Config，其他都添加了，为什么呢？我们后面整合时再说</p>
+<h3 id="3-整合Eureka"><a href="#3-整合Eureka" class="headerlink" title="3.整合Eureka"></a>3.整合Eureka</h3><p>首先创建一个Eureka模块</p>
+<p><img src="/image/1576647613294.png" alt="1576647613294"></p>
+<p>创建启动类，开启<code>@EnableEurekaServer</code>注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableEurekaServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EurekaApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(EurekaApplication<span class="class">.<span class="keyword">class</span>,<span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编写配置文件，application.properties</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span>=<span class="string">server-eureka</span></span><br><span class="line"><span class="comment"># 服务端口</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">10001</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 因为单机，所以关闭向注册中心拉取服务和注册</span></span><br><span class="line"><span class="meta">eureka.client.fetch-registry</span>=<span class="string">false</span></span><br><span class="line"><span class="meta">eureka.client.register-with-eureka</span>=<span class="string">false</span></span><br><span class="line"></span><br><span class="line"><span class="meta">eureka.instance.hostname</span>=<span class="string">localhost</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-创建Service-Provider与Consumer"><a href="#4-创建Service-Provider与Consumer" class="headerlink" title="4.创建Service Provider与Consumer"></a>4.创建Service Provider与Consumer</h3><h4 id="创建Service-Provider"><a href="#创建Service-Provider" class="headerlink" title="创建Service Provider"></a>创建Service Provider</h4><p>首先创建模块</p>
+<p><img src="/image/1576648288395.png" alt="1576648288395"></p>
+<p>创建启动器类，并开启<code>@EnableDiscoveryClient</code>注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProviderApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(ProviderApplication<span class="class">.<span class="keyword">class</span>,<span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建一个<code>Controller</code>类以供调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProviderController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/get"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">(@RequestParam(<span class="string">"id"</span>)</span>Integer id)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> id == <span class="number">1</span> ? <span class="string">"Pacee"</span> : <span class="string">"ZZZ"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建配置文件，<code>application.properties</code></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span>=<span class="string">service-provider</span></span><br><span class="line"><span class="comment"># 服务端口</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">9090</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 向注册中心注册</span></span><br><span class="line"><span class="meta">eureka.client.service-url.defaulteZone</span>=<span class="string">http://127.0.0.1:10001/eureka</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="创建Service-Consumer"><a href="#创建Service-Consumer" class="headerlink" title="创建Service Consumer"></a>创建Service Consumer</h4><p>首先创建模块</p>
+<p><img src="/image/1576648445626.png" alt="1576648288395"></p>
+<p>创建启动器类，并开启<code>@EnableDiscoveryClient</code>注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConsumerApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(ConsumerApplication<span class="class">.<span class="keyword">class</span>,<span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建一个<code>Controller</code>类以供调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConsumerController</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/get"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">get</span><span class="params">(@RequestParam(<span class="string">"id"</span>)</span> Integer id)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们先return null，之后整合Feign再进行改造，来调用服务提供方的服务。</p>
+<p>创建配置文件，<code>application.properties</code></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span>=<span class="string">service-consumer</span></span><br><span class="line"><span class="comment"># 服务端口</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">8080</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 向注册中心注册</span></span><br><span class="line"><span class="meta">eureka.client.service-url.defaulteZone</span>=<span class="string">http://127.0.0.1:10001/eureka</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-整合Feign与Hystrix"><a href="#5-整合Feign与Hystrix" class="headerlink" title="5.整合Feign与Hystrix"></a>5.整合Feign与Hystrix</h3><p>这里使用Feign与Hystrix，都是在服务消费方改造的</p>
+<p><code>Service-Consumer</code>添加<code>@FeignClient</code>接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FeignClient</span>(name = <span class="string">"$&#123;provider.service.name&#125;"</span>,fallback = FeignFallback<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">interface</span> <span class="title">FeignService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/get"</span>)</span><br><span class="line">    <span class="function">String <span class="title">getName</span><span class="params">(@RequestParam(<span class="string">"id"</span>)</span> Integer id)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再添加<code>FallBack</code>类，即熔断后执行的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FeignFallback</span> <span class="keyword">implements</span> <span class="title">FeignService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">(Integer id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"fallback:error"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调整<code>FeignService</code>接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FeignClient</span>(name = <span class="string">"$&#123;provider.service.name&#125;"</span>,fallback = FeignFallback<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">interface</span> <span class="title">FeignService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function">String <span class="title">getName</span><span class="params">(Integer id)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>修改<code>Controller</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConsumerController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> FeignService feignService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/get"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">get</span><span class="params">(@RequestParam(<span class="string">"id"</span>)</span>Integer id)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> feignService.getName(id);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>修改配置文件：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span>=<span class="string">service-consumer</span></span><br><span class="line"><span class="comment"># 服务端口</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">8080</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 向注册中心注册</span></span><br><span class="line"><span class="meta">eureka.client.service-url.defaulteZone</span>=<span class="string">http://127.0.0.1:10001/eureka</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 服务提供方名称</span></span><br><span class="line"><span class="meta">provider.service.name</span>=<span class="string">service-provider</span></span><br><span class="line"><span class="comment"># 开启Hystrix</span></span><br><span class="line"><span class="meta">feign.hystrix.enabled</span>=<span class="string">true</span></span><br></pre></td></tr></table></figure>
+
+<p>整合到这里，我们可以测试一下。按顺序启动：<code>eureka - provider - consumer</code>，然后访问&lt;<code>http://localhost:8080/get?id=1</code>&gt;</p>
+<p><img src="/image/1576654443956.png" alt="1576654443956"></p>
+<p>正确访问，就没有问题，继续往下整合</p>
+<h3 id="6-整合Config"><a href="#6-整合Config" class="headerlink" title="6.整合Config"></a>6.整合Config</h3><p>对于SpringCloud配置平台来说，主要的使用方是服务消费者，所以我们这里要做两件事</p>
+<ul>
+<li>创建Config Server</li>
+<li>改造Service Consumer</li>
+</ul>
+<h4 id="创建Config-Server"><a href="#创建Config-Server" class="headerlink" title="创建Config Server"></a>创建Config Server</h4><p>创建一个工程，<code>server-config</code></p>
+<p><img src="/image/1576654585332.png" alt="1576654585332"></p>
+<p>添加依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-config-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>创建启动器类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="meta">@EnableConfigServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConfigApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(ConfigApplication<span class="class">.<span class="keyword">class</span>,<span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里主要添加<code>@EnableConfigServer</code></p>
+<p>添加配置，<code>application.properties</code></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span>=<span class="string">server-config</span></span><br><span class="line"><span class="comment"># 服务端口</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">7070</span></span><br><span class="line"><span class="meta">management.security.enabled</span> = <span class="string">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 向注册中心注册</span></span><br><span class="line"><span class="meta">eureka.client.service-url.defaultZone</span>=<span class="string">http://127.0.0.1:10001/eureka</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用本地git地址</span></span><br><span class="line"><span class="meta">spring.cloud.config.server.git.uri</span>=<span class="string">$&#123;user.dir&#125;/server-config/src/main/resources/config</span></span><br></pre></td></tr></table></figure>
+
+<p>在<code>resources</code>下<code>configs</code>文件夹，在其下面添加<code>enbuys.properties</code>，为服务消费者准备</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 服务提供方名称</span></span><br><span class="line"><span class="meta">provider.service.name</span>=<span class="string">service-provider</span></span><br><span class="line"><span class="comment"># 开启Hystrix</span></span><br><span class="line"><span class="meta">feign.hystrix.enabled</span>=<span class="string">true</span></span><br></pre></td></tr></table></figure>
+
+<p>将配置文件添加到<code>git</code>仓库中，在<code>configs</code>目录下进行git初始化</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; git init</span><br><span class="line">&gt; git add .</span><br><span class="line">&gt; git commit -m &quot;first commit&quot;</span><br></pre></td></tr></table></figure>
+
+<h4 id="修改Service-Consumer"><a href="#修改Service-Consumer" class="headerlink" title="修改Service Consumer"></a>修改Service Consumer</h4><p>添加依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-config<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>修改<code>application.properties</code></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 服务端口</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">8080</span></span><br><span class="line"><span class="meta">management.security.enabled</span> = <span class="string">false</span></span><br><span class="line"><span class="comment">## 服务提供方名称</span></span><br><span class="line"><span class="comment">#provider.service.name=service-provider</span></span><br><span class="line"><span class="comment">## 开启Hystrix</span></span><br><span class="line"><span class="comment">#feign.hystrix.enabled=true</span></span><br></pre></td></tr></table></figure>
+
+<p>==这里将服务提供方名称，以及Hystrix的开启注释掉，因为整合了Config，配置直接使用配置服务器上的==</p>
+<p>创建<code>bootstrap.properties</code></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span>=<span class="string">service-consumer</span></span><br><span class="line"><span class="comment"># 向注册中心注册</span></span><br><span class="line"><span class="meta">eureka.client.service-url.defaultZone</span>=<span class="string">http://127.0.0.1:10001/eureka</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 配置客户端应用关联的应用</span></span><br><span class="line"><span class="comment">## spring.cloud.config.name 是可选的</span></span><br><span class="line"><span class="comment">## 如果没有配置，采用 $&#123;spring.application.name&#125;</span></span><br><span class="line"><span class="meta">spring.cloud.config.name</span> = <span class="string">service</span></span><br><span class="line"><span class="comment">## 关联 profile</span></span><br><span class="line"><span class="meta">spring.cloud.config.profile</span> = <span class="string">default</span></span><br><span class="line"><span class="comment">## 关联 label</span></span><br><span class="line"><span class="meta">spring.cloud.config.label</span> = <span class="string">master</span></span><br><span class="line"><span class="comment">#spring.cloud.config.enabled=true</span></span><br><span class="line"><span class="comment">## 激活 Config Server 服务发现</span></span><br><span class="line"><span class="meta">spring.cloud.config.discovery.enabled</span> = <span class="string">true</span></span><br><span class="line"><span class="comment">## Config Server 服务器应用名称</span></span><br><span class="line"><span class="meta">spring.cloud.config.discovery.service-id</span>=<span class="string">server-config</span></span><br></pre></td></tr></table></figure>
+
+<p>这里为何要将应用名称和注册中心地址放在bootstrap配置文件里，可以看之前第三个笔记 <code>SpringCloud Config Sever</code></p>
+<h4 id="为何依赖要添加在子模块里"><a href="#为何依赖要添加在子模块里" class="headerlink" title="为何依赖要添加在子模块里"></a>为何依赖要添加在子模块里</h4><p>==经测试，在父pom文件中添加config-server依赖，会导致config client端，即服务消费者拉取不了config server==，所以要分开添加依赖</p>
+<h3 id="7-整合Zuul"><a href="#7-整合Zuul" class="headerlink" title="7.整合Zuul"></a>7.整合Zuul</h3><p>创建一个Zuul模块</p>
+<p><img src="/image/1576661976566.png" alt="1576661976566"></p>
+<p>创建启动器类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableZuulProxy</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ZuulApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(ZuulApplication<span class="class">.<span class="keyword">class</span>,<span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>添加配置文件</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">spring.application.name</span>=<span class="string">server-zuul</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">6060</span></span><br><span class="line"><span class="meta">management.security.enabled</span>=<span class="string">false</span></span><br><span class="line"><span class="meta">eureka.client.service-url.defaultZone</span>=<span class="string">http://127.0.0.1:10001/eureka</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="8-测试"><a href="#8-测试" class="headerlink" title="8.测试"></a>8.测试</h3><p>启动Eureka -&gt; Config -&gt; Service Provider -&gt; Service Consumer -&gt; Zuul</p>
+<h4 id="Eureka测试"><a href="#Eureka测试" class="headerlink" title="Eureka测试"></a>Eureka测试</h4><p>首先我们可以访问<a href="http://localhost:10001/" target="_blank" rel="noopener">http://localhost:10001/</a>，查看各个服务是否启动成功</p>
+<p><img src="/image/1576662231803.png" alt="1576662231803"></p>
+<p>出现4个服务说明启动成功</p>
+<h4 id="Config测试"><a href="#Config测试" class="headerlink" title="Config测试"></a>Config测试</h4><p>访问<a href="http://localhost:7070/enbuys-default.properties" target="_blank" rel="noopener">http://localhost:7070/enbuys-default.properties</a></p>
+<p><img src="/image/1576662537218.png" alt="1576662537218"></p>
+<h4 id="Provider测试"><a href="#Provider测试" class="headerlink" title="Provider测试"></a>Provider测试</h4><p>访问<a href="http://localhost:9090/get?id=1&gt;是否正确请求" target="_blank" rel="noopener">http://localhost:9090/get?id=1&gt;是否正确请求</a></p>
+<p><img src="/image/1576662506647.png" alt="1576662506647"></p>
+<h4 id="Consumer测试"><a href="#Consumer测试" class="headerlink" title="Consumer测试"></a>Consumer测试</h4><p>访问<a href="http://localhost:8080/get?id=1" target="_blank" rel="noopener">http://localhost:8080/get?id=1</a>是否正确请求</p>
+<p><img src="/image/1576662487062.png" alt="1576662487062"></p>
+<p>查看<a href="http://localhost:8080/env" target="_blank" rel="noopener">http://localhost:8080/env</a>，是否加载了配置中心的配置</p>
+<p><img src="..//image/1576662415017.png" alt="1576662415017"></p>
+<h4 id="Zuul测试"><a href="#Zuul测试" class="headerlink" title="Zuul测试"></a>Zuul测试</h4><p>然后我们可以访问<a href="http://localhost:6060/routes" target="_blank" rel="noopener">http://localhost:6060/routes</a>，查看zuul是否正确路由</p>
+<p><img src="/image/1576662262264.png" alt="1576662262264"></p>
+<p>如下3个路由规则，说明正确路由</p>
+<h4 id="最终测试"><a href="#最终测试" class="headerlink" title="最终测试"></a>最终测试</h4><p>接着我们可以访问<a href="http://localhost:6060/service-consumer/get?id=1" target="_blank" rel="noopener">http://localhost:6060/service-consumer/get?id=1</a></p>
+<p><img src="/image/1576662302567.png" alt="1576662302567"></p>
+<p>出现Pacee，说明大功告成，我们的大整合成功。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springcloud/" rel="tag"># springcloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/23/16-SpringCloud-Sleuth-Zipkin/" rel="next" title="16.SpringCloud Sleuth Zipkin">
+                <i class="fa fa-chevron-left"></i> 16.SpringCloud Sleuth Zipkin
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringCloud-大整合"><span class="nav-number">1.</span> <span class="nav-text">SpringCloud 大整合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-工程创建"><span class="nav-number">1.1.</span> <span class="nav-text">1.工程创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-依赖添加"><span class="nav-number">1.2.</span> <span class="nav-text">2.依赖添加</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-整合Eureka"><span class="nav-number">1.3.</span> <span class="nav-text">3.整合Eureka</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-创建Service-Provider与Consumer"><span class="nav-number">1.4.</span> <span class="nav-text">4.创建Service Provider与Consumer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建Service-Provider"><span class="nav-number">1.4.1.</span> <span class="nav-text">创建Service Provider</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建Service-Consumer"><span class="nav-number">1.4.2.</span> <span class="nav-text">创建Service Consumer</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-整合Feign与Hystrix"><span class="nav-number">1.5.</span> <span class="nav-text">5.整合Feign与Hystrix</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-整合Config"><span class="nav-number">1.6.</span> <span class="nav-text">6.整合Config</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建Config-Server"><span class="nav-number">1.6.1.</span> <span class="nav-text">创建Config Server</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改Service-Consumer"><span class="nav-number">1.6.2.</span> <span class="nav-text">修改Service Consumer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为何依赖要添加在子模块里"><span class="nav-number">1.6.3.</span> <span class="nav-text">为何依赖要添加在子模块里</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-整合Zuul"><span class="nav-number">1.7.</span> <span class="nav-text">7.整合Zuul</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-测试"><span class="nav-number">1.8.</span> <span class="nav-text">8.测试</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Eureka测试"><span class="nav-number">1.8.1.</span> <span class="nav-text">Eureka测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Config测试"><span class="nav-number">1.8.2.</span> <span class="nav-text">Config测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Provider测试"><span class="nav-number">1.8.3.</span> <span class="nav-text">Provider测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Consumer测试"><span class="nav-number">1.8.4.</span> <span class="nav-text">Consumer测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Zuul测试"><span class="nav-number">1.8.5.</span> <span class="nav-text">Zuul测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#最终测试"><span class="nav-number">1.8.6.</span> <span class="nav-text">最终测试</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

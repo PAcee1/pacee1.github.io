@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springcloud," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、分布式Config1.分布式配置架构传统架构 可以看到，在传统架构中，每个配置硬编码到应用中，写在properties或者xml里，跟随这项目一起保存到git或者svn仓库中。当配置越来越多的时候，比如MQ，数据库，Redis，ES等等的配置，只能一个文件一个文件的累加，并且每当修改时都需要重新打包部署，浪费时间且冗余。 缺点：  硬编码 写在properties，集群环境下需要替换和重启 写">
+<meta property="og:type" content="article">
+<meta property="og:title" content="03.Springcloud Config Server">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/03springcloud-config-server/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、分布式Config1.分布式配置架构传统架构 可以看到，在传统架构中，每个配置硬编码到应用中，写在properties或者xml里，跟随这项目一起保存到git或者svn仓库中。当配置越来越多的时候，比如MQ，数据库，Redis，ES等等的配置，只能一个文件一个文件的累加，并且每当修改时都需要重新打包部署，浪费时间且冗余。 缺点：  硬编码 写在properties，集群环境下需要替换和重启 写">
+<meta property="og:image" content="http://yoursite.com/image/1574906139708.png">
+<meta property="og:image" content="http://yoursite.com/image/1574907736335.png">
+<meta property="og:image" content="http://yoursite.com/image/1574925877737.png">
+<meta property="og:image" content="http://yoursite.com/image/1574926580867.png">
+<meta property="og:image" content="http://yoursite.com/image/1574926665039.png">
+<meta property="og:image" content="http://yoursite.com/image/1574928539755.png">
+<meta property="og:image" content="http://yoursite.com/image/1574928605187.png">
+<meta property="og:image" content="http://yoursite.com/image/1574928714779.png">
+<meta property="og:image" content="http://yoursite.com/image/1574929426681.png">
+<meta property="og:image" content="http://yoursite.com/image/1574990626389.png">
+<meta property="og:image" content="http://yoursite.com/image/1574932747419.png">
+<meta property="og:image" content="http://yoursite.com/image/1574932798132.png">
+<meta property="og:image" content="http://yoursite.com/image/1574997332997.png">
+<meta property="og:image" content="http://yoursite.com/image/1574997494038.png">
+<meta property="og:image" content="http://yoursite.com/image/1574997510628.png">
+<meta property="og:image" content="http://yoursite.com/image/1574997659890.png">
+<meta property="og:image" content="http://yoursite.com/image/1574997695173.png">
+<meta property="og:image" content="http://yoursite.com/image/1574998138847.png">
+<meta property="og:image" content="http://yoursite.com/image/1574998152403.png">
+<meta property="og:image" content="http://yoursite.com/image/1575013130538.png">
+<meta property="og:image" content="http://yoursite.com/image/1575013792987.png">
+<meta property="article:published_time" content="2019-12-23T05:21:14.000Z">
+<meta property="article:modified_time" content="2019-12-23T05:32:53.767Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springcloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1574906139708.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/23/03springcloud-config-server/"/>
+
+
+
+
+
+  <title>03.Springcloud Config Server | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/23/03springcloud-config-server/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">03.Springcloud Config Server</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-23T13:21:14+08:00">
+                2019-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springcloud/" itemprop="url" rel="index">
+                    <span itemprop="name">springcloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、分布式Config"><a href="#一、分布式Config" class="headerlink" title="一、分布式Config"></a>一、分布式Config</h2><h3 id="1-分布式配置架构"><a href="#1-分布式配置架构" class="headerlink" title="1.分布式配置架构"></a>1.分布式配置架构</h3><h4 id="传统架构"><a href="#传统架构" class="headerlink" title="传统架构"></a>传统架构</h4><p><img src="/image/1574906139708.png" alt="1574906139708"></p>
+<p>可以看到，在传统架构中，<strong>每个配置硬编码到应用中</strong>，写在properties或者xml里，跟随这项目一起保存到git或者svn仓库中。当配置越来越多的时候，比如MQ，数据库，Redis，ES等等的配置，只能一个文件一个文件的累加，并且<strong>每当修改时都需要重新打包部署</strong>，浪费时间且冗余。</p>
+<p>缺点：</p>
+<ul>
+<li>硬编码</li>
+<li>写在properties，集群环境下需要替换和重启</li>
+<li>写在xml中，和应用一起打包，替换需要重新打包部署</li>
+</ul>
+<a id="more"></a>
+
+<h4 id="SpringCloud-Config"><a href="#SpringCloud-Config" class="headerlink" title="SpringCloud Config"></a>SpringCloud Config</h4><p><img src="/image/1574907736335.png" alt="1574907736335"></p>
+<p>由于常用的项目+配置的方式有很大缺点，<strong>SpringCloud提供了一个配置中心来统一管理配置，它分为服务端和客户端</strong>。解决了<strong>配置中心化，版本控制，硬编码</strong>等问题</p>
+<p>服务端即<strong>分布式配置中心</strong>，为一个单独的微服务应用，用于<strong>连接客户端与仓库</strong>，为客户端提供相应的配置信息等。服务器默认采用git来存储配置信息，这样有助于对环境配置进行版本管理，并且可以通过git客户端工具来方便的管理和访问配置内容。</p>
+<p>客户端是指<strong>通过指定的配置中心来管理应用资源</strong>，以及与业务相关的配置内容，并在启动的时候从配置中心获取和加载配置信息。</p>
+<h3 id="2-EnvironmentRepository仓储"><a href="#2-EnvironmentRepository仓储" class="headerlink" title="2.EnvironmentRepository仓储"></a>2.EnvironmentRepository仓储</h3><p>这里我们先介绍一下SpringCloudConfig的仓储，对于配置服务器管理多个配置，客户端获取时需要一定的规则来获取，SpringCloudConfigServer提供了EnvironmentRepository接口供客户端获取，其具体规则为：</p>
+<ul>
+<li>{application}：配置客户端应用名称</li>
+<li>{profile}：客户端使用的配置文件环境，比如开发环境或线上环境</li>
+<li>{label}：版本信息，比如git的分支master or dev</li>
+</ul>
+<p>服务端配置映射主要有五种：</p>
+<ul>
+<li>/{application}/{profile}[/{label}]</li>
+<li>/{application}-{profile}.yml</li>
+<li>/{label}/{application}-{profile}.yml</li>
+<li>/{application}-{profile}.properties</li>
+<li>/{label}/{application}-{profile}.properties</li>
+</ul>
+<h3 id="3-搭建Spring-Cloud-Conifg-Server"><a href="#3-搭建Spring-Cloud-Conifg-Server" class="headerlink" title="3.搭建Spring Cloud Conifg Server"></a>3.搭建Spring Cloud Conifg Server</h3><p>关于SpringCloud Config Server的搭建非常简单，最主要是用到<code>@EnableConfigServer</code>这个注解</p>
+<p>首先需要基于SpringBoot创建一个SpringCloud应用，pom文件额外需要添加：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-config-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="基于本地Git仓库"><a href="#基于本地Git仓库" class="headerlink" title="基于本地Git仓库"></a>基于本地Git仓库</h4><p>1.需要在启动器类上加入<code>@EnableConfigServer</code>注解</p>
+<p>2.在<code>application.properties</code>中添加配置信息，如下：主要是配置本地git路径</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 配置服务器应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span> = <span class="string">spring-cloud-config-server</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 配置服务器端口</span></span><br><span class="line"><span class="meta">server.port</span> = <span class="string">9090</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 关闭管理端actuator 的安全</span></span><br><span class="line"><span class="comment">## /env /health 端口完全开放</span></span><br><span class="line"><span class="meta">management.security.enabled</span> = <span class="string">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置本地git路径</span></span><br><span class="line"><span class="meta">spring.cloud.config.server.git.uri</span>=<span class="string">$&#123;user.dir&#125;/src/main/resources/configs</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Tips：${user.dir}为此项目在电脑上的<strong>绝对路径</strong>，比如windows系统下（D:\ideaProject\SpringCloud...），如果在linux系统下即（home/…），使用这个做路径可以很好的适配各个平台的文件路径</p>
+</blockquote>
+<p>3.对应本地git路径创建文件夹及文件</p>
+<p><img src="/image/1574925877737.png" alt="1574925877737"></p>
+<p>这里我们创建三个配置文件</p>
+<ul>
+<li>enbuys：默认的配置<ul>
+<li><code>name=enbuys</code></li>
+</ul>
+</li>
+<li>enbuys-dev：开发环境时的配置<ul>
+<li><code>name=enbuys-dev</code></li>
+</ul>
+</li>
+<li>enbuys-prod：线上生产环境配置<ul>
+<li><code>name=enbuys-prod</code></li>
+</ul>
+</li>
+</ul>
+<p>4.在configs目录下进行git初始化</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; git init</span><br><span class="line">&gt; git add .</span><br><span class="line">&gt; git commit -m &quot;first commit&quot;</span><br></pre></td></tr></table></figure>
+
+<p>5.启动测试</p>
+<p>访问<a href="http://localhost:9090/enbuys/test" target="_blank" rel="noopener">http://localhost:9090/enbuys/test</a></p>
+<p><img src="/image/1574926580867.png" alt="1574926580867"></p>
+<p>因为我想访问dev的，打错了，所以可以发现，如果输入一个没有的配置文件，其会自动使用默认的配置文件</p>
+<p>再访问下<a href="http://localhost:9090/enbuys/dev" target="_blank" rel="noopener">http://localhost:9090/enbuys/dev</a></p>
+<p><img src="/image/1574926665039.png" alt="1574926665039"></p>
+<p>可以发现会把<code>enbuys-dev</code>与默认配置文件都输出出来</p>
+<blockquote>
+<p>我们这里使用的映射即为<code>/{label}/{application}-{profile}.properties</code></p>
+</blockquote>
+<h4 id="基于远程Git仓库"><a href="#基于远程Git仓库" class="headerlink" title="基于远程Git仓库"></a>基于远程Git仓库</h4><p>即把我们的配置放到github上面，方法也很简单，和本地仓库类似</p>
+<p>1.添加注解<code>@EnableConfigServer</code></p>
+<p>2.在github上创建一个Repository</p>
+<p><img src="/image/1574928539755.png" alt="1574928539755"></p>
+<p>3.根据github提示，找个文件夹绑定远程仓库</p>
+<p><img src="/image/1574928605187.png" alt="1574928605187"></p>
+<p>4.将三个配置文件放到<code>init</code>的那个文件夹，上传到远程git仓库</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; git add .</span><br><span class="line">&gt; git commit -m &#39;add config server&#39;</span><br><span class="line">&gt; git push -u origin master</span><br></pre></td></tr></table></figure>
+
+<p>5.修改项目中的<code>git.url</code>路径</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 远程git仓库</span></span><br><span class="line"><span class="meta">spring.cloud.config.server.git.uri</span>=<span class="string">https://github.com/PAcee1/temp</span></span><br></pre></td></tr></table></figure>
+
+<p>6.测试</p>
+<p><img src="/image/1574928714779.png" alt="1574928714779"></p>
+<p>可以看到正确输出远程仓库上的信息</p>
+<blockquote>
+<p>Tips:<code>spring.cloud.config.server.git.force-pull</code>，因为git拉取时有时会走本地缓存，如果配置这个可以保证强制拉取远程仓库上的配置</p>
+</blockquote>
+<h4 id="不同方式访问"><a href="#不同方式访问" class="headerlink" title="不同方式访问"></a>不同方式访问</h4><p>还记得我们在上面介绍EnvironmentRepository仓储时，对资源的映射方式有好几种，我们来测试一下：</p>
+<p><code>/{application}/{profile}[/{label}]</code>：</p>
+<p>这种就是我们上面使用的，对于请求比较模糊时使用，会输出很多信息</p>
+<p><code>/{application}-{profile}.properties</code>：</p>
+<p><img src="/image/1574929426681.png" alt="1574929426681"></p>
+<p>使用这种方式，可以具体的显示出配置文件中的信息</p>
+<p><code>/{label}/{application}-{profile}.properties</code></p>
+<p><img src="/image/1574990626389.png" alt="1574990626389"></p>
+<p>也是一样输出详细信息</p>
+<h3 id="4-搭建Spring-Cloud-Config-Client"><a href="#4-搭建Spring-Cloud-Config-Client" class="headerlink" title="4.搭建Spring Cloud Config Client"></a>4.搭建Spring Cloud Config Client</h3><p>客户端加入的pom依赖和server不同，为：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-config<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>搭建客户端获取服务器中的配置也非常简单</p>
+<p>1.配置<code>application.properties</code></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 配置客户端应用名称</span></span><br><span class="line"><span class="meta">spring.application.name</span> = <span class="string">spring-cloud-config-client</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 配置客户端应用服务端口</span></span><br><span class="line"><span class="meta">server.port</span> = <span class="string">8080</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 关闭管理端actuator 的安全</span></span><br><span class="line"><span class="comment">## /env /health 端口完全开放</span></span><br><span class="line"><span class="meta">management.security.enabled</span> = <span class="string">false</span></span><br></pre></td></tr></table></figure>
+
+<p>还是基本的一些配置信息</p>
+<p>2.配置<code>bootstrap.properties</code></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 配置客户端应用关联的应用</span></span><br><span class="line"><span class="comment">## spring.cloud.config.name 是可选的</span></span><br><span class="line"><span class="comment">## 如果没有配置，采用 $&#123;spring.application.name&#125;</span></span><br><span class="line"><span class="meta">spring.cloud.config.name</span> = <span class="string">enbuys</span></span><br><span class="line"><span class="comment">## 关联 profile</span></span><br><span class="line"><span class="meta">spring.cloud.config.profile</span> = <span class="string">prod</span></span><br><span class="line"><span class="comment">## 关联 label</span></span><br><span class="line"><span class="meta">spring.cloud.config.label</span> = <span class="string">master</span></span><br><span class="line"><span class="comment">## 配置配置服务器URI</span></span><br><span class="line"><span class="meta">spring.cloud.config.uri</span> = <span class="string">http://127.0.0.1:9090/</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Tips：这里的cloud的config配置也可以写在<code>application.properties</code>，这里写在<code>bootstrap</code>的配置文件中主要还是一个规范问题，因为SpringCloud使用<code>Bootstrap</code>做上下文，对于关于SpringCloud的配置也应该写在<code>bootstrap.properties</code>里</p>
+</blockquote>
+<p>3.启动测试</p>
+<p><img src="/image/1574932747419.png" alt="1574932747419"></p>
+<p>首先可以在控制台看到SpringCloud加载时去请求服务器获取配置信息</p>
+<p>然后在在浏览器上查看</p>
+<p><img src="/image/1574932798132.png" alt="1574932798132"></p>
+<p>可以看到也正确加载到<code>Environment</code>中了</p>
+<h3 id="5-动态配置Bean"><a href="#5-动态配置Bean" class="headerlink" title="5.动态配置Bean"></a>5.动态配置Bean</h3><p>动态配置Bean在之前学springBoot的时候已经做过，无非是在Bean上加一个<code>@ConfigurationProperties</code>注解</p>
+<p>这里我们要说的是，从SpringCloud Config Server拉取Bean的信息进行注入，</p>
+<h4 id="客户端配置文件注入"><a href="#客户端配置文件注入" class="headerlink" title="客户端配置文件注入"></a>客户端配置文件注入</h4><p>Bean：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"enbuy.user"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer id;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Integer <span class="title">getId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setId</span><span class="params">(Integer id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"User&#123;"</span> +</span><br><span class="line">                <span class="string">"id="</span> + id +</span><br><span class="line">                <span class="string">", name='"</span> + name + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>application.properties:</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#配置user信息</span></span><br><span class="line"><span class="meta">enbuy.user.id</span>=<span class="string">1</span></span><br><span class="line"><span class="meta">enbuy.user.name</span>=<span class="string">pacee</span></span><br></pre></td></tr></table></figure>
+
+<p>UserController：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties</span>(User<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">UserController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//通过构造器注入</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> User user;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UserController</span><span class="params">(User user)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.user = user;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/user"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">user</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>访问<a href="http://localhost:8080/user" target="_blank" rel="noopener">http://localhost:8080/user</a></p>
+<p><img src="/image/1574997332997.png" alt="1574997332997"></p>
+<p>正确显示出来</p>
+<h4 id="服务器配置文件注入"><a href="#服务器配置文件注入" class="headerlink" title="服务器配置文件注入"></a>服务器配置文件注入</h4><p>其次，我们将配置放到github上的配置文件上，然后再进行拉取远程配置注入</p>
+<p><img src="/image/1574997494038.png" alt="1574997494038"></p>
+<p>再次访问<a href="http://localhost:8080/user" target="_blank" rel="noopener">http://localhost:8080/user</a></p>
+<p><img src="/image/1574997510628.png" alt="1574997510628"></p>
+<p>可以发现还是原来的信息，这是为什么呢？</p>
+<p><strong>因为这里使用的还是原来的远程配置，没有动态的刷新配置，这里我们先对客户端环境进行<code>refresh</code></strong></p>
+<p><img src="/image/1574997659890.png" alt="1574997659890"></p>
+<p>可以看到，刷新了三个信息，版本以及我们修改的Bean信息。</p>
+<p>再次请求</p>
+<p><img src="/image/1574997695173.png" alt="1574997695173"></p>
+<p>可以发现正确修改成远程配置服务器上的信息了。这里有两个问题需要注意的：！</p>
+<p>==1.拉取远程服务器上的配置，比客户端中application或bootstrap的配置优先级高==</p>
+<p>==2.SpringCloud当配置服务器修改时，不会自动刷新客户端拉取新的配置==</p>
+<h4 id="自动拉取服务器配置"><a href="#自动拉取服务器配置" class="headerlink" title="自动拉取服务器配置"></a>自动拉取服务器配置</h4><p>这里我们就应该对第二个问题展开探究，这里实现的方式有很多种</p>
+<ul>
+<li>SpringCloud提供的<code>SpringCloud Bus</code></li>
+<li>使用定时器配合<code>ContextRefresh</code>进行刷新</li>
+</ul>
+<p>这里我们先使用<code>ContextRefresh</code>，因为这种方式适配各种情景，比如我们不使用http请求即Git当配置服务器，而是zookeeper实现配置服务器，这种方式就可以完全适应，不用修改任何东西。</p>
+<p>Java代码实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringCloudLesson3ConfigClientApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ContextRefresher contextRefresher;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(SpringCloudLesson3ConfigClientApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled</span>(fixedRate = <span class="number">1000L</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">update</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        Set&lt;String&gt; keys = contextRefresher.refresh();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!keys.isEmpty()) &#123;</span><br><span class="line">            System.out.println(<span class="string">"本次更新的配置项: "</span> + keys);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，这里我们使用1秒刷新一次的策略，代码也是比较简单。</p>
+<p><img src="/image/1574998138847.png" alt="1574998138847"></p>
+<p>可以看到，正确刷新了我们服务器上修改的配置</p>
+<p><img src="/image/1574998152403.png" alt="1574998152403"></p>
+<p>请求user，输出信息也是我们期望的。</p>
+<p>这样我们就简单实现了自动拉取配置服务器上修改的内容了</p>
+<h2 id="二、Health-EndPoint"><a href="#二、Health-EndPoint" class="headerlink" title="二、Health EndPoint"></a>二、Health EndPoint</h2><p>之前介绍过几个传动器端点，前面一直在使用env这个端点，现在说下health端点。</p>
+<p>这个端点可以查看服务的健康程度，就包含我们刚刚配置的Config Server</p>
+<p>因为我们上面已经配了全局的端点敏感性为false，所以可以直接查看</p>
+<p><img src="/image/1575013130538.png" alt="1575013130538"></p>
+<p>可以看到默认包含四个PropertySource</p>
+<ul>
+<li>status：总体健康程度</li>
+<li>diskSpace：磁盘健康</li>
+<li>refreshScope：刷新的健康</li>
+<li>configServer：配置服务器的健康程度</li>
+</ul>
+<h3 id="自定义健康组件"><a href="#自定义健康组件" class="headerlink" title="自定义健康组件"></a>自定义健康组件</h3><p>我们先观察下Health的源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"endpoints.health"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HealthEndpoint</span> <span class="keyword">extends</span> <span class="title">AbstractEndpoint</span>&lt;<span class="title">Health</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> HealthIndicator healthIndicator;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Time to live for cached result, in milliseconds.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">long</span> timeToLive = <span class="number">1000</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Create a new &#123;<span class="doctag">@link</span> HealthEndpoint&#125; instance.</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> healthAggregator the health aggregator</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> healthIndicators the health indicators</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="title">HealthEndpoint</span><span class="params">(HealthAggregator healthAggregator,</span></span></span><br><span class="line"><span class="function"><span class="params">         Map&lt;String, HealthIndicator&gt; healthIndicators)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">super</span>(<span class="string">"health"</span>, <span class="keyword">false</span>);</span><br><span class="line">      Assert.notNull(healthAggregator, <span class="string">"HealthAggregator must not be null"</span>);</span><br><span class="line">      Assert.notNull(healthIndicators, <span class="string">"HealthIndicators must not be null"</span>);</span><br><span class="line">      CompositeHealthIndicator healthIndicator = <span class="keyword">new</span> CompositeHealthIndicator(</span><br><span class="line">            healthAggregator);</span><br><span class="line">      <span class="keyword">for</span> (Map.Entry&lt;String, HealthIndicator&gt; entry : healthIndicators.entrySet()) &#123;</span><br><span class="line">         healthIndicator.addHealthIndicator(getKey(entry.getKey()), entry.getValue());</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">this</span>.healthIndicator = healthIndicator;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以发现，在构造函数中，<code>HealthEndpoint</code>循环<code>HealthIndicator</code>加入到容器中，看到这个就想起在SpringBoot学习时，那些自动配置类也是这样循环加入容器的，我们便可以仿照SpringBoot添加组件的方式，创建一个类实现<code>HealthIndicator</code>，然后添加到容器中。</p>
+<p><strong>1.创建一个类实现`HealthIndicator</strong>`</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HealthCustomer</span> <span class="keyword">implements</span> <span class="title">HealthIndicator</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Health <span class="title">health</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这里需要返回一个<code>Health</code>对象，再进到<code>Health</code>里查看</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Health</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> Status status;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; details;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Create a new &#123;<span class="doctag">@link</span> Health&#125; instance with the specified status and details.</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> builder the Builder to use</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="title">Health</span><span class="params">(Builder builder)</span> </span>&#123;</span><br><span class="line">      Assert.notNull(builder, <span class="string">"Builder must not be null"</span>);</span><br><span class="line">      <span class="keyword">this</span>.status = builder.status;</span><br><span class="line">      <span class="keyword">this</span>.details = Collections.unmodifiableMap(builder.details);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>Health</code>是由<code>Builder</code>创建的，那意思是我们也需要创建一个<code>Builder</code>来初始化<code>Health</code>，再看下<code>Builder</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> Status status;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> Map&lt;String, Object&gt; details;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Create new Builder instance.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="title">Builder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">this</span>.status = Status.UNKNOWN;</span><br><span class="line">      <span class="keyword">this</span>.details = <span class="keyword">new</span> LinkedHashMap&lt;String, Object&gt;();</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Builder</code>的创建就很简单了，传递<code>status</code>状态已经具体的<code>detailsMap</code>信息即可</p>
+<p><strong>2.在我们的类中创建<code>Builder</code>并初始化<code>Health</code>返回</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HealthCustomer</span> <span class="keyword">implements</span> <span class="title">HealthIndicator</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Health <span class="title">health</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Health.Builder builder = <span class="keyword">new</span> Health.Builder();</span><br><span class="line">        builder.status(Status.UP);</span><br><span class="line">        builder.withDetail(<span class="string">"name"</span>,<span class="string">"MyHealthCustomer"</span>);</span><br><span class="line">        builder.withDetail(<span class="string">"time"</span>,System.currentTimeMillis());</span><br><span class="line">        Health health = builder.build();</span><br><span class="line">        <span class="keyword">return</span> health;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样就创建完毕我们自定义的<code>Health</code>组件了，记得要加上<code>@Component</code>注解</p>
+<p><strong>3.浏览器查看</strong></p>
+<p><img src="/image/1575013792987.png" alt="1575013792987"></p>
+<p>正确加载进<code>HealthEndpoint</code>中</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springcloud/" rel="tag"># springcloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/23/02springcloud-config-client/" rel="next" title="02.SpringCloud Config Client">
+                <i class="fa fa-chevron-left"></i> 02.SpringCloud Config Client
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/23/04-SpringCloud-Eureka-Basic/" rel="prev" title="04.SpringCloud Eureka Basic">
+                04.SpringCloud Eureka Basic <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、分布式Config"><span class="nav-number">1.</span> <span class="nav-text">一、分布式Config</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-分布式配置架构"><span class="nav-number">1.1.</span> <span class="nav-text">1.分布式配置架构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#传统架构"><span class="nav-number">1.1.1.</span> <span class="nav-text">传统架构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SpringCloud-Config"><span class="nav-number">1.1.2.</span> <span class="nav-text">SpringCloud Config</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-EnvironmentRepository仓储"><span class="nav-number">1.2.</span> <span class="nav-text">2.EnvironmentRepository仓储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-搭建Spring-Cloud-Conifg-Server"><span class="nav-number">1.3.</span> <span class="nav-text">3.搭建Spring Cloud Conifg Server</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#基于本地Git仓库"><span class="nav-number">1.3.1.</span> <span class="nav-text">基于本地Git仓库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基于远程Git仓库"><span class="nav-number">1.3.2.</span> <span class="nav-text">基于远程Git仓库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不同方式访问"><span class="nav-number">1.3.3.</span> <span class="nav-text">不同方式访问</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-搭建Spring-Cloud-Config-Client"><span class="nav-number">1.4.</span> <span class="nav-text">4.搭建Spring Cloud Config Client</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-动态配置Bean"><span class="nav-number">1.5.</span> <span class="nav-text">5.动态配置Bean</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端配置文件注入"><span class="nav-number">1.5.1.</span> <span class="nav-text">客户端配置文件注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务器配置文件注入"><span class="nav-number">1.5.2.</span> <span class="nav-text">服务器配置文件注入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自动拉取服务器配置"><span class="nav-number">1.5.3.</span> <span class="nav-text">自动拉取服务器配置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、Health-EndPoint"><span class="nav-number">2.</span> <span class="nav-text">二、Health EndPoint</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义健康组件"><span class="nav-number">2.1.</span> <span class="nav-text">自定义健康组件</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springcloud," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、SpringCloud Zuul入门服务网关是微服务架构中一个不可或缺的部分。通过服务网关统一向外系统提供REST API的过程中，除了具备服务路由、均衡负载功能之外，它还具备了权限控制等功能。Spring Cloud Netflix中的Zuul就担任了这样的一个角色，为微服务架构提供了前门保护的作用，同时将权限控制这些较重的非业务逻辑内容迁移到服务路由层面，使得服务集群主体能够具备更高的可复">
+<meta property="og:type" content="article">
+<meta property="og:title" content="12.SpringCloud Zuul Basic">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/12-SpringCloud-Zuul-Basic/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、SpringCloud Zuul入门服务网关是微服务架构中一个不可或缺的部分。通过服务网关统一向外系统提供REST API的过程中，除了具备服务路由、均衡负载功能之外，它还具备了权限控制等功能。Spring Cloud Netflix中的Zuul就担任了这样的一个角色，为微服务架构提供了前门保护的作用，同时将权限控制这些较重的非业务逻辑内容迁移到服务路由层面，使得服务集群主体能够具备更高的可复">
+<meta property="og:image" content="http://yoursite.com/image/1576221384831.png">
+<meta property="og:image" content="http://yoursite.com/image/1576221593832.png">
+<meta property="og:image" content="http://yoursite.com/image/1576223551577.png">
+<meta property="og:image" content="http://yoursite.com/image/1576223580860.png">
+<meta property="og:image" content="http://yoursite.com/image/1576223637567.png">
+<meta property="og:image" content="http://yoursite.com/image/1576223713335.png">
+<meta property="article:published_time" content="2019-12-23T05:50:41.000Z">
+<meta property="article:modified_time" content="2019-12-23T05:53:18.626Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springcloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1576221384831.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/23/12-SpringCloud-Zuul-Basic/"/>
+
+
+
+
+
+  <title>12.SpringCloud Zuul Basic | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/23/12-SpringCloud-Zuul-Basic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">12.SpringCloud Zuul Basic</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-23T13:50:41+08:00">
+                2019-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springcloud/" itemprop="url" rel="index">
+                    <span itemprop="name">springcloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、SpringCloud-Zuul入门"><a href="#一、SpringCloud-Zuul入门" class="headerlink" title="一、SpringCloud Zuul入门"></a>一、SpringCloud Zuul入门</h2><p>服务网关是微服务架构中一个不可或缺的部分。通过服务网关统一向外系统提供REST API的过程中，除了具备服务路由、均衡负载功能之外，它还具备了权限控制等功能。Spring Cloud Netflix中的Zuul就担任了这样的一个角色，为微服务架构提供了前门保护的作用，同时将权限控制这些较重的非业务逻辑内容迁移到服务路由层面，使得服务集群主体能够具备更高的可复用性和可测试性。</p>
+<p>Zuul在微服务中，便处于一个网关的地位，他自身整合了Ribbon和Hystrix，用作转发时的负载均衡和熔断。</p>
+<p>我们接着上一节学习Feign的项目，来进行Zuul的学习。</p>
+<a id="more"></a>
+
+<h3 id="1-创建server-zuul模块"><a href="#1-创建server-zuul模块" class="headerlink" title="1.创建server-zuul模块"></a>1.创建server-zuul模块</h3><p>首先我们为zuul，单独创建一个模块</p>
+<p><img src="/image/1576221384831.png" alt="1576221384831"></p>
+<h3 id="2-添加Zuul依赖"><a href="#2-添加Zuul依赖" class="headerlink" title="2.添加Zuul依赖"></a>2.添加Zuul依赖</h3><p>在父pom文件中添加依赖，当然也可以直接添加子模块里，我这里为了方便直接放在父pom中了</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 依赖 Zuul --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-zuul<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-创建启动类"><a href="#3-创建启动类" class="headerlink" title="3.创建启动类"></a>3.创建启动类</h3><p>启动类上主要要添加@EnableZuulProxy注解来开启Zuul的使用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableZuulProxy</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ZuulApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(ZuulApplication<span class="class">.<span class="keyword">class</span>,<span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1576221593832.png" alt="1576221593832"></p>
+<p>这里可以看到，这个注解上带有了服务发现和服务熔断的注解，我们就不用再写一遍了。</p>
+<h3 id="4-添加配置"><a href="#4-添加配置" class="headerlink" title="4.添加配置"></a>4.添加配置</h3><p>首先我们需要添加通用配置：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">spring.application.name</span>=<span class="string">server-zuul</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">6060</span></span><br><span class="line"><span class="meta">management.security.enabled</span>=<span class="string">false</span></span><br></pre></td></tr></table></figure>
+
+<p>Zuul这时便不需要配置其他东西了，如果配合Eureka使用，会自动拉取注册中心上的服务进行映射</p>
+<h4 id="单独使用Zuul时的配置"><a href="#单独使用Zuul时的配置" class="headerlink" title="单独使用Zuul时的配置"></a>单独使用Zuul时的配置</h4><p>上面说的情况是配合Eureka使用时，那么如果没有Eureka，我们单独启动provider应用和Zuul应用应该如何配置呢？</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># zuul映射规则</span></span><br><span class="line"><span class="comment"># zuul.routes.$&#123;service-id&#125; = $&#123;url-pattern&#125;</span></span><br><span class="line"><span class="comment"># /** 代表匹配全路径</span></span><br><span class="line"><span class="meta">zuul.routes.server-provider</span>=<span class="string">/provider/**</span></span><br><span class="line"><span class="comment"># ribbon应用名称与地址映射</span></span><br><span class="line"><span class="meta">server-provider.ribbon.listOfServers</span>=<span class="string">http://127.0.0.1:9090</span></span><br></pre></td></tr></table></figure>
+
+<p>便使用这种方式，创建应用名与路径映射规则</p>
+<p>然后再使用ribbon进行应用名与路径映射</p>
+<h5 id="映射规则"><a href="#映射规则" class="headerlink" title="映射规则"></a>映射规则</h5><p>如同上面设置的，对于访问<code>127.0.0.1:6060/provider/**</code>的路径会映射到<code>127.0.0.1:9090/**</code></p>
+<p>127.0.0.1:6060/provider/book/get  ====&gt; 127.0.0.1:9090/book/get </p>
+<h5 id="启动测试"><a href="#启动测试" class="headerlink" title="启动测试"></a>启动测试</h5><p>启动provider与Zuul，注意要把Eureka给关闭掉<code>eureka.client.enabled=false</code></p>
+<p>访问<a href="http://localhost:6060/provider/book/get" target="_blank" rel="noopener">http://localhost:6060/provider/book/get</a></p>
+<p>正常来说，会请求provider的<a href="http://localhost:9090/book/get" target="_blank" rel="noopener">http://localhost:9090/book/get</a></p>
+<p><img src="/image/1576223551577.png" alt="1576222925288"></p>
+<p>正确请求</p>
+<h4 id="整合Eureka时"><a href="#整合Eureka时" class="headerlink" title="整合Eureka时"></a>整合Eureka时</h4><p>配置：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">spring.application.name</span>=<span class="string">server-zuul</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">6060</span></span><br><span class="line"><span class="meta">management.security.enabled</span>=<span class="string">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#eureka.client.enabled=false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># zuul映射规则</span></span><br><span class="line"><span class="comment"># zuul.routes.$&#123;service-id&#125; = $&#123;url-pattern&#125;</span></span><br><span class="line"><span class="comment"># /** 代表匹配全路径</span></span><br><span class="line"><span class="meta">zuul.routes.server-provider</span>=<span class="string">/provider/**</span></span><br><span class="line"><span class="comment"># ribbon应用名称与地址映射</span></span><br><span class="line"><span class="meta">server-provider.ribbon.listOfServers</span>=<span class="string">http://127.0.0.1:9090</span></span><br><span class="line"></span><br><span class="line"><span class="meta">eureka.client.service-url.defaultZone</span>=<span class="string">http://127.0.0.1:10001/eureka</span></span><br></pre></td></tr></table></figure>
+
+<p>需要添加eureka的注册信息，这里我们<strong>不删除刚刚配置的路径映射</strong></p>
+<h5 id="启动测试-1"><a href="#启动测试-1" class="headerlink" title="启动测试"></a>启动测试</h5><p>分别启动eureka，provider，zuul</p>
+<p>访问<a href="http://localhost:6060/provider/book/get" target="_blank" rel="noopener">http://localhost:6060/provider/book/get</a><img src="/image/1576223580860.png" alt="1576223580860"></p>
+<p>可以发现还是正常访问的</p>
+<p>这时我们可以打开zuul的endpoint，routes端点，看看所有的路由规则</p>
+<h5 id="routes端点"><a href="#routes端点" class="headerlink" title="routes端点"></a>routes端点</h5><p><img src="/image/1576223637567.png" alt="1576223637567"></p>
+<p>可以看到除了我们刚刚配的<code>/provider/**</code>外，还自动配置了一个<code>/server-provider/**</code></p>
+<p>就是从eureka上拉取的，默认使用应用名称/**的路径，来映射应用名称</p>
+<p>这时我们访问<a href="http://localhost:6060/server-provider/book/get" target="_blank" rel="noopener">http://localhost:6060/server-provider/book/get</a></p>
+<p><img src="/image/1576223713335.png" alt="1576223713335"></p>
+<p>也是正确访问的</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springcloud/" rel="tag"># springcloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/23/11-SpringCloud-Feign-Basic/" rel="next" title="11.SpringCloud Feign Basic">
+                <i class="fa fa-chevron-left"></i> 11.SpringCloud Feign Basic
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/23/13-SpringCloud-Zuul-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="13.SpringCloud Zuul 源码分析">
+                13.SpringCloud Zuul 源码分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、SpringCloud-Zuul入门"><span class="nav-number">1.</span> <span class="nav-text">一、SpringCloud Zuul入门</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-创建server-zuul模块"><span class="nav-number">1.1.</span> <span class="nav-text">1.创建server-zuul模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-添加Zuul依赖"><span class="nav-number">1.2.</span> <span class="nav-text">2.添加Zuul依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-创建启动类"><span class="nav-number">1.3.</span> <span class="nav-text">3.创建启动类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-添加配置"><span class="nav-number">1.4.</span> <span class="nav-text">4.添加配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#单独使用Zuul时的配置"><span class="nav-number">1.4.1.</span> <span class="nav-text">单独使用Zuul时的配置</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#映射规则"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">映射规则</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#启动测试"><span class="nav-number">1.4.1.2.</span> <span class="nav-text">启动测试</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#整合Eureka时"><span class="nav-number">1.4.2.</span> <span class="nav-text">整合Eureka时</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#启动测试-1"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">启动测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#routes端点"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">routes端点</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

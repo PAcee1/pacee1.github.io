@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springcloud," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、简单介绍1.问题的提出在微服务架构中，各个服务的消费提供都是依赖远程调用的方式，这样便会因为网络，服务故障等问题出现请求超时，延迟。若此时服务调用数量增加，导致请求累计，最终会导致系统瘫痪。 举个例子：以淘宝为例，创建订单业务需要先查询库存，库存 &gt; 0才允许创建，如果此时库存服务因某些问题故障，导致无法被访问，那么创建订单的线程会一直等待，最终导致创建失败，如果这是在双十一的时候，那么">
+<meta property="og:type" content="article">
+<meta property="og:title" content="09.SpringCloud Hystrix Basic">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/09-SpringCloud-Hystrix-Basic/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、简单介绍1.问题的提出在微服务架构中，各个服务的消费提供都是依赖远程调用的方式，这样便会因为网络，服务故障等问题出现请求超时，延迟。若此时服务调用数量增加，导致请求累计，最终会导致系统瘫痪。 举个例子：以淘宝为例，创建订单业务需要先查询库存，库存 &gt; 0才允许创建，如果此时库存服务因某些问题故障，导致无法被访问，那么创建订单的线程会一直等待，最终导致创建失败，如果这是在双十一的时候，那么">
+<meta property="og:image" content="http://yoursite.com/image/1575875654485.png">
+<meta property="og:image" content="http://yoursite.com/image/1575889992845.png">
+<meta property="og:image" content="http://yoursite.com/image/1575890740249.png">
+<meta property="og:image" content="http://yoursite.com/image/1575892358235.png">
+<meta property="og:image" content="http://yoursite.com/image/1575892463294.png">
+<meta property="og:image" content="http://yoursite.com/image/1575941355950.png">
+<meta property="article:published_time" content="2019-12-23T05:46:41.000Z">
+<meta property="article:modified_time" content="2019-12-23T05:49:10.988Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springcloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1575875654485.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/23/09-SpringCloud-Hystrix-Basic/"/>
+
+
+
+
+
+  <title>09.SpringCloud Hystrix Basic | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/23/09-SpringCloud-Hystrix-Basic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">09.SpringCloud Hystrix Basic</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-23T13:46:41+08:00">
+                2019-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springcloud/" itemprop="url" rel="index">
+                    <span itemprop="name">springcloud</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、简单介绍"><a href="#一、简单介绍" class="headerlink" title="一、简单介绍"></a>一、简单介绍</h2><h3 id="1-问题的提出"><a href="#1-问题的提出" class="headerlink" title="1.问题的提出"></a>1.问题的提出</h3><p>在微服务架构中，各个服务的消费提供都是依赖远程调用的方式，这样便会因为网络，服务故障等问题出现请求超时，延迟。若此时服务调用数量增加，导致请求累计，最终会导致系统瘫痪。</p>
+<p>举个例子：以淘宝为例，创建订单业务需要先查询库存，库存 &gt; 0才允许创建，如果此时库存服务因某些问题故障，导致无法被访问，那么创建订单的线程会一直等待，最终导致创建失败，如果这是在双十一的时候，那么大量并发冲击，导致无数线程等待库存服务，最终会导致订单服务挂掉。</p>
+<p>在微服务架构中，存在着那么多的服务单元，若一个单元出现故障，就会因依赖关系形成故障蔓延，最终导致整个系统的瘫痪，这样的架构相较传统架构就更加的不稳定。为了解决这样的问题，因此产生了断路器模式。</p>
+<a id="more"></a>
+
+<h3 id="2-服务熔断"><a href="#2-服务熔断" class="headerlink" title="2.服务熔断"></a>2.服务熔断</h3><p>服务熔断就是在微服务中，添加一个断路器，如果一个服务因某种原因故障（电路故障），这时别的服务请求他时，会通过<strong>断路器监控</strong>（类似电路保险丝），<strong>断路器向调用方返回错误响应</strong>，而不是长时间等待，避免了故障蔓延（电路故障引起火灾）。</p>
+<h2 id="二、传统Spring-Web"><a href="#二、传统Spring-Web" class="headerlink" title="二、传统Spring Web"></a>二、传统Spring Web</h2><p>在传统的MVC项目中，是如果添加断路器这种组件的呢？</p>
+<p>一般情况下，都是<strong>抛出异常</strong>，比如如果访问时间超过多长时间，抛出异常。如下实现：</p>
+<p>创建一个普通的springboot工程：</p>
+<h3 id="创建Controller"><a href="#创建Controller" class="headerlink" title="创建Controller"></a>创建Controller</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoRestController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> Random random = <span class="keyword">new</span> Random();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 当方法执行时间超过 100 ms 时，触发异常</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">""</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">index</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">long</span> executeTime = random.nextInt(<span class="number">200</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (executeTime &gt; <span class="number">100</span>) &#123; <span class="comment">// 执行时间超过了 100 ms</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> TimeoutException(<span class="string">"Execution is timeout!"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hello,World"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里意思是，取一个随机数模拟执行时间，如果超过100，那么抛出<code>TimeoutException</code>异常，</p>
+<h3 id="创建Advice类进行异常处理"><a href="#创建Advice类进行异常处理" class="headerlink" title="创建Advice类进行异常处理"></a>创建Advice类进行异常处理</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 只针对DemoRestController的异常</span></span><br><span class="line"><span class="meta">@RestControllerAdvice</span>(assignableTypes = DemoRestController<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">DemoRestControllerAdvice</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只处理TimooutException异常</span></span><br><span class="line">    <span class="meta">@ExceptionHandler</span>(TimeoutException<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">    <span class="title">public</span> <span class="title">Object</span> <span class="title">faultToleranceTimeout</span>(<span class="title">Throwable</span> <span class="title">throwable</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> throwable.getMessage(); <span class="comment">// 直接打印异常信息</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里创建一个<code>Advice</code>，就是类似<code>AOP</code>的形式，对异常进行捕获处理，主要目的是在页面展示异常信息，而不是springboot自带的异常页面。</p>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>启动主程序类后，进行<code>localhost:8080</code>的访问</p>
+<p><img src="/image/1575875654485.png" alt="1575875654485"></p>
+<p>可以看到，随机的抛出异常，即断路器成功应用</p>
+<h2 id="三、Spring-Cloud-Hystrix"><a href="#三、Spring-Cloud-Hystrix" class="headerlink" title="三、Spring Cloud Hystrix"></a>三、Spring Cloud Hystrix</h2><p>首先需要添加Maven依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 依赖 Hystrix --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-hystrix<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>注意：Spring Cloud对于服务熔断，提供了一个公用注解，当然<code>Hystrix</code>也有他的注解</p>
+<ul>
+<li><code>@EnableHystrix</code>：Hystrix的开启注解</li>
+<li><code>@EnableCircuitBreaker</code>：SpringCloud的公用断路器接口，推荐使用</li>
+</ul>
+<p>这就和Eureka一样，有一个<code>@EnableEurekaClient</code>和<code>@EnableDiscoveryClient</code></p>
+<p>并且，Hystrix提供了两种开启熔断的方式</p>
+<ul>
+<li>注解方式</li>
+<li>编程方式</li>
+</ul>
+<h3 id="1-服务提供方添加断路器"><a href="#1-服务提供方添加断路器" class="headerlink" title="1.服务提供方添加断路器"></a>1.服务提供方添加断路器</h3><p>==这里我们首先使用<code>@EnableHystrix</code>注解，并且使用注解方式==</p>
+<h4 id="主程序类添加注解"><a href="#主程序类添加注解" class="headerlink" title="主程序类添加注解"></a>主程序类添加注解</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableHystrix</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceProviderApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(UserServiceProviderApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="编写Controller"><a href="#编写Controller" class="headerlink" title="编写Controller"></a>编写Controller</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StockProviderController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> Random random = <span class="keyword">new</span> Random();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@HystrixCommand</span>(</span><br><span class="line">            commandProperties = &#123;</span><br><span class="line">                    <span class="meta">@HystrixProperty</span>(name = <span class="string">"execution.isolation.thread.timeoutInMilliseconds"</span>,value = <span class="string">"100"</span>)</span><br><span class="line">            &#125;, <span class="comment">// 设置熔断的条件，此条件为如果执行时间超过100ms，即熔断</span></span><br><span class="line">            fallbackMethod = <span class="string">"emptyStock"</span> <span class="comment">// 设置熔断后执行的方法</span></span><br><span class="line">    )</span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/stock"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getStock</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> executeTime = random.nextInt(<span class="number">200</span>);</span><br><span class="line">        <span class="comment">// 通过休眠来模拟执行时间</span></span><br><span class="line">        System.out.println(<span class="string">"Execute Time : "</span> + executeTime + <span class="string">" ms"</span>);</span><br><span class="line">        Thread.sleep(executeTime);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"100"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">emptyStock</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"server provider hystrix fallback"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到，主要使用到了几个重要的注解</p>
+<p><code>@HystrixCommand</code>：添加Hystrix断路规则，其中有几个属性</p>
+<ul>
+<li><code>commandProperties</code>：断路条件，可以设置多个<ul>
+<li><code>@HystrixProperty</code>：断路具体条件<a href="https://github.com/Netflix/Hystrix/wiki/Configuration" target="_blank" rel="noopener">Hystrix Wiki</a></li>
+</ul>
+</li>
+<li><code>fallbackMethod</code>：熔断后执行方法</li>
+</ul>
+<h4 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h4><p><img src="/image/1575889992845.png" alt="1575884176820"></p>
+<p>正确返回<code>server provider hystrix fallback</code>，并且控制台输出<code>Execute Time : 169 ms</code></p>
+<h3 id="2-服务消费方添加断路器"><a href="#2-服务消费方添加断路器" class="headerlink" title="2.服务消费方添加断路器"></a>2.服务消费方添加断路器</h3><p>==对于服务消费方，我们使用@EnableCircuitBreaker以及编程方式实现==</p>
+<h4 id="主程序添加注解"><a href="#主程序添加注解" class="headerlink" title="主程序添加注解"></a>主程序添加注解</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@RibbonClient</span>(<span class="string">"user-service-provider"</span>) <span class="comment">// 指定目标应用名称</span></span><br><span class="line"><span class="meta">@EnableCircuitBreaker</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserRibbonClientApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(UserRibbonClientApplication<span class="class">.<span class="keyword">class</span>, <span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@LoadBalanced</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RestTemplate <span class="title">restTemplate</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RestTemplate();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="编写Hystrix类"><a href="#编写Hystrix类" class="headerlink" title="编写Hystrix类"></a>编写Hystrix类</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyHystrixCommand</span> <span class="keyword">extends</span> <span class="title">HystrixCommand</span>&lt;<span class="title">String</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String providerName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> RestTemplate restTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyHystrixCommand</span><span class="params">(String providerName, RestTemplate restTemplate)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//必需要实现构造方法</span></span><br><span class="line">        <span class="keyword">super</span>(HystrixCommandGroupKey.Factory.asKey(</span><br><span class="line">                <span class="string">"User-Ribbon-Client"</span>), <span class="comment">// 定义一个组，名称随意</span></span><br><span class="line">                <span class="number">100</span>); <span class="comment">// 执行时间</span></span><br><span class="line">        <span class="keyword">this</span>.providerName = providerName;</span><br><span class="line">        <span class="keyword">this</span>.restTemplate = restTemplate;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span> </span><br><span class="line">    <span class="function"><span class="keyword">protected</span> String <span class="title">run</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> restTemplate.getForObject(<span class="string">"http://"</span> + providerName + <span class="string">"/stock"</span>,</span><br><span class="line">                String<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 熔断后执行的方法</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> String <span class="title">getFallback</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"server client hystrix fallback"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里使用了编程方式来写一个Hystrix熔断类，具体的步骤为：</p>
+<ul>
+<li>创建一个类，继承<code>HystrixCommand&lt;T&gt;</code>（必要）</li>
+<li>实现抽象方法<code>run()</code>，即需要熔断的方法（必要）</li>
+<li>添加构造方法，<strong>必要添加组名</strong>，可选添加执行超时时间，线程池等。</li>
+<li>重写熔断后执行方法，<code>getFallback()</code>（可选）</li>
+</ul>
+<h4 id="编写Controller-1"><a href="#编写Controller-1" class="headerlink" title="编写Controller"></a>编写Controller</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StockRibbonController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RestTemplate restTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;provider.service.name&#125;"</span>)</span><br><span class="line">    <span class="keyword">private</span> String providerName;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/stock"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getStock</span><span class="params">()</span></span>&#123;</span><br><span class="line">        String rs = <span class="keyword">new</span> MyHystrixCommand(providerName, restTemplate).execute();</span><br><span class="line">        <span class="keyword">return</span> rs;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要是实例化刚刚编写的<code>HystrixCommand</code>类，然后运行</p>
+<h4 id="测试-2"><a href="#测试-2" class="headerlink" title="测试"></a>测试</h4><p><img src="/image/1575890740249.png" alt="1575890740249"></p>
+<p>正确返回服务消费方的回调方法，说明消费方熔断成功</p>
+<h2 id="四、Hystrix-Bashboard"><a href="#四、Hystrix-Bashboard" class="headerlink" title="四、Hystrix Bashboard"></a>四、Hystrix Bashboard</h2><p><code>Hystrix Dashboard</code>，它主要用来实时监控Hystrix的各项指标信息。通过<code>Hystrix Dashboard</code>反馈的实时信息，可以帮助我们快速发现系统中存在的问题。下面通过一个例子来学习。</p>
+<h3 id="添加Maven依赖"><a href="#添加Maven依赖" class="headerlink" title="添加Maven依赖"></a>添加Maven依赖</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-hystrix-dashboard<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="创建主程序类"><a href="#创建主程序类" class="headerlink" title="创建主程序类"></a>创建主程序类</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableHystrixDashboard</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HystrixDashboardApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(HystrixDashboardApplication<span class="class">.<span class="keyword">class</span>,<span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意，这里添加注解开启Hystrix监控，<code>@EnableHystrixDashboard</code></p>
+<h3 id="添加配置文件"><a href="#添加配置文件" class="headerlink" title="添加配置文件"></a>添加配置文件</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 应用名</span></span><br><span class="line"><span class="meta">spring.application.name</span>=<span class="string">hystrix-dashboard</span></span><br><span class="line"><span class="comment"># 端口</span></span><br><span class="line"><span class="meta">server.port</span>=<span class="string">10001</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="访问测试"><a href="#访问测试" class="headerlink" title="访问测试"></a>访问测试</h3><p>访问<a href="http://localhost:10001/hystrix" target="_blank" rel="noopener">http://localhost:10001/hystrix</a></p>
+<p><img src="/image/1575892358235.png" alt="1575892335016"></p>
+<p>会进入这么一个页面，可以在红框看到，有三种监控方式，一二两种都需要配合Turbine来做，这个我们后面才会学到，所以先使用单机版，在输入框输入：<code>http://localhost:9090/hystrix.stream</code></p>
+<p>可以进入以下页面，这时我们疯狂访问8080或者9090，因为都会调用9090的熔断API</p>
+<p><img src="/image/1575892463294.png" alt="1575892463294"></p>
+<p>可以清楚的看到，调用成功6次，失败8次，失败率为57%</p>
+<p>并且还有一些其他的信息，比如那个红点，流量越多，他越大，Ciruit Closed，代表熔断关闭等等</p>
+<p><img src="/image/1575941355950.png" alt="1575941355950"></p>
+<h2 id="五、Hystrix的缺点"><a href="#五、Hystrix的缺点" class="headerlink" title="五、Hystrix的缺点"></a>五、Hystrix的缺点</h2><p>对于很多大公司来说，很少使用Hystrix，因为它的缺点很明显</p>
+<p>一是对于分布式支持不够，比如超时时间，不能动态的去设置</p>
+<p>二是功能太简陋，支持的关于熔断的功能较简单</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springcloud/" rel="tag"># springcloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/23/10-SpringCloud-Hystrix-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="next" title="10.SpringCloud Hystrix 源码分析">
+                <i class="fa fa-chevron-left"></i> 10.SpringCloud Hystrix 源码分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/23/11-SpringCloud-Feign-Basic/" rel="prev" title="11.SpringCloud Feign Basic">
+                11.SpringCloud Feign Basic <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、简单介绍"><span class="nav-number">1.</span> <span class="nav-text">一、简单介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-问题的提出"><span class="nav-number">1.1.</span> <span class="nav-text">1.问题的提出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-服务熔断"><span class="nav-number">1.2.</span> <span class="nav-text">2.服务熔断</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、传统Spring-Web"><span class="nav-number">2.</span> <span class="nav-text">二、传统Spring Web</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建Controller"><span class="nav-number">2.1.</span> <span class="nav-text">创建Controller</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建Advice类进行异常处理"><span class="nav-number">2.2.</span> <span class="nav-text">创建Advice类进行异常处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试"><span class="nav-number">2.3.</span> <span class="nav-text">测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、Spring-Cloud-Hystrix"><span class="nav-number">3.</span> <span class="nav-text">三、Spring Cloud Hystrix</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-服务提供方添加断路器"><span class="nav-number">3.1.</span> <span class="nav-text">1.服务提供方添加断路器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主程序类添加注解"><span class="nav-number">3.1.1.</span> <span class="nav-text">主程序类添加注解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编写Controller"><span class="nav-number">3.1.2.</span> <span class="nav-text">编写Controller</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试-1"><span class="nav-number">3.1.3.</span> <span class="nav-text">测试</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-服务消费方添加断路器"><span class="nav-number">3.2.</span> <span class="nav-text">2.服务消费方添加断路器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主程序添加注解"><span class="nav-number">3.2.1.</span> <span class="nav-text">主程序添加注解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编写Hystrix类"><span class="nav-number">3.2.2.</span> <span class="nav-text">编写Hystrix类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编写Controller-1"><span class="nav-number">3.2.3.</span> <span class="nav-text">编写Controller</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试-2"><span class="nav-number">3.2.4.</span> <span class="nav-text">测试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、Hystrix-Bashboard"><span class="nav-number">4.</span> <span class="nav-text">四、Hystrix Bashboard</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#添加Maven依赖"><span class="nav-number">4.1.</span> <span class="nav-text">添加Maven依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建主程序类"><span class="nav-number">4.2.</span> <span class="nav-text">创建主程序类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加配置文件"><span class="nav-number">4.3.</span> <span class="nav-text">添加配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问测试"><span class="nav-number">4.4.</span> <span class="nav-text">访问测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、Hystrix的缺点"><span class="nav-number">5.</span> <span class="nav-text">五、Hystrix的缺点</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
