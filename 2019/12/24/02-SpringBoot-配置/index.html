@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springboot," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、配置文件Springboot不同于Spring，其配置文件有严格要求：  application.properties application.yml(yaml)  只能是这两种才可以，名称固定。 一般来说Springboot在底层已经配置好，如果需要自己进行配置，便可以通过这个配置文件修改 例如： 12server:  port: 8081">
+<meta property="og:type" content="article">
+<meta property="og:title" content="02.SpringBoot-配置">
+<meta property="og:url" content="http://yoursite.com/2019/12/24/02-SpringBoot-%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、配置文件Springboot不同于Spring，其配置文件有严格要求：  application.properties application.yml(yaml)  只能是这两种才可以，名称固定。 一般来说Springboot在底层已经配置好，如果需要自己进行配置，便可以通过这个配置文件修改 例如： 12server:  port: 8081">
+<meta property="og:image" content="http://yoursite.com/image/1571725242330.png">
+<meta property="og:image" content="http://yoursite.com/image/1571729011857.png">
+<meta property="og:image" content="http://yoursite.com/image/1571729264725.png">
+<meta property="og:image" content="http://yoursite.com/image/1571731850890.png">
+<meta property="og:image" content="http://yoursite.com/image/1571732216413.png">
+<meta property="og:image" content="http://yoursite.com/image/1571733875392.png">
+<meta property="og:image" content="http://yoursite.com/image/1571737053344.png">
+<meta property="og:image" content="http://yoursite.com/image/1571738231455.png">
+<meta property="og:image" content="http://yoursite.com/image/1571738368934.png">
+<meta property="og:image" content="http://yoursite.com/image/1571738385299.png">
+<meta property="article:published_time" content="2019-12-24T01:10:03.000Z">
+<meta property="article:modified_time" content="2019-12-24T01:15:49.587Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springboot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1571725242330.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/24/02-SpringBoot-配置/"/>
+
+
+
+
+
+  <title>02.SpringBoot-配置 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/24/02-SpringBoot-%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">02.SpringBoot-配置</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-24T09:10:03+08:00">
+                2019-12-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springboot/" itemprop="url" rel="index">
+                    <span itemprop="name">springboot</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、配置文件"><a href="#一、配置文件" class="headerlink" title="一、配置文件"></a>一、配置文件</h2><p>Springboot不同于Spring，其配置文件有严格要求：</p>
+<ul>
+<li>application.properties</li>
+<li>application.yml(yaml)</li>
+</ul>
+<p>只能是这两种才可以，名称固定。</p>
+<p>一般来说Springboot在底层已经配置好，如果需要自己进行配置，便可以通过这个配置文件修改</p>
+<p>例如：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8081</span></span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="二、YAML语法"><a href="#二、YAML语法" class="headerlink" title="二、YAML语法"></a>二、YAML语法</h2><h3 id="2-1-基本语法"><a href="#2-1-基本语法" class="headerlink" title="2.1.基本语法"></a>2.1.基本语法</h3><p>yaml由键值对组成，k: v（注意冒号后要跟一个空格）</p>
+<p>yaml对空格敏感，对于层级的控制也是由空格来判断的，空格对齐的数据是在一个层级</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">8081</span></span><br><span class="line">    	<span class="attr">test:</span> <span class="number">123</span></span><br><span class="line">    <span class="attr">path:</span> <span class="string">/hello</span></span><br><span class="line">    	<span class="attr">name:</span> <span class="string">haha</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的例子，即port与path在一个层级，test与name在第三层级。</p>
+<p>并且大小写敏感</p>
+<h3 id="2-2-值的写法"><a href="#2-2-值的写法" class="headerlink" title="2.2.值的写法"></a>2.2.值的写法</h3><h4 id="键值对"><a href="#键值对" class="headerlink" title="键值对"></a>键值对</h4><p>由k: v组成，一般来说v不需要加引号</p>
+<p>如果加双引号，特殊字符会被转义，如”\n”就会换行</p>
+<p>如果加单引号，特殊字符不会被转义</p>
+<h4 id="对象、Map"><a href="#对象、Map" class="headerlink" title="对象、Map"></a>对象、Map</h4><p>k: v：在下一行来写对象的属性和值的关系；注意缩进</p>
+<p>​        对象还是k: v的方式</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">friends:</span></span><br><span class="line">		<span class="attr">lastName:</span> <span class="string">zhangsan</span></span><br><span class="line">		<span class="attr">age:</span> <span class="number">20</span></span><br></pre></td></tr></table></figure>
+
+<p>行内写法：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">friends:</span> <span class="string">&#123;lastName:</span> <span class="string">zhangsan,age:</span> <span class="number">18</span><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h4><p>用- 值表示数组中的一个元素</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">pets:</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">cat</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">dog</span></span><br><span class="line"> <span class="bullet">-</span> <span class="string">pig</span></span><br></pre></td></tr></table></figure>
+
+<p>行内写法</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">pets:</span> <span class="string">[cat,dog,pig]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="三、配置文件注入"><a href="#三、配置文件注入" class="headerlink" title="三、配置文件注入"></a>三、配置文件注入</h2><p>比如我们写一个实体类Person与Dog</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Component</span> 需要将实体放到容器中</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@ConfigurationProperties</span>：将配置文件中的属性映射到实体中，初始化绑定</span></span><br><span class="line"><span class="comment"> *      prefix ： 配置文件中哪个属性进行绑定</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"person"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String pName;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> pAge;</span><br><span class="line">    <span class="keyword">private</span> Date birth;</span><br><span class="line">    <span class="keyword">private</span> Map&lt;String,Object&gt; map;</span><br><span class="line">    <span class="keyword">private</span> List&lt;Object&gt; list;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Dog dog;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Dog</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String dName;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> dAge;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>application.yml：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">person:</span></span><br><span class="line">    <span class="attr">pName:</span> <span class="string">zhangsan</span></span><br><span class="line">    <span class="attr">pAge:</span> <span class="number">18</span></span><br><span class="line">    <span class="attr">birth:</span> <span class="number">1997</span><span class="string">/05/20</span></span><br><span class="line">    <span class="attr">map:</span> <span class="string">&#123;k1:</span> <span class="string">v1,k2:</span> <span class="string">v2&#125;</span></span><br><span class="line">    <span class="attr">list:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">lisi</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">zhaoliu</span></span><br><span class="line">    <span class="attr">dog:</span></span><br><span class="line">        <span class="attr">dName:</span> <span class="string">狗</span></span><br><span class="line">        <span class="attr">dAge:</span> <span class="number">4</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-1-ConfigurationProperties注入"><a href="#3-1-ConfigurationProperties注入" class="headerlink" title="3.1.@ConfigurationProperties注入"></a>3.1.@ConfigurationProperties注入</h3><p>由上面代码可以看出来，注入非常简单</p>
+<p>1）在pom中添加springboot文件处理器</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 导入配置文件处理器 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-configuration-processor<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>2）在需要注入的类中添加两个注解，并设置属性</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"person"</span>)</span><br></pre></td></tr></table></figure>
+
+<p>注意配置文件使用的是application.yaml</p>
+<h3 id="3-2-Value注入"><a href="#3-2-Value注入" class="headerlink" title="3.2.@Value注入"></a>3.2.@Value注入</h3><p>properties之前经常用到，比较熟悉，比如配置数据库信息等等，因为上面我们使用了yml注入，所以这次我们注入properties，两者都是一样使用的</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">person.p-name</span>=<span class="string">zhangsan</span></span><br><span class="line"><span class="meta">person.p-age</span>=<span class="string">18</span></span><br><span class="line"><span class="meta">person.birth</span>=<span class="string">1997/05/20</span></span><br><span class="line"><span class="meta">person.map.k1</span>=<span class="string">v1</span></span><br><span class="line"><span class="meta">person.map.k2</span>=<span class="string">v2</span></span><br></pre></td></tr></table></figure>
+
+<p>在需要注入的字段上加@Value注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;person.p-name&#125;"</span>)</span><br><span class="line">    <span class="keyword">private</span> String pName;</span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"#&#123;11*2&#125;"</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> pAge;</span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;person.birth&#125;"</span>)</span><br><span class="line">    <span class="keyword">private</span> Date birth;</span><br><span class="line">    <span class="keyword">private</span> Map&lt;String,Object&gt; map;</span><br><span class="line">    <span class="keyword">private</span> List&lt;Object&gt; list;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Dog dog;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-两者区别"><a href="#3-3-两者区别" class="headerlink" title="3.3.两者区别"></a>3.3.两者区别</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>@ConfigurationProperties</th>
+<th>@Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>功能</td>
+<td>批量注入配置文件中的属性</td>
+<td>一个个指定</td>
+</tr>
+<tr>
+<td>松散绑定（松散语法）</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>SpEL（如#{11*2}）</td>
+<td>不支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>数据校验（@Validated）</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>复杂类型封装</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+</tbody></table>
+<p>配置文件yml还是properties他们都能获取到值；两者使用场景：</p>
+<p><strong>我们只是在某个业务逻辑中需要获取一下配置文件中的某项值，使用@Value；</strong></p>
+<p><strong>我们专门编写了一个javaBean来和配置文件进行映射，使用@ConfigurationProperties。</strong></p>
+<h3 id="3-4-数据校验"><a href="#3-4-数据校验" class="headerlink" title="3.4.数据校验"></a>3.4.数据校验</h3><p>对于配置文件注入时，只有@ConfigurationProperties注解可以配合使用数据校验@Validated，@Value不可用使用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"person"</span>)</span><br><span class="line"><span class="meta">@Validated</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NotBlank</span></span><br><span class="line">    <span class="keyword">private</span> String pName;</span><br><span class="line">    <span class="meta">@NotNull</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> pAge;</span><br><span class="line">    <span class="meta">@Email</span></span><br><span class="line">    <span class="keyword">private</span> Date birth;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为birth给定的是日期类型，所以启动会报错，即数据校验成功</p>
+<p><img src="/image/1571725242330.png" alt="1571725242330"></p>
+<p>一些常用的数据校验注解：</p>
+<table>
+<thead>
+<tr>
+<th>限制</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>@Null</td>
+<td>限制只能为null</td>
+</tr>
+<tr>
+<td>@NotNull</td>
+<td>限制必须不为null</td>
+</tr>
+<tr>
+<td>@AssertFalse</td>
+<td>限制必须为false</td>
+</tr>
+<tr>
+<td>@AssertTrue</td>
+<td>限制必须为true</td>
+</tr>
+<tr>
+<td>@DecimalMax(value)</td>
+<td>限制必须为一个不大于指定值的数字</td>
+</tr>
+<tr>
+<td>@DecimalMin(value)</td>
+<td>限制必须为一个不小于指定值的数字</td>
+</tr>
+<tr>
+<td>@Digits(integer,fraction)</td>
+<td>限制必须为一个小数，且整数部分的位数不能超过integer，小数部分的位数不能超过fraction</td>
+</tr>
+<tr>
+<td>@Future</td>
+<td>限制必须是一个将来的日期</td>
+</tr>
+<tr>
+<td>@Max(value)</td>
+<td>限制必须为一个不大于指定值的数字</td>
+</tr>
+<tr>
+<td>@Min(value)</td>
+<td>限制必须为一个不小于指定值的数字</td>
+</tr>
+<tr>
+<td>@Past</td>
+<td>限制必须是一个过去的日期</td>
+</tr>
+<tr>
+<td>@Pattern(value)</td>
+<td>限制必须符合指定的正则表达式</td>
+</tr>
+<tr>
+<td>@Size(max,min)</td>
+<td>限制字符长度必须在min到max之间</td>
+</tr>
+<tr>
+<td>@Past</td>
+<td>验证注解的元素值（日期类型）比当前时间早</td>
+</tr>
+<tr>
+<td>@NotEmpty</td>
+<td>验证注解的元素值不为null且不为空（字符串长度不为0、集合大小不为0）</td>
+</tr>
+<tr>
+<td>@NotBlank</td>
+<td>验证注解的元素值不为空（不为null、去除首位空格后长度为0），不同于@NotEmpty，@NotBlank只应用于字符串且在比较时会去除字符串的空格</td>
+</tr>
+<tr>
+<td>@Email</td>
+<td>验证注解的元素值是Email，也可以通过正则表达式和flag指定自定义的email格式</td>
+</tr>
+</tbody></table>
+<h3 id="3-5-指定配置文件"><a href="#3-5-指定配置文件" class="headerlink" title="3.5.指定配置文件"></a>3.5.指定配置文件</h3><h4 id="3-5-1-PropertySource"><a href="#3-5-1-PropertySource" class="headerlink" title="3.5.1.@PropertySource"></a>3.5.1.@PropertySource</h4><p>一般情况下，配置文件使用默认的application.yml或者application.properties，如果想要修改，就需要使用注解<strong>@PropertySource</strong>，加载指定配置文件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PropertySource</span>(value = &#123;<span class="string">"classpath:person.properties"</span>&#125;)</span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"person"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String pName;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> pAge;</span><br><span class="line">    <span class="keyword">private</span> Date birth;</span><br><span class="line">    <span class="keyword">private</span> Map&lt;String,Object&gt; map;</span><br><span class="line">    <span class="keyword">private</span> List&lt;Object&gt; list;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Dog dog;</span><br></pre></td></tr></table></figure>
+
+<p>注意！！！</p>
+<p><strong>使用指定配置文件时，需要把application中的相同配置注释掉，不然还是使用的application中的</strong></p>
+<h4 id="3-5-2-ImportResource"><a href="#3-5-2-ImportResource" class="headerlink" title="3.5.2.@ImportResource"></a>3.5.2.@ImportResource</h4><p>使用这个注解一般用来加载xml配置文件，比如Spring的配置文件</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"helloService"</span> <span class="attr">class</span>=<span class="string">"com.atguigu.springboot.service.HelloService"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>导入Spring的配置文件让其生效</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootApplication</span><br><span class="line">@ImportResource(locations &#x3D; &quot;classpath:bean.xml&quot;)</span><br><span class="line">public class Springboot02ConfigApplication &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        SpringApplication.run(Springboot02ConfigApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试查看：</p>
+<p><img src="/image/1571729011857.png" alt="1571729011857"></p>
+<p>正确加载到容器中。</p>
+<h4 id="3-5-4-注解添加组件"><a href="#3-5-4-注解添加组件" class="headerlink" title="3.5.4.注解添加组件"></a>3.5.4.注解添加组件</h4><p>注意，这是使用配置文件xml来进行对容器添加组件，Springboot提倡全注解开发，所以不建议使用xml来添加，他推荐了一种方法来配置：</p>
+<p>1）创建一个配置类，相当于配置文件</p>
+<p>2）使用@Bean注解进行添加</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> HelloService <span class="title">helloService</span><span class="params">()</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"helloservice已经通过@Bean添加到容器中"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> HelloService();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1571729264725.png" alt="1571729264725"></p>
+<h4 id="3-5-4-总结"><a href="#3-5-4-总结" class="headerlink" title="3.5.4.总结"></a>3.5.4.总结</h4><p>对于Springboot加载指定配置文件，有以下总结</p>
+<ul>
+<li>使用@PropertySource来加载properties或yaml文件</li>
+<li>使用@ImportResource加载xml文件（不推荐使用）</li>
+<li>使用@Configuration配合@Bean来添加组件，而不是使用spring的xml文件注入bean</li>
+</ul>
+<h2 id="四、占位符"><a href="#四、占位符" class="headerlink" title="四、占位符"></a>四、占位符</h2><p>配置文件中也可以有占位符，使用<code>${}</code>的格式</p>
+<p>可以是自带的随机函数，也可以是上面定义的参数，也可以是没定义的参数使用<code>:</code>来指定</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#使用随机函数random</span></span><br><span class="line"><span class="meta">person.p-name</span>=<span class="string">zhangsan$&#123;random.uuid&#125;</span></span><br><span class="line"><span class="meta">person.p-age</span>=<span class="string">18</span></span><br><span class="line"><span class="meta">person.birth</span>=<span class="string">1997/05/20</span></span><br><span class="line"><span class="meta">person.map.k1</span>=<span class="string">v1</span></span><br><span class="line"><span class="meta">person.map.k2</span>=<span class="string">v2</span></span><br><span class="line"><span class="comment">#没有的参数，使用冒号给值hello</span></span><br><span class="line"><span class="meta">person.dog.dName</span>=<span class="string">$&#123;person.hello:hello&#125;_dog</span></span><br><span class="line"><span class="comment">#使用上面有的p-age</span></span><br><span class="line"><span class="meta">person.dog.dAge</span>=<span class="string">$&#123;person.p-age&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="五、Profile"><a href="#五、Profile" class="headerlink" title="五、Profile"></a>五、Profile</h2><p>当应用需要部署开发环境或生产环境时，便需要不同的配置文件，有两种方式</p>
+<h3 id="5-1-多properties"><a href="#5-1-多properties" class="headerlink" title="5.1.多properties"></a>5.1.多properties</h3><p>编写多个application文件，命名为application-xxx.properties</p>
+<p>然后再主文件中配置使用哪个环境的配置文件，例如：</p>
+<p><img src="/image/1571731850890.png" alt="1571731850890"></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">spring.profiles.active</span>=<span class="string">dev</span></span><br></pre></td></tr></table></figure>
+
+<p>即使用application-dev.properties</p>
+<h3 id="5-2-yml配置"><a href="#5-2-yml配置" class="headerlink" title="5.2.yml配置"></a>5.2.yml配置</h3><p>在使用yaml配置多环境时，便不需要写多个yml文件了，他有文件块机制</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">profiles:</span></span><br><span class="line">    <span class="attr">active:</span> <span class="string">prod</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8081</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">profiles:</span> <span class="string">dev</span></span><br><span class="line"></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8082</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">profiles:</span> <span class="string">prod</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-激活指定profile"><a href="#5-3-激活指定profile" class="headerlink" title="5.3.激活指定profile"></a>5.3.激活指定profile</h3><p>1）在配置文件中激活</p>
+<p>properties：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">spring.profiles.active</span>=<span class="string">dev</span></span><br></pre></td></tr></table></figure>
+
+<p>yml:</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">profiles:</span></span><br><span class="line">    <span class="attr">active:</span> <span class="string">prod</span></span><br></pre></td></tr></table></figure>
+
+<p>2）在启动时添加参数</p>
+<p><img src="/image/1571732216413.png" alt="1571732216413"></p>
+<p>运行jar时：</p>
+<p><code>java -jar spring-boot-02-config-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev；</code></p>
+<p>3）虚拟机参数</p>
+<p><code>-Dspring.profiles.active=dev</code></p>
+<h2 id="六、配置文件加载位置"><a href="#六、配置文件加载位置" class="headerlink" title="六、配置文件加载位置"></a>六、配置文件加载位置</h2><p>SpringBoot如果有重复的配置文件在不同的位置，其优先级也会不同</p>
+<p><img src="/image/1571733875392.png" alt="1571733875392"></p>
+<p>对于不同位置的配置文件，有一个<strong>互补原则，没有的配置会聚合，相同的配置被覆盖</strong></p>
+<p>我们还可以通过spring.config.location来改变默认的配置文件位置</p>
+<p><strong>项目打包好以后，我们可以使用命令行参数的形式，启动项目的时候来指定配置文件的新位置；指定配置文件和默认加载的这些配置文件共同起作用形成互补配置；</strong></p>
+<p><code>java -jar spring-boot-02-config.jar --spring.config.location=G:/application.properties</code></p>
+<h2 id="七、Springboot的自动配置原理"><a href="#七、Springboot的自动配置原理" class="headerlink" title="七、Springboot的自动配置原理"></a>七、Springboot的自动配置原理</h2><p>当我们在<code>application.yml</code>配置时，是这样配的</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line">  </span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">http:</span></span><br><span class="line">    <span class="attr">encoding:</span></span><br><span class="line">      <span class="attr">charset:</span> <span class="string">utf-8</span></span><br></pre></td></tr></table></figure>
+
+<p>可以发现，我们在配置文件中配置<code>spring.http.encoding.charset</code>，其应用便会自动的帮我们设置好骑编码为utf-8,那么他的原理是什么呢？我们探究一下</p>
+<p>在上一篇笔记中，我们讲到Springboot的最重要注解<strong>@SpringBootApplication</strong></p>
+<ol>
+<li><strong>@SpringBootApplication</strong>中具有一个<strong>@EnableAutoConfiguration</strong>注解</li>
+<li>在里面Import了一个<code>EnableAutoConfigurationImportSelector</code>类</li>
+<li>其中有一个<code>getCandidateConfigurations</code>方法，调用了<code>Loader</code>的<code>loadFactoryNames</code>方法</li>
+<li>这个方法是根据<code>META-INF/spring.factories</code>中配置的<code>AutoConfiguration</code>类进行装载到容器中</li>
+</ol>
+<p><strong>而我们在配置文件中的配置，全部都来自于这些AutoConfiguration类！</strong></p>
+<hr>
+<p><strong>我们拿HttpEncodingAutoConfiguration来举例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties</span>(HttpEncodingProperties<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">ConditionalOnWebApplication</span></span></span><br><span class="line"><span class="class">@<span class="title">ConditionalOnClass</span>(<span class="title">CharacterEncodingFilter</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">ConditionalOnProperty</span>(<span class="title">prefix</span> </span>= <span class="string">"spring.http.encoding"</span>, value = <span class="string">"enabled"</span>, matchIfMissing = <span class="keyword">true</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HttpEncodingAutoConfiguration</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> HttpEncodingProperties properties;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//即参数的值从配置文件获取</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="title">HttpEncodingAutoConfiguration</span><span class="params">(HttpEncodingProperties properties)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">this</span>.properties = properties;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Bean</span> <span class="comment">// 向容器添加Filter组件，里面的配置就是根据配置文件的值来生成</span></span><br><span class="line">   <span class="meta">@ConditionalOnMissingBean</span>(CharacterEncodingFilter<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">   <span class="title">public</span> <span class="title">CharacterEncodingFilter</span> <span class="title">characterEncodingFilter</span>() </span>&#123;</span><br><span class="line">      CharacterEncodingFilter filter = <span class="keyword">new</span> OrderedCharacterEncodingFilter();</span><br><span class="line">      filter.setEncoding(<span class="keyword">this</span>.properties.getCharset().name());</span><br><span class="line">      filter.setForceRequestEncoding(<span class="keyword">this</span>.properties.shouldForce(Type.REQUEST));</span><br><span class="line">      filter.setForceResponseEncoding(<span class="keyword">this</span>.properties.shouldForce(Type.RESPONSE));</span><br><span class="line">      <span class="keyword">return</span> filter;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>@Configuration</strong>：代表他是一个配置类</li>
+<li><strong>@EnableConfigurationProperties(HttpEncodingProperties.class)</strong>：启动指定类的<code>ConfigurationProperties</code>功能，即将配置文件中的值与<code>HttpEncodingProperties</code>这个类绑定起来</li>
+<li><strong>@ConditionalOnWebApplication</strong>：判断是否是web项目，如果不是便配置不生效</li>
+<li><strong>@ConditionalOnClass(CharacterEncodingFilter.class)</strong>：判断是否编写了<code>CharacterEncodingFilter</code>这个过滤器，如果已经编写了，便不会生效了，使用用户自己编写的过滤器</li>
+<li><strong>@ConditionalOnProperty(prefix = “spring.http.encoding”, value = “enabled”, matchIfMissing = true)</strong>：判断<code>application.yml</code>配置文件里是否写了<code>spring.http.encoding</code>这个值，如果为<code>enabled</code>或者没有写，即生效，如果为<code>disable</code>便不生效</li>
+</ul>
+<hr>
+<p><strong>再进入HttpEncodingProperties看一下</strong></p>
+<p><img src="/image/1571737053344.png" alt="1571737053344"></p>
+<p>可以发现，获取的便是我们配置文件中的<code>spring.http.encoding</code>的属性，而字段<code>charset</code>就是对应的值</p>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li><strong>SpringBoot启动时会加载大量自动配置类</strong></li>
+<li><strong>我们根据需要在配置文件中配置</strong></li>
+<li><strong>自动配置类会根据一些@Conditional判断是否生效这些配置，如果生效</strong></li>
+<li><strong>Springboot会自动将我们配置的值装载到类中，生成一些所需的组件，比如HttpEncodingAutoConfiguration就会生成一个CharacterEncodingFilter过滤器，来帮我们处理编码问题</strong></li>
+<li><strong>主要的文件是：</strong><ol>
+<li><strong>xxxxAutoConfigurartion：自动配置类，给容器添加组件</strong></li>
+<li><strong>xxxxProperties：封装配置文件中的值，</strong></li>
+</ol>
+</li>
+</ol>
+<h3 id="Conditional"><a href="#Conditional" class="headerlink" title="@Conditional"></a>@Conditional</h3><p>可以发现，我们每个自动配置类中都有很多的conditional，这个是Spring底层的一个注解，用来判断条件是否成立，如果成立了，才会向容器中添加组件</p>
+<p><img src="/image/1571738231455.png" alt="1571738231455"></p>
+<p>SpringBoot自带了很多自动配置类，但不是全部生效的，就是因为@Conditional的作用</p>
+<p>我们可以在配置文件中通过启用<code>debug: true</code>属性来让控制台打印哪些自动配置类生效了：</p>
+<p>生效的类：</p>
+<p><img src="/image/1571738368934.png" alt="1571738368934"></p>
+<p>未生效的类：</p>
+<p><img src="/image/1571738385299.png" alt="1571738385299"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springboot/" rel="tag"># springboot</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/24/01-SpringBoot-%E5%85%A5%E9%97%A8/" rel="next" title="01.SpringBoot-入门">
+                <i class="fa fa-chevron-left"></i> 01.SpringBoot-入门
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/24/03-SpringBoot-%E6%97%A5%E5%BF%97/" rel="prev" title="03.SpringBoot-日志">
+                03.SpringBoot-日志 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、配置文件"><span class="nav-number">1.</span> <span class="nav-text">一、配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、YAML语法"><span class="nav-number">2.</span> <span class="nav-text">二、YAML语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-基本语法"><span class="nav-number">2.1.</span> <span class="nav-text">2.1.基本语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-值的写法"><span class="nav-number">2.2.</span> <span class="nav-text">2.2.值的写法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#键值对"><span class="nav-number">2.2.1.</span> <span class="nav-text">键值对</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对象、Map"><span class="nav-number">2.2.2.</span> <span class="nav-text">对象、Map</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数组"><span class="nav-number">2.2.3.</span> <span class="nav-text">数组</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、配置文件注入"><span class="nav-number">3.</span> <span class="nav-text">三、配置文件注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-ConfigurationProperties注入"><span class="nav-number">3.1.</span> <span class="nav-text">3.1.@ConfigurationProperties注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-Value注入"><span class="nav-number">3.2.</span> <span class="nav-text">3.2.@Value注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-两者区别"><span class="nav-number">3.3.</span> <span class="nav-text">3.3.两者区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-数据校验"><span class="nav-number">3.4.</span> <span class="nav-text">3.4.数据校验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-指定配置文件"><span class="nav-number">3.5.</span> <span class="nav-text">3.5.指定配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-1-PropertySource"><span class="nav-number">3.5.1.</span> <span class="nav-text">3.5.1.@PropertySource</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-2-ImportResource"><span class="nav-number">3.5.2.</span> <span class="nav-text">3.5.2.@ImportResource</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-4-注解添加组件"><span class="nav-number">3.5.3.</span> <span class="nav-text">3.5.4.注解添加组件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5-4-总结"><span class="nav-number">3.5.4.</span> <span class="nav-text">3.5.4.总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、占位符"><span class="nav-number">4.</span> <span class="nav-text">四、占位符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、Profile"><span class="nav-number">5.</span> <span class="nav-text">五、Profile</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-多properties"><span class="nav-number">5.1.</span> <span class="nav-text">5.1.多properties</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-yml配置"><span class="nav-number">5.2.</span> <span class="nav-text">5.2.yml配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-激活指定profile"><span class="nav-number">5.3.</span> <span class="nav-text">5.3.激活指定profile</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、配置文件加载位置"><span class="nav-number">6.</span> <span class="nav-text">六、配置文件加载位置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、Springboot的自动配置原理"><span class="nav-number">7.</span> <span class="nav-text">七、Springboot的自动配置原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">7.1.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Conditional"><span class="nav-number">7.2.</span> <span class="nav-text">@Conditional</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
