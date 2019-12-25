@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="elasticsearch," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本笔记分析研究对于ES的search功能的原理 一、查询分页通过之前的学习，我们可以知道搜索时可以通过from和size字段来配置分页信息 12345678POST &#x2F;ecommerce&#x2F;product&#x2F;_search&amp;#123;  &quot;query&quot;: &amp;#123;    &quot;match_all&quot;: &amp;#123;&amp;#125;  &amp;#125;,  &quot;from&quot;: 0,  &quot;size&quot;: 2&amp;#125;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ElasticSearch搜索引擎">
+<meta property="og:url" content="http://yoursite.com/2019/12/25/es04-ElasticSearch%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="本笔记分析研究对于ES的search功能的原理 一、查询分页通过之前的学习，我们可以知道搜索时可以通过from和size字段来配置分页信息 12345678POST &#x2F;ecommerce&#x2F;product&#x2F;_search&amp;#123;  &quot;query&quot;: &amp;#123;    &quot;match_all&quot;: &amp;#123;&amp;#125;  &amp;#125;,  &quot;from&quot;: 0,  &quot;size&quot;: 2&amp;#125;">
+<meta property="og:image" content="http://yoursite.com/image/1571034663141.png">
+<meta property="og:image" content="http://yoursite.com/image/1571043610271.png">
+<meta property="og:image" content="http://yoursite.com/image/1571043677772.png">
+<meta property="og:image" content="http://yoursite.com/image/1571043897206.png">
+<meta property="og:image" content="http://yoursite.com/image/1571043986752.png">
+<meta property="og:image" content="http://yoursite.com/image/1571057595341.png">
+<meta property="og:image" content="http://yoursite.com/image/1571122209687.png">
+<meta property="og:image" content="http://yoursite.com/image/1571122263592.png">
+<meta property="og:image" content="http://yoursite.com/image/1571123565039.png">
+<meta property="og:image" content="http://yoursite.com/image/1571190146881.png">
+<meta property="article:published_time" content="2019-12-25T01:37:13.000Z">
+<meta property="article:modified_time" content="2019-12-25T01:39:04.749Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="elasticsearch">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1571034663141.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/25/es04-ElasticSearch搜索引擎/"/>
+
+
+
+
+
+  <title>ElasticSearch搜索引擎 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/25/es04-ElasticSearch%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ElasticSearch搜索引擎</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-25T09:37:13+08:00">
+                2019-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本笔记分析研究对于ES的search功能的原理</p>
+<h2 id="一、查询分页"><a href="#一、查询分页" class="headerlink" title="一、查询分页"></a>一、查询分页</h2><p>通过之前的学习，我们可以知道搜索时可以通过from和size字段来配置分页信息</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">POST /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123;</span><br><span class="line">    <span class="attr">"match_all"</span>: &#123;&#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"from"</span>: <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"size"</span>: <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1571034663141.png" alt="1571034663141"></p>
+<a id="more"></a>
+<p>我们先进行结果分析，</p>
+<ul>
+<li>took：查询使用12毫秒</li>
+<li>timed_out：没有超时</li>
+<li>_shards：查询请求了多少个分片，成功请求多少个分片</li>
+<li>hits：命中数量，最大匹配分数，具体命中数据</li>
+</ul>
+<p>当我们看数据时，发现_id为2的在前，_id为1的在后，这是es底层分页导致的。</p>
+<p><strong>es查询分页原理</strong>：举例3个shard，3000条数据，查询from=100，size=10</p>
+<ol>
+<li>因为from100，size10，即需要100-109的数据</li>
+<li>es协调节点向3个shard发出请求，要求获取<strong>每个shard的0-109的数据</strong>，<strong>注意是0-109</strong></li>
+<li>每个shard接收到请求后，会创建一个<code>from+size</code>大小的<code>priority queue</code>，一个优先队列，将查询出的数据放入队列再全部返回给协调节点。</li>
+<li>协调节点获取到这些数据，总数据量为330条，将这些数据放到自己的<code>priority queue</code>，<strong>然后对这些数据进行排序</strong></li>
+<li>排序后<strong>将序号为100-109的数据返回给客户端</strong></li>
+</ol>
+<p>这时我们会发现，如果数据量增加到30万条，而用户需要最后10条，那么es的协调节点需要<strong>临时存储30万条数据且进行排序</strong>，会导致大量资源耗费，所以对于ES的分页，要尽量避免<strong>DEEP PAGING</strong>的情况。</p>
+<h2 id="二、全域搜索"><a href="#二、全域搜索" class="headerlink" title="二、全域搜索"></a>二、全域搜索</h2><p>ES提供了一种query string的字段，可以将关键词分词再进行搜索，并且可以全域搜索，即不指定查询哪个field</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">POST /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>:&#123;</span><br><span class="line">    <span class="attr">"query_string"</span>: &#123;</span><br><span class="line">	<span class="attr">"query"</span>: <span class="string">"gaolujie yagao"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">GET /ecommerce/product/_search?q=gaolujie yagao</span><br></pre></td></tr></table></figure>
+
+<p>问题提出：不指定field，ES底层是如何处理并查询所有域呢？难道是对每个field都进行查询吗？</p>
+<p>如果对每个field都进行一次查询，太繁琐且性能低，ES的底层不是这样的，它有一个元数据<code>_all field</code>，在建立索引保存document的时候，会讲所有域的值串成一个字符串并赋值给元数据_all field。</p>
+<p>例如：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"jack"</span>,</span><br><span class="line">  <span class="attr">"age"</span>: <span class="number">26</span>,</span><br><span class="line">  <span class="attr">"address"</span>: <span class="string">"guangzhou"</span></span><br><span class="line">&#125;</span><br><span class="line">_all field = "jack 26 guangzhou"</span><br></pre></td></tr></table></figure>
+
+<p>当全域搜索的时候只需搜索<code>_all field</code>元数据即可</p>
+<h2 id="三、mapping"><a href="#三、mapping" class="headerlink" title="三、mapping"></a>三、mapping</h2><p>我们之前了解mapping就类似一张表的数据结构，定义了多个字段，我们回过头来再研究一下</p>
+<p><strong>1）</strong>在es里直接插入数据时<code>PUT shop/book/1</code>及数据信息时，es会自动建立索引、type和mapping</p>
+<p><strong>2）mapping会根据数据自动定义field的数据类型</strong>，如2018-01-01日期格式的数据类型为date，100数字格式的为long</p>
+<p><strong>3）</strong>不同的数据类型可能有的是<strong>exact value精准匹配</strong>，有的是<strong>full text全文检索</strong>。比如text就为全文检索，date就为精准匹配</p>
+<p><strong>4）</strong>exact value在建立倒排索引时，是<strong>整个词</strong>进行建立，full text是使用分词器<strong>分词后</strong>再对不同的词进行建立。所以在搜索时也不同</p>
+<p><strong>5）</strong>mapping的建立可以让<strong>es自动建</strong>，或者<strong>手动设置</strong>mapping的field，包括数据类型，分词器，是否存储，是否索引等等</p>
+<p><strong>这里我们举个例子来看一看精准匹配与全文检索</strong></p>
+<p><img src="/image/1571043610271.png" alt="1571043610271"></p>
+<p>创建两条数据，website/article，因为是直接插入的，所以mapping是es自动创建的，我们看下mapping格式</p>
+<p><img src="/image/1571043677772.png" alt="1571043677772"></p>
+<p>可以看到author_id是long，post_date是date，和我们上面说的一样。</p>
+<p>我们通过上面说的全域搜索query string进行查询一下试一试：</p>
+<p><img src="/image/1571043897206.png" alt="1571043897206"></p>
+<p>可以看到我们全域搜索2017可以查询出2条数据</p>
+<p><img src="/image/1571043986752.png" alt="1571043986752"></p>
+<p>如果我们指定域post_date查询，只能查到一条，为什么呢？</p>
+<p><strong>全域搜索：查询的是_all field的字段，其类型text属于全文检索，即对2017-01-01这个数据分词后再查询，所以有2条</strong></p>
+<p><strong>指定域：查询的是post_date字段，其类型date属于精准搜索，即对日期没有分词，又因为es5.x之后的优化，所以能查出一条记录，其实在5.x之前的版本是一条都查不出来的。即只能用2017-01-01这个搜索关键词才能查出。</strong></p>
+<h2 id="四、Filter和Query"><a href="#四、Filter和Query" class="headerlink" title="四、Filter和Query"></a>四、Filter和Query</h2><p>在前面已经学习了如何过滤数据。</p>
+<p><img src="/image/1571057595341.png" alt="1571057595341"></p>
+<p>这样一看，发现filter和query的功能好像差不多，能相互转化，那么到底应该用什么呢？</p>
+<p>query：每次查询需要进行计算匹配值并排序，无法缓存结果</p>
+<p>filter：每次只按搜索条件过滤，不排序计算，会缓存结果</p>
+<p>这样一看，使用场景显而易见了，这里要说下，看着filter不计算，效率肯定比query高，其实不然，<strong>在第一次查询时，query的效率可能还会比filter高，因为filter需要缓存结果，但是除了第一次查询，filter的速度比query快几十上百倍。</strong></p>
+<h2 id="五、ES的相关度评分"><a href="#五、ES的相关度评分" class="headerlink" title="五、ES的相关度评分"></a>五、ES的相关度评分</h2><p>在进行查询操作时，前面介绍说排序默认是按_score分数来排的，且es底层的计算排序也是如此，那么到底是如何排序计算呢？就是我们要讲的相关度评分，TF/IDF（词频/逆向文档频率）</p>
+<p>官方文档告诉我们，分数的由来主要有三个因素决定</p>
+<h3 id="5-1-词频（TF）"><a href="#5-1-词频（TF）" class="headerlink" title="5.1.词频（TF）"></a>5.1.词频（TF）</h3><p>词频即词在文档中出现的频率，频率越高，权重越高，计算公式为：<br>$$<br>tf(td) = √frequency<br>$$<br>词<code>t</code>在文档<code>d</code>的频率是：该词在文档中出现次数的平方根</p>
+<p>例如：搜索<code>hello world</code></p>
+<p>doc1：hello you, and world is very good<br>doc2：hello, how are you</p>
+<p>那么分词后在doc1出现2次，doc2出现1次，即doc1分数高</p>
+<p>如果不在意词在某个字段中出现的频次，而只在意是否出现过，则可以在字段映射中禁用词频统计：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"doc"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"text"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:          <span class="string">"text"</span>,</span><br><span class="line">          <span class="attr">"index_options"</span>: <span class="string">"docs"</span> </span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>设置其field的index_options为docs，即计算分数时不会再计算词频TF</p>
+<h3 id="5-2-逆向文档频率（IDF）"><a href="#5-2-逆向文档频率（IDF）" class="headerlink" title="5.2.逆向文档频率（IDF）"></a>5.2.逆向文档频率（IDF）</h3><p>即词在总文档中出现的频率，频率越高，分数越低<br>$$<br>idf(t) = 1 + log ( numDocs / (docFreq + 1))<br>$$<br> 词 <code>t</code> 的逆向文档频率（ <code>idf</code> ）是：索引中文档数量除以所有包含该词的文档数，然后求其对数。</p>
+<p>例如：搜索<code>hello world</code></p>
+<p>doc1：world is very good,bro（world在总document中出现1000次）<br>doc2：hello, how are you（hello在总）</p>
+<p>因为doc1的出现次数更多，所以doc2的分数更高</p>
+<h3 id="5-3-字段长度归一值（flnorm）"><a href="#5-3-字段长度归一值（flnorm）" class="headerlink" title="5.3.字段长度归一值（flnorm）"></a>5.3.字段长度归一值（flnorm）</h3><p>Field-length norm：字段的长度越长，其分数越低<br>$$<br>norm(d) = 1 / √numTerms<br>$$<br>字段长度归一值（ <code>norm</code> ）是字段中词数平方根的倒数</p>
+<p>例如：搜索<code>hello world</code></p>
+<p>doc1：world is very good,bro<br>doc2：hello, how are you</p>
+<p>因为doc2的长度更短，所以doc2的分数更高</p>
+<p>Norm和TF一样也可以禁用的</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"doc"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"text"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>:          <span class="string">"text"</span>,</span><br><span class="line">          <span class="attr">"norms"</span>: &#123; <span class="attr">"enabled"</span>: <span class="literal">false</span> &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>设置其field的norms为false，即计算分数时不会再计算Norm</p>
+<h2 id="六、SearchType"><a href="#六、SearchType" class="headerlink" title="六、SearchType"></a>六、SearchType</h2><p>ES是分布式的全文检索系统，其特点就是分片存储数据，ES如何获取用户需要的数据且排序呢？ES搜索排序分为两步：</p>
+<p>1）ES向5个分片发出请求，叫Scatter</p>
+<p>2）5个分片独立搜索，将符合条件的数据返回，ES将数据集中起来再进行重新排序，返回给用户，即Gather</p>
+<p>这样就会出现问题：</p>
+<p>1）数量问题：用户需要10条数据，ES向5个分片发出前10条数据的请求，得到结果会有50条数据，ES再进行排序返回，用户就会获得50条数据，不符合请求数量。</p>
+<p>2）排序问题：ES的排序是基于分片传来的分数的，即每个分片有不同的使用频率，举个例子：分片1的name字段的mike使用200次，allie使用100次，用户查询1条最高使用数据，当然分片1返回mike，这时分片2的name字段bob使用10次，jasper使用5次，就会返回bob，这样的话明显allie的使用频率更高。所以如果要解决这种情况，ES要先获取分片上频率，然后统一计算后再排序查询。</p>
+<p>这两个问题，估计ES也没有什么较好的解决方法，最终把选择的权利交给用户，方法就是在搜索的时候指定query type。</p>
+<p>有三种SearchType：</p>
+<ul>
+<li>Query and fetch：即ES请求所有分片，返回n*5的数据整合排序，就会出现上面的问题，返回数量是用户要求的n倍。这种方法以及被弃用了</li>
+<li>query then fetch：ES请求所有分片，获取排名相关的信息，而不是数据，es获取后进行计算然后再根据计算结果向不同分片请求数据，这样可以解决上面数量问题和排序问题。默认使用，也最常用</li>
+<li>DFS query then fetch：同样多了初始化散发过程。</li>
+</ul>
+<h2 id="七、零停机重建索引"><a href="#七、零停机重建索引" class="headerlink" title="七、零停机重建索引"></a>七、零停机重建索引</h2><blockquote>
+<p><strong>前提条件：Java应用中使用的别名查询而不是索引名</strong></p>
+</blockquote>
+<p>经过之前的学习知道field属性一旦创建就不能被修改，比如创建时是text，你不能后面再修改成date类型，那么我们模拟一下真实生产场景：</p>
+<h3 id="7-1-问题的提出"><a href="#7-1-问题的提出" class="headerlink" title="7.1.问题的提出"></a>7.1.问题的提出</h3><p>1）创建document，使用dynamic mapping，但是不小心把title的类型设置成date了，实际是text类型</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PUT my_index/my_type/1</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"title"</span>:<span class="string">"2019-01-01"</span>,</span><br><span class="line">  <span class="attr">"content"</span>:<span class="string">"zero gogo"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1571122209687.png" alt="1571122209687"></p>
+<p>2）向索引添加text类型的title数据，因为类型不匹配报错</p>
+<p><img src="/image/1571122263592.png" alt="1571122263592"></p>
+<p>3）因为不能直接修改，所以需要重建索引</p>
+<h3 id="7-2-问题的解决"><a href="#7-2-问题的解决" class="headerlink" title="7.2.问题的解决"></a>7.2.问题的解决</h3><p>1）创建索引，配置正确的field类型</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">PUT /new_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"mappings"</span>: &#123;</span><br><span class="line">    <span class="attr">"my_type"</span>: &#123;</span><br><span class="line">      <span class="attr">"properties"</span>: &#123;</span><br><span class="line">        <span class="attr">"title"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"text"</span></span><br><span class="line">        &#125;，</span><br><span class="line">		<span class="string">"content"</span>:&#123;</span><br><span class="line">			<span class="attr">"type"</span>:<span class="string">"text"</span></span><br><span class="line">		&#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2）设置别名，将新索引加入到旧索引的别名上（Java程序使用的是别名）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /_aliases</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"actions"</span>: [</span><br><span class="line">        &#123; <span class="attr">"add"</span>: &#123; <span class="attr">"index"</span>: <span class="string">"new_index"</span>, <span class="attr">"alias"</span>: <span class="string">"alias_index"</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="attr">"add"</span>: &#123; <span class="attr">"index"</span>: <span class="string">"my_index"</span>, <span class="attr">"alias"</span>: <span class="string">"alias_index"</span> &#125;&#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>3）使用reindex api同步索引数据</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST _reindex</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"source"</span>: &#123;</span><br><span class="line">    <span class="attr">"index"</span>: <span class="string">"my_index"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"dest"</span>: &#123;</span><br><span class="line">    <span class="attr">"index"</span>: <span class="string">"new_index"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>4）查看新索引数据是否同步成功</p>
+<p><img src="/image/1571123565039.png" alt="1571123565039"></p>
+<p>同步成功</p>
+<p>5）删除别名中的旧索引</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /_aliases</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"actions"</span>: [</span><br><span class="line">        &#123; <span class="string">"remove"</span>: &#123; <span class="string">"index"</span>: <span class="string">"my_index_v1"</span>, <span class="string">"alias"</span>: <span class="string">"my_index"</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="string">"add"</span>:    &#123; <span class="string">"index"</span>: <span class="string">"my_index_v2"</span>, <span class="string">"alias"</span>: <span class="string">"my_index"</span> &#125;&#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="八、深入document读写机制底层"><a href="#八、深入document读写机制底层" class="headerlink" title="八、深入document读写机制底层"></a>八、深入document读写机制底层</h2><p>在前面讲document如何写入时，是说协调节点分配通过路由计算分配给不同的节点进行写入，今天我们来讲讲具体节点中primary shard是如何把document写入到磁盘中的。</p>
+<h3 id="8-1-写入原理"><a href="#8-1-写入原理" class="headerlink" title="8.1.写入原理"></a>8.1.写入原理</h3><p><img src="/image/1571190146881.png" alt="1571190146881"></p>
+<p>1）<code>shard</code>将数据先写到内存<code>buffer</code>中，在内存中的数据是搜索不到的</p>
+<p>2）<code>buffer</code>每隔一秒将数据刷到file上，即<code>segment file</code>，但是如果这时直接将<code>file</code>写入磁盘，效率会非常慢，而且用户就无法NRT近实时搜索数据，所以会先将<code>segment file</code>数据刷到<code>os cache</code>中，即系统缓存</p>
+<p>3）<code>buffer</code>数据进入<code>os cache</code>中后，buffer清空，<strong>数据可以被搜索到</strong></p>
+<p>4）<code>buffer</code>清空了，数据存在<code>os cache</code>，宕机不就全部丢失了？这时就出现了<code>translog</code>日志文件，数据进入<code>shard</code>后，不止将其写入到<code>buffer</code>中，还将一份写入到<code>translog</code>中，当然也是先保存在<code>translog</code>的<code>cache</code>中，然后每隔5s会将<code>translog cache</code>中的数据写入到<code>translog</code>中，即保存到磁盘上（所以这5s如果宕机，可能会丢失5s的数据）</p>
+<p>5）重复上面的操作，<code>buffer</code>每隔一秒写入到新的<code>segment file</code>中，然后写入<code>os cache</code>中，并每隔5秒刷数据到<code>translog</code>中</p>
+<p>6）当<code>translog</code>越来越大，会进行一次<code>commit</code>（flush）操作，默认30分钟flush一次</p>
+<p>​    6.1）将<code>buffer</code>所有数据保存到新的<code>segment file</code>，然后刷到<code>os cache</code>中</p>
+<p>​    6.2）将一个<code>commit point</code>写入到磁盘，这个<code>commit point</code>保存了对应所有的<code>segment file</code></p>
+<p>​    6.3）将<code>os cache</code>中的所有<code>index segment file</code>缓存数据，被<code>fsync</code>强行刷到磁盘上</p>
+<p>​    6.4）清空<code>translog</code>，创建一个新的<code>translog</code>，commit结束</p>
+<p>实际上你在这里，如果面试官没有问你 <strong>es 丢数据的问题</strong>，你可以在这里给面试官炫一把，你说，其实 es 第一是准实时的，数据写入 1 秒后可以搜索到；可能会丢失数据的。有 5 秒的数据，停留在 buffer、translog os cache、segment file os cache 中，而不在磁盘上，此时如果宕机，<strong>会导致 5 秒的数据丢失</strong>。</p>
+<h3 id="8-2-更新-删除原理"><a href="#8-2-更新-删除原理" class="headerlink" title="8.2.更新/删除原理"></a>8.2.更新/删除原理</h3><p>当数据写入buffer后，并刷入os cache，这时会有一个commit point操作，标志这些数据是属于哪个segment file的，这时就会生成一个<code>.del</code>文件，将里面某个docment标为deleted状态，这样搜索时便会过滤掉。</p>
+<h3 id="8-3-再次优化"><a href="#8-3-再次优化" class="headerlink" title="8.3.再次优化"></a>8.3.再次优化</h3><p>我们知道，每过一秒写入一个新的segment file，那么segment file会非常庞大，所以一段时间后，es会自动进行merge操作，将一些segment合并，并且会将标记为deleted数据<strong>物理删除</strong></p>
+<p><strong>merge执行流程</strong></p>
+<p>1）选择大小相近的一些segment file，merge成一个大的segment</p>
+<p>2）将新的segment file刷到os cache中</p>
+<p>3）写一个新的commit point，包括新的segment以及排除旧的segment</p>
+<p>4）将新的segment打开提供搜索，删除旧的segment</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/elasticsearch/" rel="tag"># elasticsearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/25/es03-ElasticSearch%E8%BF%9B%E9%98%B6/" rel="next" title="ElasticSearch进阶">
+                <i class="fa fa-chevron-left"></i> ElasticSearch进阶
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/25/es05-ElasticSearch%E9%9B%86%E7%BE%A4%E7%A1%AC%E4%BB%B6%E9%85%8D%E7%BD%AE/" rel="prev" title="ElasticSearch集群硬件配置">
+                ElasticSearch集群硬件配置 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、查询分页"><span class="nav-number">1.</span> <span class="nav-text">一、查询分页</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、全域搜索"><span class="nav-number">2.</span> <span class="nav-text">二、全域搜索</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、mapping"><span class="nav-number">3.</span> <span class="nav-text">三、mapping</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、Filter和Query"><span class="nav-number">4.</span> <span class="nav-text">四、Filter和Query</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、ES的相关度评分"><span class="nav-number">5.</span> <span class="nav-text">五、ES的相关度评分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-词频（TF）"><span class="nav-number">5.1.</span> <span class="nav-text">5.1.词频（TF）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-逆向文档频率（IDF）"><span class="nav-number">5.2.</span> <span class="nav-text">5.2.逆向文档频率（IDF）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-字段长度归一值（flnorm）"><span class="nav-number">5.3.</span> <span class="nav-text">5.3.字段长度归一值（flnorm）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、SearchType"><span class="nav-number">6.</span> <span class="nav-text">六、SearchType</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、零停机重建索引"><span class="nav-number">7.</span> <span class="nav-text">七、零停机重建索引</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-问题的提出"><span class="nav-number">7.1.</span> <span class="nav-text">7.1.问题的提出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-问题的解决"><span class="nav-number">7.2.</span> <span class="nav-text">7.2.问题的解决</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#八、深入document读写机制底层"><span class="nav-number">8.</span> <span class="nav-text">八、深入document读写机制底层</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-写入原理"><span class="nav-number">8.1.</span> <span class="nav-text">8.1.写入原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-更新-删除原理"><span class="nav-number">8.2.</span> <span class="nav-text">8.2.更新&#x2F;删除原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-再次优化"><span class="nav-number">8.3.</span> <span class="nav-text">8.3.再次优化</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

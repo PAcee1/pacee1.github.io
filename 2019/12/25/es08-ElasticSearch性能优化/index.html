@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="elasticsearch," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="ES对于其他的一些应用来说，能够优化的地方非常少，其实最大的优化就是给予它足够大的内存，我们说下其他一些优化。 一、慢查询日志ES会自动开启慢查询日志，来查看插入搜索哪些性能比较慢，然后再考虑如何优化写入或搜索的性能。 在elasticsearch.yml中配置快慢的阈值，即多少秒算慢，需要写到日志里 123456789index.search.slowlog.threshold.query.wa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ElasticSearch性能优化">
+<meta property="og:url" content="http://yoursite.com/2019/12/25/es08-ElasticSearch%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="ES对于其他的一些应用来说，能够优化的地方非常少，其实最大的优化就是给予它足够大的内存，我们说下其他一些优化。 一、慢查询日志ES会自动开启慢查询日志，来查看插入搜索哪些性能比较慢，然后再考虑如何优化写入或搜索的性能。 在elasticsearch.yml中配置快慢的阈值，即多少秒算慢，需要写到日志里 123456789index.search.slowlog.threshold.query.wa">
+<meta property="article:published_time" content="2019-12-25T01:40:01.000Z">
+<meta property="article:modified_time" content="2019-12-25T01:43:48.300Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="elasticsearch">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/25/es08-ElasticSearch性能优化/"/>
+
+
+
+
+
+  <title>ElasticSearch性能优化 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/25/es08-ElasticSearch%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ElasticSearch性能优化</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-25T09:40:01+08:00">
+                2019-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>ES对于其他的一些应用来说，能够优化的地方非常少，其实最大的优化就是给予它足够大的内存，我们说下其他一些优化。</p>
+<h2 id="一、慢查询日志"><a href="#一、慢查询日志" class="headerlink" title="一、慢查询日志"></a>一、慢查询日志</h2><p>ES会自动开启慢查询日志，来查看插入搜索哪些性能比较慢，然后再考虑如何优化写入或搜索的性能。</p>
+<p>在elasticsearch.yml中配置快慢的阈值，即多少秒算慢，需要写到日志里</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">index.search.slowlog.threshold.query.warn: 10s</span><br><span class="line">index.search.slowlog.threshold.query.info: 5s</span><br><span class="line">index.search.slowlog.threshold.query.debug: 2s</span><br><span class="line">index.search.slowlog.threshold.query.trace: 500ms</span><br><span class="line"></span><br><span class="line">index.search.slowlog.threshold.fetch.warn: 1s</span><br><span class="line">index.search.slowlog.threshold.fetch.info: 800ms</span><br><span class="line">index.search.slowlog.threshold.fetch.debug: 500ms</span><br><span class="line">index.search.slowlog.threshold.fetch.trace: 200ms</span><br></pre></td></tr></table></figure>
+
+<p>对于慢查询日志的日志格式，是在log4j2.properties中配置，es默认会给出一些配置，可以根据自己的需要修改。</p>
+<a id="more"></a>
+<h2 id="二、插入的优化"><a href="#二、插入的优化" class="headerlink" title="二、插入的优化"></a>二、插入的优化</h2><h3 id="2-1-批量写入"><a href="#2-1-批量写入" class="headerlink" title="2.1.批量写入"></a>2.1.批量写入</h3><p>对于需要批量插入数据时，相对于一条条插入，<strong>使用bulk效率更高，性能更高</strong></p>
+<p>并且使用多线程bulk请求。</p>
+<h3 id="2-2-增加refresh间隔"><a href="#2-2-增加refresh间隔" class="headerlink" title="2.2.增加refresh间隔"></a>2.2.增加refresh间隔</h3><p>默认的refresh间隔是1s，用<code>index.refresh_interval</code>参数可以设置，这样会其强迫es每秒中都将内存中的数据写入磁盘中，创建一个新的segment file。</p>
+<p>正是这个间隔，让我们每次写入数据后，1s以后才能看到。但是如果我们将这个间隔调大，比如30s，可以接受写入的数据30s后才看到，那么我们就可以获取更大的写入吞吐量，因为30s内都是写内存的，每隔30s才会创建一个segment file。</p>
+<h3 id="2-3-给filesystem-cache更多的内存"><a href="#2-3-给filesystem-cache更多的内存" class="headerlink" title="2.3.给filesystem cache更多的内存"></a>2.3.给filesystem cache更多的内存</h3><h3 id="2-4-使用自动生成的id"><a href="#2-4-使用自动生成的id" class="headerlink" title="2.4.使用自动生成的id"></a>2.4.使用自动生成的id</h3><p>使用设置的id，es会多做一个查询此id是否存在的过程，而使用自动生成的便不会需要查询</p>
+<h2 id="三、查询的优化"><a href="#三、查询的优化" class="headerlink" title="三、查询的优化"></a>三、查询的优化</h2><p>查询的优化其实在前面的笔记已经说了，最重要的两点，内存，分页</p>
+<h3 id="3-1-优化内存"><a href="#3-1-优化内存" class="headerlink" title="3.1.优化内存"></a>3.1.优化内存</h3><p>通过第四章ElasticSearch集群配置中的第八节深入document底层读写机制可用得知：</p>
+<p>ES读取数据是基于磁盘的，如果每次读数据需要进行磁盘读取操作，非常耗时，但是如果给 <code>filesystem cache</code> 更多的内存，尽量让内存可以容纳所有的 <code>idx segment file</code>索引数据文件，那么你搜索的时候就基本都是走内存的，性能会非常高。</p>
+<p><strong>性能差距</strong>：我们之前很多的测试和压测，如果走磁盘一般肯定上秒，搜索性能绝对是<strong>秒级别</strong>的，1秒、5秒、10秒。但如果是走 <code>filesystem cache</code>，是走纯内存的，那么一般来说性能比走磁盘要高一个数量级，基本上就是<strong>毫秒级</strong>的，从几毫秒到几百毫秒不等。</p>
+<h3 id="3-2-数据预热"><a href="#3-2-数据预热" class="headerlink" title="3.2.数据预热"></a>3.2.数据预热</h3><p>举个例子，拿微博来说，你可以把一些大V，平时看的人很多的数据，你自己提前后台搞个系统，每隔一会儿，自己的后台系统去搜索一下热数据，刷到 <code>filesystem cache</code> 里去，后面用户实际上来看这个热数据的时候，他们就是直接从内存里搜索了，很快。</p>
+<p>或者是电商，你可以将平时查看最多的一些商品，比如说 iphone 8，热数据提前后台搞个程序，每隔 1 分钟自己主动访问一次，刷到 <code>filesystem cache</code> 里去。</p>
+<p>对于那些你觉得比较热的、经常会有人访问的数据，最好<strong>做一个专门的缓存预热子系统</strong>，就是对热数据每隔一段时间，就提前访问一下，让数据进入 <code>filesystem cache</code> 里面去。这样下次别人访问的时候，性能一定会好很多。</p>
+<h3 id="3-3-冷热分离"><a href="#3-3-冷热分离" class="headerlink" title="3.3.冷热分离"></a>3.3.冷热分离</h3><p>es 可以做类似于 mysql 的水平拆分，就是说将大量的访问很少、频率很低的数据，单独写一个索引，然后将访问很频繁的热数据单独写一个索引。最好是将<strong>冷数据写入一个索引中，然后热数据写入另外一个索引中</strong>，这样可以确保热数据在被预热之后，尽量都让他们留在 <code>filesystem os cache</code> 里，<strong>别让冷数据给冲刷掉</strong>。</p>
+<p>你看，假设你有 6 台机器，2 个索引，一个放冷数据，一个放热数据，每个索引 3 个 shard。3 台机器放热数据 index，另外 3 台机器放冷数据 index。然后这样的话，你大量的时间是在访问热数据 index，热数据可能就占总数据量的 10%，此时数据量很少，几乎全都保留在 <code>filesystem cache</code> 里面了，就可以确保热数据的访问性能是很高的。但是对于冷数据而言，是在别的 index 里的，跟热数据 index 不在相同的机器上，大家互相之间都没什么联系了。如果有人访问冷数据，可能大量数据是在磁盘上的，此时性能差点，就 10% 的人去访问冷数据，90% 的人在访问热数据，也无所谓了。</p>
+<h3 id="3-4-分页问题"><a href="#3-4-分页问题" class="headerlink" title="3.4.分页问题"></a>3.4.分页问题</h3><p><strong>es查询分页原理</strong>：举例3个shard，3000条数据，查询from=100，size=10</p>
+<ol>
+<li>因为from100，size10，即需要100-109的数据</li>
+<li>es协调节点向3个shard发出请求，要求获取<strong>每个shard的0-109的数据</strong>，<strong>注意是0-109</strong></li>
+<li>每个shard接收到请求后，会创建一个<code>from+size</code>大小的<code>priority queue</code>，一个优先队列，将查询出的数据放入队列再全部返回给协调节点。</li>
+<li>协调节点获取到这些数据，总数据量为330条，将这些数据放到自己的<code>priority queue</code>，<strong>然后对这些数据进行排序</strong></li>
+<li>排序后<strong>将序号为100-109的数据返回给客户端</strong></li>
+</ol>
+<p>这时我们会发现，如果数据量增加到30万条，而用户需要最后10条，那么es的协调节点需要<strong>临时存储30万条数据且进行排序</strong>，会导致大量资源耗费，所以对于ES的分页，要尽量避免<strong>DEEP PAGING</strong>的情况。<strong>或者直接禁止分页，使用下拉滚动的情况</strong>，类似说知乎那样，需要用到<strong>scroll滚动查询</strong>。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/elasticsearch/" rel="tag"># elasticsearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/25/es07-ElasticSearch%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/" rel="next" title="ElasticSearch集群配置">
+                <i class="fa fa-chevron-left"></i> ElasticSearch集群配置
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、慢查询日志"><span class="nav-number">1.</span> <span class="nav-text">一、慢查询日志</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、插入的优化"><span class="nav-number">2.</span> <span class="nav-text">二、插入的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-批量写入"><span class="nav-number">2.1.</span> <span class="nav-text">2.1.批量写入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-增加refresh间隔"><span class="nav-number">2.2.</span> <span class="nav-text">2.2.增加refresh间隔</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-给filesystem-cache更多的内存"><span class="nav-number">2.3.</span> <span class="nav-text">2.3.给filesystem cache更多的内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-使用自动生成的id"><span class="nav-number">2.4.</span> <span class="nav-text">2.4.使用自动生成的id</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、查询的优化"><span class="nav-number">3.</span> <span class="nav-text">三、查询的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-优化内存"><span class="nav-number">3.1.</span> <span class="nav-text">3.1.优化内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-数据预热"><span class="nav-number">3.2.</span> <span class="nav-text">3.2.数据预热</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-冷热分离"><span class="nav-number">3.3.</span> <span class="nav-text">3.3.冷热分离</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-分页问题"><span class="nav-number">3.4.</span> <span class="nav-text">3.4.分页问题</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

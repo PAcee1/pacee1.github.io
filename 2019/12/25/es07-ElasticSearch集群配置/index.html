@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="elasticsearch," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、背景知识当我们想要搭建集群时，要先了解下ES的集群发现机制zen discovery 在默认情况下，es进程会绑定在自己的回环地址上，会去寻找9300-9305端口是否有es node，如果有并且启动，会主动与其通信，组成集群。这样的话如果本地启动多个节点，其搭建集群是非常方便的。但是生产环境不是这样，因为是在不同服务器上进行集群的搭建，需要绑定到非回环的ip地址上，并使用集群发现机制进行通信">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ElasticSearch集群配置">
+<meta property="og:url" content="http://yoursite.com/2019/12/25/es07-ElasticSearch%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、背景知识当我们想要搭建集群时，要先了解下ES的集群发现机制zen discovery 在默认情况下，es进程会绑定在自己的回环地址上，会去寻找9300-9305端口是否有es node，如果有并且启动，会主动与其通信，组成集群。这样的话如果本地启动多个节点，其搭建集群是非常方便的。但是生产环境不是这样，因为是在不同服务器上进行集群的搭建，需要绑定到非回环的ip地址上，并使用集群发现机制进行通信">
+<meta property="og:image" content="http://yoursite.com/image/1571295867170.png">
+<meta property="og:image" content="http://yoursite.com/image/1571296629768.png">
+<meta property="og:image" content="http://yoursite.com/image/1571282758488.png">
+<meta property="og:image" content="http://yoursite.com/image/1571362005421.png">
+<meta property="og:image" content="http://yoursite.com/image/1571367812261.png">
+<meta property="article:published_time" content="2019-12-25T01:39:50.000Z">
+<meta property="article:modified_time" content="2019-12-25T01:43:48.300Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="elasticsearch">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1571295867170.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/25/es07-ElasticSearch集群配置/"/>
+
+
+
+
+
+  <title>ElasticSearch集群配置 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/25/es07-ElasticSearch%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ElasticSearch集群配置</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-25T09:39:50+08:00">
+                2019-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、背景知识"><a href="#一、背景知识" class="headerlink" title="一、背景知识"></a>一、背景知识</h2><p>当我们想要搭建集群时，要先了解下ES的集群发现机制<code>zen discovery</code></p>
+<p>在默认情况下，es进程会绑定在自己的回环地址上，会去寻找9300-9305端口是否有es node，如果有并且启动，会主动与其通信，组成集群。这样的话如果本地启动多个节点，其搭建集群是非常方便的。但是生产环境不是这样，因为是在不同服务器上进行集群的搭建，需要绑定到非回环的ip地址上，并使用<strong>集群发现机制</strong>进行通信。</p>
+<p>集群发现机制常用的有两种：</p>
+<ul>
+<li>unicast：es默认的集群发现机制，通过特殊节点的配置，使之组成一个集群，主要使用网络通信协议，而不是随便什么节点就可以进入集群。</li>
+<li>multicast：这个机制非常简单，所有在启动的节点接收到multicast ping后就自动加入集群，但是非常脆弱，如果有点网络波动，可能会导致集群的不稳定，一般不使用。<a id="more"></a>
+<h2 id="二、配置"><a href="#二、配置" class="headerlink" title="二、配置"></a>二、配置</h2></li>
+</ul>
+<h3 id="2-1-基础配置"><a href="#2-1-基础配置" class="headerlink" title="2.1.基础配置"></a>2.1.基础配置</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cluster.name:my-es --集群名称，一个集群的节点需要设置相同名称</span><br><span class="line">node.name:node-1  -- 节点名称</span><br><span class="line">network.host:192.168.25.250 -- 本机ip，保存unicast可以发现，进入非回环</span><br><span class="line">http.port:9200 -- #服务端口号，默认9200</span><br><span class="line">transport.tcp.port:9300 -- #集群间通信端口号， 默认9300</span><br><span class="line">discovery.zen.ping.unicast.hosts: [&quot;es01&quot;,&quot;es02&quot;,&quot;es03&quot;] -- 集群自动发现的机器ip集合</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-master-node与data-node"><a href="#2-2-master-node与data-node" class="headerlink" title="2.2.master node与data node"></a>2.2.master node与data node</h3><p>配置节点时，可以选择哪些node作为master eligible node（备选主节点），这些节点具有争夺master node的权利，但是如果竞选失败还是当做data node使用</p>
+<p>配置哪些node作为data node，只用来保存数据，不竞选master node。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 配置为 master eligible node</span><br><span class="line">node.master: true</span><br><span class="line">node.data: false</span><br><span class="line">#配置为 data node</span><br><span class="line">node.master: false</span><br><span class="line">node.data: true</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-master选举"><a href="#2-2-master选举" class="headerlink" title="2.2.master选举"></a>2.2.master选举</h3><p><code>discovery.zen.ping_timeout</code>：集群启动时，会通过ping命令，对各个节点选举出一个master node，这里如果网络波动，会导致选举失败，所以设置这个参数可以增加选举时间，比如10s内选举完成，增加稳定性</p>
+<p><code>discovery.zen.join_timeout</code>：即选举成功后，如果有node加入集群，会发送join请求，增加join_timeout时长，如果join失败，在时间内会一直重试，也是增加稳定性</p>
+<p><code>discovery.zen.master_election.ignore_non_master_pings</code>：如果为true，ping选举master节点时，会强制区分候选节点，如果上面说的配置了<code>node.master:false</code>的节点，会被忽略掉。</p>
+<p><code>discovery.zen.minimum_master_nodes</code>：<strong>这个配置相当重要，避免脑裂问题</strong>！</p>
+<h4 id="2-2-1脑裂"><a href="#2-2-1脑裂" class="headerlink" title="2.2.1脑裂"></a>2.2.1脑裂</h4><p>比如两节点集群，一主一从，如果通信中断（网络问题或者无响应），从节点会认为主节点挂掉，自动上升为主节点，这时在它身上的副本分片也会提升为主分片，就会出现两个主节点，导致数据破坏。</p>
+<h4 id="2-2-2-配置解决"><a href="#2-2-2-配置解决" class="headerlink" title="2.2.2.配置解决"></a>2.2.2.配置解决</h4><p>这个配置即在选举中至少有几个节点保持通信才可以推选master，缺省是1，一般设置为<strong>N/2+1</strong>，N为节点数量</p>
+<h4 id="2-2-3-举例说明"><a href="#2-2-3-举例说明" class="headerlink" title="2.2.3.举例说明"></a>2.2.3.举例说明</h4><h5 id="2-2-3-1-两个节点"><a href="#2-2-3-1-两个节点" class="headerlink" title="2.2.3.1.两个节点"></a>2.2.3.1.两个节点</h5><p>如果集群有2个节点，<code>discovery.zen.minimum_master_nodes</code>设为1或2，结果会怎么样？</p>
+<p><img src="/image/1571295867170.png" alt="1571295867170"></p>
+<h5 id="2-2-3-2-三个节点"><a href="#2-2-3-2-三个节点" class="headerlink" title="2.2.3.2.三个节点"></a>2.2.3.2.三个节点</h5><p>三个节点根据公式，<code>discovery.zen.minimum_master_nodes</code>设置为2，我们看看是否能避免脑裂：</p>
+<p><img src="/image/1571296629768.png" alt="1571296629768"></p>
+<p>通过图片分析可知，集群创建三个节点以上更为稳定合理</p>
+<h4 id="2-2-4-动态配置"><a href="#2-2-4-动态配置" class="headerlink" title="2.2.4.动态配置"></a>2.2.4.动态配置</h4><p>当集群增加或减少节点时，可以动态配置这个参数</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUT /_cluster/settings</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">"persistent"</span> : &#123;</span><br><span class="line">        <span class="attr">"discovery.zen.minimum_master_nodes"</span> : <span class="number">2</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-3-集群故障检查"><a href="#2-3-集群故障检查" class="headerlink" title="2.3.集群故障检查"></a>2.3.集群故障检查</h3><p>es有两种集群故障探查机制，第一种是通过master进行的，master会ping集群中所有的其他node，确保它们是否是存活着的。第二种，每个node都会去ping master node来确保master node是存活的，否则就会发起一个选举过程。</p>
+<p>有下面三个参数用来配置集群故障的探查过程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ping_interval：每隔多长时间会ping一次node，默认是1s</span><br><span class="line">ping_timeout：每次ping的timeout等待时长是多长时间，默认是30s</span><br><span class="line">ping_retries：如果一个node被ping多少次都失败了，就会认为node故障，默认是3次</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-集群状态更新"><a href="#2-4-集群状态更新" class="headerlink" title="2.4.集群状态更新"></a>2.4.集群状态更新</h3><p>之前说过，ES中只有master node是可以对cluster state进行更新的node，它也是主要干这个事的。</p>
+<p><img src="/image/1571282758488.png" alt="1571282758488"></p>
+<p>这里会发现第四步和第七步，具有规定时间和足够数量，就是通过配置文件配置的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">discovery.zen.commit_timeout:指定时间内获取ack响应，如果没有便不会应用时间（默认30s）</span><br><span class="line">discovery.zen.publish_timeout：指定时间内响应状态更新成功，如果超时便不会进行下一次更新操作（默认30s）</span><br><span class="line">discovery.zen.minimum_master_nodes：即上面配置的至少有多少个节点保持通信</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-宕机阻塞集群操作"><a href="#2-5-宕机阻塞集群操作" class="headerlink" title="2.5.宕机阻塞集群操作"></a>2.5.宕机阻塞集群操作</h3><p>如果要让集群正常运转，那么必须有一个master，还有<code>discovery.zen.minimum_master_nodes</code>指定数量的master候选node，都在运行。</p>
+<p><code>discovery.zen.no_master_block</code>可以控制当master宕机时，什么样的操作应该被拒绝。有下面两个选项：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">discovery.zen.no_master_block:all -- 一旦master当即，那么所有的操作都会被拒绝</span><br><span class="line">discovery.zen.no_master_block:write -- 这是默认的选项，所有的写操作都会被拒绝，但是读操作是被允许的</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-6-文件存放位置"><a href="#2-6-文件存放位置" class="headerlink" title="2.6.文件存放位置"></a>2.6.文件存放位置</h3><p>es默认存放数据到data目录下，日志存放log目录下，插件存放plugin目录下，如果es升级，会导致文件夹覆盖。所以我们应该更改文件存放位置</p>
+<p>一般目录存放在<code>/var</code>下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p &#x2F;var&#x2F;log&#x2F;elasticsearch</span><br><span class="line">mkdir -p &#x2F;var&#x2F;data&#x2F;elasticsearch</span><br></pre></td></tr></table></figure>
+
+<p>修改<code>elasticsearch.yml</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">path.logs: &#x2F;var&#x2F;log&#x2F;elasticsearch</span><br><span class="line">path.data: &#x2F;var&#x2F;data&#x2F;elasticsearch</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-7-配置日志信息"><a href="#2-7-配置日志信息" class="headerlink" title="2.7.配置日志信息"></a>2.7.配置日志信息</h3><p>ES默认的日志配置中没有删除的操作，需要配下日志删除的逻辑，在<code>log4j2.properties·</code>中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">appender.rolling.strategy.type &#x3D; DefaultRolloverStrategy</span><br><span class="line">appender.rolling.strategy.action.type &#x3D; Delete</span><br><span class="line">appender.rolling.strategy.action.basepath &#x3D; $&#123;sys:es.logs.base_path&#125;</span><br><span class="line">appender.rolling.strategy.action.condition.type &#x3D; IfLastModified</span><br><span class="line">appender.rolling.strategy.action.condition.age &#x3D; 7D</span><br><span class="line">appender.rolling.strategy.action.PathConditions.type &#x3D; IfFileName</span><br><span class="line">appender.rolling.strategy.action.PathConditions.glob &#x3D; $&#123;sys:es.logs.cluster_name&#125;-*</span><br><span class="line"></span><br><span class="line">第一行是配置了默认的DefaultRolloverStrategy</span><br><span class="line">第二行是配置了Delete action，在rollover之后，就会删除文件</span><br><span class="line">第三行是配置了es log的基础路径</span><br><span class="line">第四行是配置了rollover发生的条件，是基于IfLastModified</span><br><span class="line">第五行是配置了保留的天数，这里是7天</span><br><span class="line">第六行是配置了删除匹配7天前的文件</span><br><span class="line">第七行是配置了一个删除文件的格式，这样就只是删除过期日志文件，但是不要删除慢查询日志</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-8-集群重启shard重分配问题"><a href="#2-8-集群重启shard重分配问题" class="headerlink" title="2.8.集群重启shard重分配问题"></a>2.8.集群重启shard重分配问题</h3><p><strong>问题</strong>：好比10个节点，5个primary shard，5个replica shard，一开始均匀的每个节点分配一个shard</p>
+<p>这时重启节点，因为某些原因，只先启动了5个节点，还有5个节点没有启动，这时ES会自动恢复shard</p>
+<p>1）将启动的5个节点中replica升级为primary shard</p>
+<p>2）将每个shard 复制一份 replica，这样每个节点有两个shard，主副各一份</p>
+<p>3）此时启动剩余5个节点了</p>
+<p>4）根据负载均衡，将先启动节点的shard均匀分配到新启动节点上，这样回到每个节点一个shard的情况</p>
+<p>5）删除新启动节点本地shard</p>
+<p>所以，根据这种情况，节点多做了很多操作，如：</p>
+<ul>
+<li>平白无故复制了50%的shard</li>
+<li>后上线的node删除本地shard</li>
+<li>50%的shard进行网络传输移动</li>
+</ul>
+<p>便会浪费大量资源且启动缓慢</p>
+<p><strong>解决</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gateway.recover_after_nodes: 8</span><br><span class="line">gateway.expected_nodes: 10</span><br><span class="line">gateway.recover_after_time: 5m</span><br><span class="line">搭配使用，启动节点数量大于8个后，如果再过5分钟内没有启动10个节点，开始分配shard</span><br></pre></td></tr></table></figure>
+
+<p>这样可以节省大量资源，并且启动速度变快</p>
+<h2 id="三、系统设置"><a href="#三、系统设置" class="headerlink" title="三、系统设置"></a>三、系统设置</h2><p>ES不能用root用户启动，所以必须创建用户分配权限启动才可以</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">adduser es</span><br><span class="line">passwd es</span><br><span class="line">chown -R es &#x2F;usr&#x2F;local&#x2F;elasticsearch</span><br><span class="line">chown -R es &#x2F;var</span><br><span class="line">su es</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、启动报错问题"><a href="#四、启动报错问题" class="headerlink" title="四、启动报错问题"></a>四、启动报错问题</h2><p>1）ERROR: [2] bootstrap checks failed：max file descriptors [4096] for elasticsearch process is too low, increase to at least [65536][2]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]</p>
+<p>在<code>vi /etc/security/limits.conf</code></p>
+<p>添加如下内容:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">* - nofile 65536</span><br><span class="line">* soft memlock unlimited</span><br><span class="line">* hard memlock unlimited</span><br></pre></td></tr></table></figure>
+
+<p>2）elasticsearch max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]</p>
+<p>在root用户下执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi &#x2F;etc&#x2F;sysctl.conf</span><br></pre></td></tr></table></figure>
+
+<p>添加下面配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vm.max_map_count&#x3D;655360</span><br></pre></td></tr></table></figure>
+
+<p>并执行命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -p</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、启动与关闭"><a href="#五、启动与关闭" class="headerlink" title="五、启动与关闭"></a>五、启动与关闭</h2><p>配置完那些后，在es/bin目录下执行<code>./elasticsearch -d</code></p>
+<p>然后查看日志 <code>cat /var/log/elasticsearch/my-cat.log</code></p>
+<p><img src="/image/1571362005421.png" alt="1571362005421"></p>
+<p>启动成功</p>
+<p>关闭需要查看进程号：<code>ps -ef|grep elasticsearch</code></p>
+<p>杀死进程：<code>kill -SIGTERM pid</code></p>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>1）创建日志存放目录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p &#x2F;var&#x2F;log&#x2F;elasticsearch</span><br><span class="line">mkdir -p &#x2F;var&#x2F;data&#x2F;elasticsearch</span><br></pre></td></tr></table></figure>
+
+<p>2）修改elasticsearch.yml</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"># 必须配置</span><br><span class="line">cluster.name: my-es</span><br><span class="line">node.name: node-1</span><br><span class="line">network.host: 192.168.25.250</span><br><span class="line">http.port: 9200</span><br><span class="line">transport.tcp.port: 9300</span><br><span class="line">discovery.zen.ping.unicast.hosts: [&quot;es01&quot;,&quot;es02&quot;,&quot;es03&quot;]</span><br><span class="line"></span><br><span class="line"># 根据情况设置（必须）</span><br><span class="line">discovery.zen.minimum_master_nodes: 1</span><br><span class="line"></span><br><span class="line">gateway.recover_after_nodes: 1</span><br><span class="line">gateway.expected_nodes: 2</span><br><span class="line">gateway.recover_after_time: 5m</span><br><span class="line"></span><br><span class="line"># 根据情况选择设置</span><br><span class="line">path.logs: &#x2F;var&#x2F;log&#x2F;elasticsearch</span><br><span class="line">path.data: &#x2F;var&#x2F;data&#x2F;elasticsearch</span><br><span class="line"></span><br><span class="line">node.master: true</span><br><span class="line">node.data: false</span><br><span class="line"></span><br><span class="line"># 没太有必要设置</span><br><span class="line">discovery.zen.commit_timeout: 10s</span><br><span class="line">discovery.zen.publish_timeout：10s</span><br><span class="line"></span><br><span class="line">#跨域设置</span><br><span class="line">http.cors.enabled: true</span><br><span class="line">http.cors.allow-origin: &quot;*&quot;</span><br></pre></td></tr></table></figure>
+
+<p>3）jvm.options</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># jvm heap内存，根据需要配置</span><br><span class="line">-Xms2g</span><br><span class="line">-Xmx2g</span><br></pre></td></tr></table></figure>
+
+<p>5）配置系统设置</p>
+<p><code>vi /etc/security/limits.conf</code>添加</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">* - nofile 65536</span><br><span class="line">* soft memlock unlimited</span><br><span class="line">* hard memlock unlimited</span><br></pre></td></tr></table></figure>
+
+<p><code>vi /etc/sysctl.conf</code>添加<code>vm.max_map_count=655360</code>，执行<code>sysctl -p</code></p>
+<p>4）创建用户</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">adduser es</span><br><span class="line">passwd es</span><br><span class="line">chown -R es &#x2F;usr&#x2F;local&#x2F;elasticsearch</span><br><span class="line">chown -R es &#x2F;var&#x2F;log&#x2F;elasticsearch&#x2F;</span><br><span class="line">chown -R es &#x2F;var&#x2F;data&#x2F;elasticsearch&#x2F;</span><br><span class="line">su es</span><br></pre></td></tr></table></figure>
+
+<p>5）启动所有节点</p>
+<p>再bin目录下：<code>./elasticsearch -d</code></p>
+<p>查看日志是否启动成功：<code>cat /var/log/elasticsaerch/my-cat.log</code></p>
+<p>6）测试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -XGET elasticsearch02:9200</span><br><span class="line">curl -XGET elasticsearch02:9200&#x2F;_cat&#x2F;nodes?v</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1571367812261.png" alt="1571367812261"></p>
+<p>成功启动三个节点</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/elasticsearch/" rel="tag"># elasticsearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/25/es06-ElasticSearch%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/" rel="next" title="ElasticSearch集群搭建">
+                <i class="fa fa-chevron-left"></i> ElasticSearch集群搭建
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/25/es08-ElasticSearch%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" rel="prev" title="ElasticSearch性能优化">
+                ElasticSearch性能优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、背景知识"><span class="nav-number">1.</span> <span class="nav-text">一、背景知识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、配置"><span class="nav-number">2.</span> <span class="nav-text">二、配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-基础配置"><span class="nav-number">2.1.</span> <span class="nav-text">2.1.基础配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-master-node与data-node"><span class="nav-number">2.2.</span> <span class="nav-text">2.2.master node与data node</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-master选举"><span class="nav-number">2.3.</span> <span class="nav-text">2.2.master选举</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-1脑裂"><span class="nav-number">2.3.1.</span> <span class="nav-text">2.2.1脑裂</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-2-配置解决"><span class="nav-number">2.3.2.</span> <span class="nav-text">2.2.2.配置解决</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-3-举例说明"><span class="nav-number">2.3.3.</span> <span class="nav-text">2.2.3.举例说明</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-3-1-两个节点"><span class="nav-number">2.3.3.1.</span> <span class="nav-text">2.2.3.1.两个节点</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-3-2-三个节点"><span class="nav-number">2.3.3.2.</span> <span class="nav-text">2.2.3.2.三个节点</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-4-动态配置"><span class="nav-number">2.3.4.</span> <span class="nav-text">2.2.4.动态配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-集群故障检查"><span class="nav-number">2.4.</span> <span class="nav-text">2.3.集群故障检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-集群状态更新"><span class="nav-number">2.5.</span> <span class="nav-text">2.4.集群状态更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-宕机阻塞集群操作"><span class="nav-number">2.6.</span> <span class="nav-text">2.5.宕机阻塞集群操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-文件存放位置"><span class="nav-number">2.7.</span> <span class="nav-text">2.6.文件存放位置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-配置日志信息"><span class="nav-number">2.8.</span> <span class="nav-text">2.7.配置日志信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-8-集群重启shard重分配问题"><span class="nav-number">2.9.</span> <span class="nav-text">2.8.集群重启shard重分配问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、系统设置"><span class="nav-number">3.</span> <span class="nav-text">三、系统设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、启动报错问题"><span class="nav-number">4.</span> <span class="nav-text">四、启动报错问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、启动与关闭"><span class="nav-number">5.</span> <span class="nav-text">五、启动与关闭</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、总结"><span class="nav-number">6.</span> <span class="nav-text">六、总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

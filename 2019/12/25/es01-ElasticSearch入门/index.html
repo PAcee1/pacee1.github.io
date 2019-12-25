@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="elasticsearch," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、ElasticSearch介绍1.1.什么是ESElasticSearch简称es，是基于Lucene的一款分布式全文检索服务器，实时存储，检索数据，分布式处理PB级别数据，自动分片并维护冗余副本，数据安全，扩展性好是它的几大特点。es也使用Java开发，底层为Lucene来实现索引搜索功能，但是它使用RESTful风格API来简化Lucene复杂的操作，从而使得全文检索更简单。 1.2.ES">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ElasticSearch入门">
+<meta property="og:url" content="http://yoursite.com/2019/12/25/es01-ElasticSearch%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、ElasticSearch介绍1.1.什么是ESElasticSearch简称es，是基于Lucene的一款分布式全文检索服务器，实时存储，检索数据，分布式处理PB级别数据，自动分片并维护冗余副本，数据安全，扩展性好是它的几大特点。es也使用Java开发，底层为Lucene来实现索引搜索功能，但是它使用RESTful风格API来简化Lucene复杂的操作，从而使得全文检索更简单。 1.2.ES">
+<meta property="og:image" content="http://yoursite.com/image/1570605268369.png">
+<meta property="og:image" content="http://yoursite.com/image/1570605138300.png">
+<meta property="og:image" content="http://yoursite.com/image/1570605361068.png">
+<meta property="og:image" content="http://yoursite.com/image/1570605903840.png">
+<meta property="og:image" content="http://yoursite.com/image/1570606810590.png">
+<meta property="og:image" content="http://yoursite.com/image/1570607233171.png">
+<meta property="og:image" content="http://yoursite.com/image/1570607442608.png">
+<meta property="og:image" content="http://yoursite.com/image/1570871467123.png">
+<meta property="og:image" content="http://yoursite.com/image/1570787334701.png">
+<meta property="og:image" content="http://yoursite.com/image/1570787879853.png">
+<meta property="og:image" content="http://yoursite.com/image/1570610868059.png">
+<meta property="og:image" content="http://yoursite.com/image/1570623480119.png">
+<meta property="og:image" content="http://yoursite.com/image/1570623463217.png">
+<meta property="og:image" content="http://yoursite.com/image/1570670076366.png">
+<meta property="og:image" content="http://yoursite.com/image/1570783804278.png">
+<meta property="og:image" content="http://yoursite.com/image/1570670282795.png">
+<meta property="og:image" content="http://yoursite.com/image/1570670648628.png">
+<meta property="og:image" content="http://yoursite.com/image/1570672858014.png">
+<meta property="article:published_time" content="2019-12-25T01:30:45.000Z">
+<meta property="article:modified_time" content="2019-12-25T01:33:30.830Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="elasticsearch">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1570605268369.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/25/es01-ElasticSearch入门/"/>
+
+
+
+
+
+  <title>ElasticSearch入门 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/25/es01-ElasticSearch%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ElasticSearch入门</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-25T09:30:45+08:00">
+                2019-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、ElasticSearch介绍"><a href="#一、ElasticSearch介绍" class="headerlink" title="一、ElasticSearch介绍"></a>一、ElasticSearch介绍</h2><h3 id="1-1-什么是ES"><a href="#1-1-什么是ES" class="headerlink" title="1.1.什么是ES"></a>1.1.什么是ES</h3><p>ElasticSearch简称es，是基于Lucene的一款<strong>分布式全文检索服务器</strong>，实时存储，检索数据，分布式处理PB级别数据，自动分片并维护冗余副本，数据安全，扩展性好是它的几大特点。es也使用Java开发，底层为Lucene来实现索引搜索功能，但是它使用<strong>RESTful风格API</strong>来简化Lucene复杂的操作，从而使得全文检索更简单。</p>
+<h3 id="1-2-ES的使用场景"><a href="#1-2-ES的使用场景" class="headerlink" title="1.2.ES的使用场景"></a>1.2.ES的使用场景</h3><p>所有用到搜索的地方都有ES的影子，如：</p>
+<p>github的搜索功能，github自2013年起使用ES来作为搜索引擎，来处理PB级别的数据。</p>
+<p>维基百科：启动以elasticsearch为基础的核心搜索架构</p>
+<p>SoundCloud：“SoundCloud使用ElasticSearch为1.8亿用户提供即时而精准的音乐搜索服务”</p>
+<p>百度：百度目前广泛使用ElasticSearch作为文本数据分析，采集百度所有服务器上的各类指标数据及用户自<br>定义数据，通过对各种数据进行多维分析展示，辅助定位分析实例异常或业务层面异常。目前覆盖百度内部<br>20多个业务线（包括casio、云分析、网盟、预测、文库、直达号、钱包、风控等），单集群最大100台机<br>器，200个ES节点，每天导入30TB+数据</p>
+<p>新浪使用ES 分析处理32亿条实时日志</p>
+<p>阿里使用ES 构建挖财自己的日志采集和分析体系 </p>
+<a id="more"></a>
+<h3 id="1-3-ES的功能与特点"><a href="#1-3-ES的功能与特点" class="headerlink" title="1.3.ES的功能与特点"></a>1.3.ES的功能与特点</h3><ul>
+<li>分布式搜索引擎和数据分析</li>
+<li>对海量数据进行近实时处理（也是基于分布式的）</li>
+<li>全文检索，结构化检索，数据分析</li>
+<li>开箱即用，部署配置非常简单</li>
+</ul>
+<h2 id="二、ElasticSearch概念"><a href="#二、ElasticSearch概念" class="headerlink" title="二、ElasticSearch概念"></a>二、ElasticSearch概念</h2><p>ES是面向文档操作，指存储整个文档且对其索引，使之快速搜索文档内容，ES对比关系型数据库：</p>
+<p>MYSQL         ‐&gt; Databases ‐&gt; Tables ‐&gt; Rows         ‐&gt; Columns<br>Elasticsearch  ‐&gt; Indices      ‐&gt; Types  ‐&gt; Documents ‐&gt; Fields </p>
+<h3 id="2-1-索引-index"><a href="#2-1-索引-index" class="headerlink" title="2.1.索引 index"></a>2.1.索引 index</h3><p>ES中的索引指索引库，类似关系型数据库中的一个数据库Database，ES服务器可以有多个索引，保存不同特征的文档集合，例如用户的文档，产品的文档，订单的文档等。</p>
+<h3 id="2-2-类型-type"><a href="#2-2-类型-type" class="headerlink" title="2.2.类型 type"></a>2.2.类型 type</h3><p>ES中的类型就好比MYSQL中的表，一个索引用有多个类型，比如一个索引存储游戏数据，而其中又有lol数据，dota数据，这样就定义lol数据为一个类型，dota数据为另一个类型。</p>
+<h3 id="2-3-文档-document"><a href="#2-3-文档-document" class="headerlink" title="2.3.文档 document"></a>2.3.文档 document</h3><p>ES中的文档就好比MYSQL中的一条记录，是索引的基础信息单元，文档由json形式保存，每个type可以存储多个文档。</p>
+<h3 id="2-4-字段-field"><a href="#2-4-字段-field" class="headerlink" title="2.4.字段 field"></a>2.4.字段 field</h3><p>ES中的字段也对应MYSQL中的字段，根据文档数据的不同属性来区分的分类标识。如文档名称，内容，路径，大小等。</p>
+<h3 id="2-5-映射-mapping"><a href="#2-5-映射-mapping" class="headerlink" title="2.5.映射 mapping"></a>2.5.映射 mapping</h3><p>映射类似于MYSQL中的表结构的定义，用来限制数据方式规则，如某个字段的数据类型，默认值，分词器，是否索引等。好的映射关系可以提高数据处理的性能。</p>
+<h3 id="2-6-集群-cluster"><a href="#2-6-集群-cluster" class="headerlink" title="2.6.集群 cluster"></a>2.6.集群 cluster</h3><p>集群就是由多个ES服务器节点组成的，共同拥有数据，索引，一起提高搜索功能。一个集群只有一个名字，如“elasticSearch”，每个节点设置相同的集群名字标识他们在一个集群里。</p>
+<h3 id="2-7-节点-node"><a href="#2-7-节点-node" class="headerlink" title="2.7. 节点 node"></a>2.7. 节点 node</h3><p>一个节点对应一个服务器，在一个集群大家庭里，参与搜索与索引功能。每个节点有不同的名字，这个名字一般是随机的。</p>
+<h3 id="2-8-分片和复制"><a href="#2-8-分片和复制" class="headerlink" title="2.8.分片和复制"></a>2.8.分片和复制</h3><p><strong>分片</strong>：是ES数据存储的文件块，是<strong>数据的最小单元块</strong>，对于一个10亿数据的文档而言，如果仅仅有一个节点来存储，那样是无法实现的，而且就算实现了对其操作也会极其缓慢，所以ES提供了分片机制，将大数据量存储在多台服务器上，每台服务器保存一些shard，即横向扩展，搜索分析操作分不到多台服务器上执行，效率更高。</p>
+<p><strong>复制</strong>：是为了防止服务器故障而导致数据丢失，对于5个主分片会进行拷贝，形成5个从分片提供数据的冗余，当主shard故障时，会使用replica提供服务，防止数据丢失。</p>
+<p>索引默认创建5个分片和一组从分片，<strong>只有ES形成集群时，从分片才会被启用</strong>，因为主从在一个ES节点上是没有意义的，ES故障会导致主从都损坏。</p>
+<h2 id="三、ElasticSearch的安装"><a href="#三、ElasticSearch的安装" class="headerlink" title="三、ElasticSearch的安装"></a>三、ElasticSearch的安装</h2><p>安装就不详细说了，百度一大把，而且很简单，windows平台下：</p>
+<p>官网下载ES压缩包，解压缩运行/bin/elasticsearch.bat即可，localhost:9200即可查询是否启动成功</p>
+<p>图形化界面使用elasticsearch-head，基于nodejs，需要安装nodejs以及npm安装grunt，安装好后在head-master目录下<code>npm install</code>，再运行<code>grunt server</code>即可，输入localhost:9100即可查看</p>
+<p>需要注意es跨域问题，在es的conf/elasticsearch.yml中配置：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">http.cors.enabled:</span> <span class="literal">true</span></span><br><span class="line"><span class="string">http.cors.allow‐origin:</span> <span class="string">"*"</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="四、ElasticSearch客户端操作"><a href="#四、ElasticSearch客户端操作" class="headerlink" title="四、ElasticSearch客户端操作"></a>四、ElasticSearch客户端操作</h2><p>这里我们使用Postman工具来对ES索引进行操作</p>
+<p>因为ES是RESTful风格，所以PUT—增加，POST—修改，DELETE—删除，GET—查询</p>
+<h3 id="4-1-创建索引与mappings"><a href="#4-1-创建索引与mappings" class="headerlink" title="4.1.创建索引与mappings"></a>4.1.创建索引与mappings</h3><p>在我们创建索引的时候，可以直接创建一个没有mappings的索引，也可以带着mappings一起创建</p>
+<p>1）只创建索引</p>
+<p><img src="/image/1570605268369.png" alt="1570605268369"></p>
+<p>这里我们在请求参数json中没有添加任何数据，即创建一个空的索引test</p>
+<p>2）创建索引与mappings</p>
+<p><img src="/image/1570605138300.png" alt="1570605138300"></p>
+<p>这次我们在请求体中添加了mappings，下一层的article是type类型，即数据库中的表名，在下一层properties又包含了字段类型，type为长整型long或text文本，store表示是否存储，index是否建立索引，analyzer使用哪种解析器。</p>
+<h3 id="4-2-单独设置mappings"><a href="#4-2-单独设置mappings" class="headerlink" title="4.2.单独设置mappings"></a>4.2.单独设置mappings</h3><p>当然我们创建空的没有结构索引后，也可以后期为其添加结构映射mappings</p>
+<p><img src="/image/1570605361068.png" alt="1570605361068"></p>
+<p>URL为<code>IP:端口/索引名/类型/_mappings</code>，请求体中就是其字段类型</p>
+<h3 id="4-3-删除索引"><a href="#4-3-删除索引" class="headerlink" title="4.3.删除索引"></a>4.3.删除索引</h3><p><img src="/image/1570605903840.png" alt="1570605903840"></p>
+<p>因为是RESTful风格，所以DELETE请求即可</p>
+<h3 id="4-4-创建Document"><a href="#4-4-创建Document" class="headerlink" title="4.4.创建Document"></a>4.4.创建Document</h3><p><img src="/image/1570606810590.png" alt="1570606810590"></p>
+<p>创建document时，URL为<code>IP:端口/索引名/类型/文档主键ID</code>，请求体为设置的mapping映射字段。</p>
+<p>这里会发现字段id和主键id是一样的1，其实这是两个不同的东西，一个是es文档主键id，一个是文档字段id，即可以不存在id这个字段，但是不能少了主键ID，如果请求URL上不设置ID，ES会自动赋予随机的ID，一般来说主键ID和字段ID设置成一致的。</p>
+<h3 id="4-5-删除Document"><a href="#4-5-删除Document" class="headerlink" title="4.5.删除Document"></a>4.5.删除Document</h3><p><img src="/image/1570607233171.png" alt="1570607233171"></p>
+<p>URL：<code>IP:端口/索引名/类型/主键ID</code>，注意这里的ID是主键ID而不是字段ID</p>
+<h3 id="4-6-修改Document"><a href="#4-6-修改Document" class="headerlink" title="4.6.修改Document"></a>4.6.修改Document</h3><h4 id="4-6-1-全量修改"><a href="#4-6-1-全量修改" class="headerlink" title="4.6.1.全量修改"></a>4.6.1.全量修改</h4><p><img src="/image/1570607442608.png" alt="1570607442608"></p>
+<p>URL：<code>IP:端口/索引名/类型/主键ID</code>，请求体为文档内容。这里ES基于Lucene，所以底层也是先删除再新增的操作。</p>
+<h4 id="4-6-2-partial-update"><a href="#4-6-2-partial-update" class="headerlink" title="4.6.2.partial update"></a>4.6.2.partial update</h4><p>对于全量修改，每次都要获取全量数据进行修改，不然结构就会改变，这里使用partial update可以只修改指定的field</p>
+<p><img src="/image/1570871467123.png" alt="1570871467123"></p>
+<p>可以看到指定content字段修改，其他的字段保持不变。</p>
+<p>这里es底层其实还是进行了删除修改操作，先将数据转json保存，然后对修改的字段进行修改，再重新新增数据</p>
+<h3 id="4-7-查询索引"><a href="#4-7-查询索引" class="headerlink" title="4.7.查询索引"></a>4.7.查询索引</h3><h4 id="4-7-1-query-string-search"><a href="#4-7-1-query-string-search" class="headerlink" title="4.7.1.query string search"></a>4.7.1.query string search</h4><p>query string search的由来，因为search参数都是以http请求的query string来附带的</p>
+<p>搜索商品名称中包含yagao的商品，而且按照售价降序排序：</p>
+<p><code>GET /ecommerce/product/_search?q=name:yagao&amp;sort=price:desc</code></p>
+<p>适用于临时的在命令行使用一些工具，比如curl，快速的发出请求，来检索想要的信息；但是如果查询请求很复杂，是很难去构建的</p>
+<p>在生产环境中，几乎很少使用query string search</p>
+<h4 id="4-7-2-query-DSL"><a href="#4-7-2-query-DSL" class="headerlink" title="4.7.2.query DSL"></a>4.7.2.query DSL</h4><p>DSL：Domain Specified Language，特定领域的语言</p>
+<p>http request body：请求体，可以用json的格式来构建查询语法，比较方便，可以构建各种复杂的语法，比query string search肯定强大多了，更加适合生产环境的使用，可以构建复杂的查询</p>
+<p>1）查询所有的商品</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">GET /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"query"</span>: &#123; <span class="attr">"match_all"</span>: &#123;&#125; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2）查询名称包含yagao的商品，同时按照价格降序排序</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"query"</span> : &#123;</span><br><span class="line">        <span class="string">"match"</span> : &#123;</span><br><span class="line">            <span class="string">"name"</span> : <span class="string">"yagao"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"sort"</span>: [</span><br><span class="line">        &#123; <span class="string">"price"</span>: <span class="string">"desc"</span> &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>3）分页查询商品，总共3条商品，假设每页就显示1条商品，现在显示第2页，所以就查出来第2个商品</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123; <span class="string">"match_all"</span>: &#123;&#125; &#125;,</span><br><span class="line">  <span class="string">"from"</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="string">"size"</span>: <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>4）指定要查询出来商品的名称和价格就可以</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123; <span class="string">"match_all"</span>: &#123;&#125; &#125;,</span><br><span class="line">  <span class="string">"_source"</span>: [<span class="string">"name"</span>, <span class="string">"price"</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-7-3-query-filter"><a href="#4-7-3-query-filter" class="headerlink" title="4.7.3.query filter"></a>4.7.3.query filter</h4><p>过滤器，例如搜索商品名称包含yagao，而且售价大于25元的商品</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>:&#123;</span><br><span class="line">    <span class="string">"bool"</span>: &#123;</span><br><span class="line">      <span class="string">"must"</span>: &#123;</span><br><span class="line">        <span class="string">"match"</span>:&#123;<span class="string">"name"</span>:<span class="string">"yagao"</span>&#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">"filter"</span>: &#123;</span><br><span class="line">        <span class="string">"range"</span>:&#123;</span><br><span class="line">          <span class="string">"price"</span>:&#123;<span class="string">"gt"</span>:<span class="number">25</span>&#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-7-4-full-text-search（全文检索）"><a href="#4-7-4-full-text-search（全文检索）" class="headerlink" title="4.7.4.full-text search（全文检索）"></a>4.7.4.full-text search（全文检索）</h4><p>这个搜索方式便是全文检索的精髓了，我们拿案例说话</p>
+<p>查询producer是yagao producer的数据</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>:&#123;</span><br><span class="line">    <span class="string">"match"</span>: &#123;</span><br><span class="line">      <span class="string">"producer"</span>: <span class="string">"yagao producer"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<p><img src="/image/1570787334701.png" alt="1570787334701"></p>
+<p>这里只拿两个结果看，可以看到黑人牙膏的匹配分数高于高露洁牙膏，这就是全文检索的特点</p>
+<p>我们查询的是producer为yagao producer的数据，es会将其拆分为yagao和producer，像库里数据进行匹配</p>
+<p><strong>倒排索引</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">heiren - 4 (id)</span><br><span class="line">yagao - 4</span><br><span class="line">producer - 1,4</span><br><span class="line">gaolujie -1</span><br></pre></td></tr></table></figure>
+
+<p>通过索引匹配，可以发下producer命中了1和4的数据，yagao命中了4的数据，所以id为4的数据匹配分数高，id为1的数据匹配分数低！这也是倒排索引的优点~</p>
+<h4 id="4-7-5-phrase-search（短语搜索）"><a href="#4-7-5-phrase-search（短语搜索）" class="headerlink" title="4.7.5.phrase search（短语搜索）"></a>4.7.5.phrase search（短语搜索）</h4><p>跟全文检索相对应，相反，全文检索会将输入的搜索串拆解开来，去倒排索引里面去一一匹配，只要能匹配上任意一个拆解后的单词，就可以作为结果返回<br>phrase search，要求输入的搜索串，<strong>必须在指定的字段文本中，完全包含一模一样的，才可以算匹配</strong>，才能作为结果返回</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"query"</span> : &#123;</span><br><span class="line">        <span class="string">"match_phrase"</span> : &#123;</span><br><span class="line">            <span class="string">"producer"</span> : <span class="string">"yagao producer"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-7-6-highlight-search"><a href="#4-7-6-highlight-search" class="headerlink" title="4.7.6.highlight search"></a>4.7.6.highlight search</h4><p>高亮搜索，对于搜索结果拼接上一些特殊代码，比如：</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>:&#123;</span><br><span class="line">    <span class="string">"match_phrase"</span>: &#123;</span><br><span class="line">      <span class="string">"producer"</span>: <span class="string">"yagao producer"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"highlight"</span>: &#123;</span><br><span class="line">    <span class="string">"fields"</span>: &#123;</span><br><span class="line">      <span class="string">"producer"</span>:&#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1570787879853.png" alt="1570787879853"></p>
+<p>yagao与producer添加上了em标签，这样在浏览器上显示就会像百度搜索一样标红</p>
+<h3 id="4-8-聚合查询"><a href="#4-8-聚合查询" class="headerlink" title="4.8.聚合查询"></a>4.8.聚合查询</h3><p>1）计算每个tag下的商品数量</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"size"</span>:<span class="number">0</span>,</span><br><span class="line">    <span class="string">"aggs"</span>:&#123;</span><br><span class="line">        <span class="string">"by_tags"</span>:&#123;</span><br><span class="line">          <span class="string">"terms"</span>: &#123;</span><br><span class="line">            <span class="string">"field"</span>:<span class="string">"tags"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2）对名称中包含yagao的商品，计算每个tag下的商品数量</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"size"</span>:<span class="number">0</span>,</span><br><span class="line">    <span class="string">"query"</span>:&#123;</span><br><span class="line">        <span class="string">"match"</span>:&#123;</span><br><span class="line">            <span class="string">"name"</span>:<span class="string">"yagao"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"aggs"</span>:&#123;</span><br><span class="line">        <span class="string">"by_tags"</span>:&#123;</span><br><span class="line">          <span class="string">"terms"</span>: &#123;</span><br><span class="line">            <span class="string">"field"</span>:<span class="string">"tags"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>3）先分组，再算每组的平均值，计算每个tag下的商品的平均价格</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"size"</span>:<span class="number">0</span>,</span><br><span class="line">    <span class="string">"aggs"</span>:&#123;</span><br><span class="line">        <span class="string">"by_tags"</span>:&#123;</span><br><span class="line">          <span class="string">"terms"</span>: &#123;</span><br><span class="line">            <span class="string">"field"</span>:<span class="string">"tags"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="string">"aggs"</span>:&#123;</span><br><span class="line">              <span class="string">"avg_price"</span>:&#123;</span><br><span class="line">                  <span class="string">"avg"</span>:&#123;</span><br><span class="line">                      <span class="string">"field"</span>:<span class="string">"price"</span></span><br><span class="line">                  &#125;</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>4）计算每个tag下的商品的平均价格，并且按照平均价格降序排序</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"size"</span>:<span class="number">0</span>,</span><br><span class="line">    <span class="string">"aggs"</span>:&#123;</span><br><span class="line">        <span class="string">"by_tags"</span>:&#123;</span><br><span class="line">            <span class="string">"terms"</span>:&#123;</span><br><span class="line">                <span class="string">"field"</span>:<span class="string">"tags"</span>,</span><br><span class="line">                <span class="string">"order"</span>:&#123;</span><br><span class="line">                    <span class="string">"avg_price"</span>:<span class="string">"desc"</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"aggs"</span>:&#123;</span><br><span class="line">             	<span class="string">"avg_price"</span>:&#123;</span><br><span class="line">                    <span class="string">"avg"</span>:&#123;</span><br><span class="line">                        <span class="string">"field"</span>:<span class="string">"price"</span></span><br><span class="line">                    &#125;</span><br><span class="line">             	&#125;   </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>5）按照指定的价格范围区间进行分组，然后在每组内再按照tag进行分组，最后再计算每组的平均价格</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> /ecommerce/product/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"size"</span>: <span class="number">0</span>,</span><br><span class="line">  <span class="string">"aggs"</span>: &#123;</span><br><span class="line">    <span class="string">"range_price"</span>: &#123;</span><br><span class="line">      <span class="string">"range"</span>: &#123;</span><br><span class="line">        <span class="string">"field"</span>: <span class="string">"price"</span>,</span><br><span class="line">        <span class="string">"ranges"</span>: [</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="string">"from"</span>: <span class="number">20</span>,</span><br><span class="line">            <span class="string">"to"</span>: <span class="number">30</span></span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="string">"from"</span>: <span class="number">30</span>,</span><br><span class="line">            <span class="string">"to"</span>: <span class="number">50</span></span><br><span class="line">          &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">"aggs"</span>: &#123;</span><br><span class="line">        <span class="string">"by_tags"</span>: &#123;</span><br><span class="line">          <span class="string">"terms"</span>: &#123;</span><br><span class="line">            <span class="string">"field"</span>: <span class="string">"tags"</span>,</span><br><span class="line">            <span class="string">"order"</span>: &#123;</span><br><span class="line">              <span class="string">"avg_price"</span>: <span class="string">"desc"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="string">"aggs"</span>:&#123;</span><br><span class="line">            <span class="string">"avg_price"</span>:&#123;</span><br><span class="line">              <span class="string">"avg"</span>: &#123;</span><br><span class="line">                <span class="string">"field"</span>: <span class="string">"price"</span></span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-9-批量查询"><a href="#4-9-批量查询" class="headerlink" title="4.9.批量查询"></a>4.9.批量查询</h3><p>批量查询使用mget</p>
+<p>比如在相同type下，需要查询id为1和2的数据：</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> blog/article/_mget</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"ids"</span>:[<span class="string">"1"</span>,<span class="string">"2"</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>或者如果在不同的type下：</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">GET</span> blog/_mget</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"docs"</span>:[</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"_type"</span>:<span class="string">"book"</span>,</span><br><span class="line">      <span class="string">"_id"</span>:<span class="string">"1"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"_type"</span>:<span class="string">"article"</span>,</span><br><span class="line">      <span class="string">"_id"</span>:<span class="string">"2"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然对于不同索引库的在加一个<code>&quot;_index&quot;:&quot;xxx&quot;</code>即可。</p>
+<p>mget还是很重要的，可以提升性能减小网络开销</p>
+<h3 id="4-10-批量操作"><a href="#4-10-批量操作" class="headerlink" title="4.10.批量操作"></a>4.10.批量操作</h3><p>es提供了_bulk来进行批量操作，即一次性进行增删改操作而不是一条条的请求</p>
+<p>有哪些类型的操作可以执行呢？<br>（1）delete：删除一个文档，只要1个json串就可以了<br>（2）create：PUT /index/type/id/_create，强制创建<br>（3）index：普通的put操作，可以是创建文档，也可以是全量替换文档<br>（4）update：执行的partial update操作</p>
+<p>每一个操作要两个json串，语法如下：</p>
+<p>{“action”: {“metadata”}}  –操作名称以及对应的索引名或type或id，类似请求URL<br>{“data”} – 请求体数据</p>
+<p>举例，比如你现在要创建一个文档，放bulk里面，看起来会是这样子的：</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">"index"</span>: &#123;<span class="string">"_index"</span>: <span class="string">"test_index"</span>, <span class="string">"_type"</span>, <span class="string">"test_type"</span>, <span class="string">"_id"</span>: <span class="string">"1"</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"test_field1"</span>: <span class="string">"test1"</span>, <span class="string">"test_field2"</span>: <span class="string">"test2"</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>全部的请求示例如下：</p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">POST</span> /_bulk</span><br><span class="line">&#123; <span class="string">"delete"</span>: &#123; <span class="string">"_index"</span>: <span class="string">"test_index"</span>, <span class="string">"_type"</span>: <span class="string">"test_type"</span>, <span class="string">"_id"</span>: <span class="string">"3"</span> &#125;&#125; </span><br><span class="line">&#123; <span class="string">"create"</span>: &#123; <span class="string">"_index"</span>: <span class="string">"test_index"</span>, <span class="string">"_type"</span>: <span class="string">"test_type"</span>, <span class="string">"_id"</span>: <span class="string">"12"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="string">"test_field"</span>:    <span class="string">"test12"</span> &#125;</span><br><span class="line">&#123; <span class="string">"index"</span>:  &#123; <span class="string">"_index"</span>: <span class="string">"test_index"</span>, <span class="string">"_type"</span>: <span class="string">"test_type"</span>, <span class="string">"_id"</span>: <span class="string">"2"</span> &#125;&#125;</span><br><span class="line">&#123; <span class="string">"test_field"</span>:    <span class="string">"replaced test2"</span> &#125;</span><br><span class="line">&#123; <span class="string">"update"</span>: &#123; <span class="string">"_index"</span>: <span class="string">"test_index"</span>, <span class="string">"_type"</span>: <span class="string">"test_type"</span>, <span class="string">"_id"</span>: <span class="string">"1"</span>, <span class="string">"_retry_on_conflict"</span> : <span class="number">3</span>&#125; &#125;</span><br><span class="line">&#123; <span class="string">"doc"</span> : &#123;<span class="string">"test_field2"</span> : <span class="string">"bulk test1"</span>&#125; &#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于bulk api对语法有硬性要求，每个json串必须在一行，不能换行，串与串之间需要换行。</p>
+<p>bulk api如果有某个操作执行失败，不会影响其他操作，在返回的结果里会显示</p>
+<h2 id="五、ElasticSearch的分析器"><a href="#五、ElasticSearch的分析器" class="headerlink" title="五、ElasticSearch的分析器"></a>五、ElasticSearch的分析器</h2><h3 id="5-1-传统Standard分析器"><a href="#5-1-传统Standard分析器" class="headerlink" title="5.1.传统Standard分析器"></a>5.1.传统Standard分析器</h3><p>和Lucene一样，ES的分析器默认使用Standard，只对英文友好，对中文没有分析效果</p>
+<p><img src="/image/1570610868059.png" alt="1570610868059"></p>
+<p>URL为<code>IP:端口/_analyzer?analyzer=分析器名称&amp;text=分析内容</code></p>
+<p>可以看到对中文是一个字一个字分析。所以还是需要使用IK分析器。</p>
+<h3 id="5-2-IK分析器"><a href="#5-2-IK分析器" class="headerlink" title="5.2.IK分析器"></a>5.2.IK分析器</h3><p>只需到ik github上下载相同版本压缩包后，解压缩放到es的plugins文件夹下，然后重启服务即可。</p>
+<p>ik分析器又分为两种，一是<code>ik_smart</code>指最少划分，一是<code>ik_max_word</code>指最细粒度划分，下图可以看到区别：</p>
+<p><img src="/image/1570623480119.png" alt="1570623480119"></p>
+<p><img src="/image/1570623463217.png" alt="1570623463217"></p>
+<h2 id="六、ElasticSearch集群"><a href="#六、ElasticSearch集群" class="headerlink" title="六、ElasticSearch集群"></a>六、ElasticSearch集群</h2><p>ES集群的概念件见第二节，就不过多介绍了，概念了解即可，对于更深层的ES集群的底层实现后面在进行学习。</p>
+<p>这里我们主要学习下ES集群的搭建与测试。</p>
+<p>三节点集群搭建：</p>
+<p>ES文件夹复制三份，配置config/elasticsearch.yml配置文件，添加：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#节点3配置：</span></span><br><span class="line"><span class="comment">#集群名称，唯一</span></span><br><span class="line"><span class="attr">cluster.name:</span> <span class="string">my-elasticsearch</span></span><br><span class="line"><span class="comment">#节点名称，必须不一样</span></span><br><span class="line"><span class="attr">node.name:</span> <span class="string">node-3</span></span><br><span class="line"><span class="comment">#本机ip</span></span><br><span class="line"><span class="attr">network.host:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span></span><br><span class="line"><span class="comment">#服务端口</span></span><br><span class="line"><span class="attr">http.port:</span> <span class="number">9203</span></span><br><span class="line"><span class="comment">#集群通信端口</span></span><br><span class="line"><span class="attr">transport.tcp.port:</span> <span class="number">9303</span></span><br><span class="line"><span class="comment">#集群自动发现机器ip集合</span></span><br><span class="line"><span class="attr">discovery.zen.ping.unicast.hosts:</span> <span class="string">["127.0.0.1:9301","127.0.0.1:9302","127.0.0.1:9303"]</span></span><br></pre></td></tr></table></figure>
+
+<p>为三个配置文件配置好，然后顺序启动。在es可视化工具中可以看到，3节点连成集群</p>
+<p><img src="/image/1570670076366.png" alt="1570670076366"></p>
+<h3 id="6-1-集群查看"><a href="#6-1-集群查看" class="headerlink" title="6.1.集群查看"></a>6.1.集群查看</h3><p>1）查看集群健康状态</p>
+<p>es提供了一套api，叫cat api，用来查看es集群各种状态</p>
+<p><code>GET /_cat/health?v</code></p>
+<p><img src="/image/1570783804278.png" alt="1570783804278"></p>
+<p>status即集群健康状态：</p>
+<ul>
+<li>yellow：每个索引的主分片都是active状态，副本分片处于不可用状态</li>
+<li>green：主分片与副本分片都处于不可用状态</li>
+<li>red：不是所有的主分片都是active状态的，即部分索引数据丢失</li>
+</ul>
+<p>2）快速查看集群中有哪些索引</p>
+<p><code>GET /_cat/indices?v</code></p>
+<h3 id="6-2-集群健康问题"><a href="#6-2-集群健康问题" class="headerlink" title="6.2.集群健康问题"></a>6.2.集群健康问题</h3><p>创建索引：<code>PUT 127.0.0.1:9200/test</code></p>
+<p><img src="/image/1570670282795.png" alt="1570670282795"></p>
+<p>这时我们发现分片副本没有分配节点，健康值还是像原来的单节点ES一样，网上查了一下，是因为数据保存磁盘默认值为85%，如果磁盘占用量大于85%，便不会自动分配副本，这时我们有两种方法：</p>
+<p>1）设置磁盘占用率为90%</p>
+<p>URL:<code>PUT 127.0.0.1:9200/_cluster/settings</code></p>
+<p>请求体：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#123;</span></span><br><span class="line">	<span class="string">"transient"</span><span class="string">:&#123;</span></span><br><span class="line">		<span class="string">"cluster.routing.allocation.disk.watermark.low"</span> <span class="string">:</span> <span class="string">"90%"</span></span><br><span class="line">	<span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>2）设置data存放位置</p>
+<p>在配置文件elasticsearch.yml中配置</p>
+<p><img src="/image/1570670648628.png" alt="1570670648628"></p>
+<p>也可以解决此问题</p>
+<p><img src="/image/1570672858014.png" alt="1570672858014"></p>
+<p>正确的集群节点分片，粗框框的是主分片，细一点的是分片备份</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/elasticsearch/" rel="tag"># elasticsearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/24/09-SpringBoot-%E4%BB%BB%E5%8A%A1/" rel="next" title="09.SpringBoot-任务">
+                <i class="fa fa-chevron-left"></i> 09.SpringBoot-任务
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/25/es02-ElasticSearch%E4%B8%8EJava/" rel="prev" title="ElasticSearch与Java">
+                ElasticSearch与Java <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、ElasticSearch介绍"><span class="nav-number">1.</span> <span class="nav-text">一、ElasticSearch介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-什么是ES"><span class="nav-number">1.1.</span> <span class="nav-text">1.1.什么是ES</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-ES的使用场景"><span class="nav-number">1.2.</span> <span class="nav-text">1.2.ES的使用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-ES的功能与特点"><span class="nav-number">1.3.</span> <span class="nav-text">1.3.ES的功能与特点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、ElasticSearch概念"><span class="nav-number">2.</span> <span class="nav-text">二、ElasticSearch概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-索引-index"><span class="nav-number">2.1.</span> <span class="nav-text">2.1.索引 index</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-类型-type"><span class="nav-number">2.2.</span> <span class="nav-text">2.2.类型 type</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-文档-document"><span class="nav-number">2.3.</span> <span class="nav-text">2.3.文档 document</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-字段-field"><span class="nav-number">2.4.</span> <span class="nav-text">2.4.字段 field</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-映射-mapping"><span class="nav-number">2.5.</span> <span class="nav-text">2.5.映射 mapping</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-集群-cluster"><span class="nav-number">2.6.</span> <span class="nav-text">2.6.集群 cluster</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-节点-node"><span class="nav-number">2.7.</span> <span class="nav-text">2.7. 节点 node</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-8-分片和复制"><span class="nav-number">2.8.</span> <span class="nav-text">2.8.分片和复制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、ElasticSearch的安装"><span class="nav-number">3.</span> <span class="nav-text">三、ElasticSearch的安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、ElasticSearch客户端操作"><span class="nav-number">4.</span> <span class="nav-text">四、ElasticSearch客户端操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-创建索引与mappings"><span class="nav-number">4.1.</span> <span class="nav-text">4.1.创建索引与mappings</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-单独设置mappings"><span class="nav-number">4.2.</span> <span class="nav-text">4.2.单独设置mappings</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-删除索引"><span class="nav-number">4.3.</span> <span class="nav-text">4.3.删除索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-创建Document"><span class="nav-number">4.4.</span> <span class="nav-text">4.4.创建Document</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-5-删除Document"><span class="nav-number">4.5.</span> <span class="nav-text">4.5.删除Document</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-6-修改Document"><span class="nav-number">4.6.</span> <span class="nav-text">4.6.修改Document</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-6-1-全量修改"><span class="nav-number">4.6.1.</span> <span class="nav-text">4.6.1.全量修改</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-6-2-partial-update"><span class="nav-number">4.6.2.</span> <span class="nav-text">4.6.2.partial update</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-7-查询索引"><span class="nav-number">4.7.</span> <span class="nav-text">4.7.查询索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-7-1-query-string-search"><span class="nav-number">4.7.1.</span> <span class="nav-text">4.7.1.query string search</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-7-2-query-DSL"><span class="nav-number">4.7.2.</span> <span class="nav-text">4.7.2.query DSL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-7-3-query-filter"><span class="nav-number">4.7.3.</span> <span class="nav-text">4.7.3.query filter</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-7-4-full-text-search（全文检索）"><span class="nav-number">4.7.4.</span> <span class="nav-text">4.7.4.full-text search（全文检索）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-7-5-phrase-search（短语搜索）"><span class="nav-number">4.7.5.</span> <span class="nav-text">4.7.5.phrase search（短语搜索）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-7-6-highlight-search"><span class="nav-number">4.7.6.</span> <span class="nav-text">4.7.6.highlight search</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-8-聚合查询"><span class="nav-number">4.8.</span> <span class="nav-text">4.8.聚合查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-9-批量查询"><span class="nav-number">4.9.</span> <span class="nav-text">4.9.批量查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-10-批量操作"><span class="nav-number">4.10.</span> <span class="nav-text">4.10.批量操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、ElasticSearch的分析器"><span class="nav-number">5.</span> <span class="nav-text">五、ElasticSearch的分析器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-传统Standard分析器"><span class="nav-number">5.1.</span> <span class="nav-text">5.1.传统Standard分析器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-IK分析器"><span class="nav-number">5.2.</span> <span class="nav-text">5.2.IK分析器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、ElasticSearch集群"><span class="nav-number">6.</span> <span class="nav-text">六、ElasticSearch集群</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-集群查看"><span class="nav-number">6.1.</span> <span class="nav-text">6.1.集群查看</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-集群健康问题"><span class="nav-number">6.2.</span> <span class="nav-text">6.2.集群健康问题</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

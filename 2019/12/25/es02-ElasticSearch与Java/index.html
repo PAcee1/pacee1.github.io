@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="elasticsearch," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="ES对于Java客户端提供了两种连接方式  Transport连接：基于TCP的连接方式，即使用9300端口，即执行Java请求 REST client：高级客户端，使用REST请求，基于9200端口，执行Http请求  对于ES来说 es8以上便没有transport客户端了，即弃用，所以更推荐使用High level rest client，简称高级客户端。 对于学习阶段，准备将两种方式都简单">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ElasticSearch与Java">
+<meta property="og:url" content="http://yoursite.com/2019/12/25/es02-ElasticSearch%E4%B8%8EJava/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="ES对于Java客户端提供了两种连接方式  Transport连接：基于TCP的连接方式，即使用9300端口，即执行Java请求 REST client：高级客户端，使用REST请求，基于9200端口，执行Http请求  对于ES来说 es8以上便没有transport客户端了，即弃用，所以更推荐使用High level rest client，简称高级客户端。 对于学习阶段，准备将两种方式都简单">
+<meta property="og:image" content="http://yoursite.com/image/1570773564670.png">
+<meta property="og:image" content="http://yoursite.com/image/1570773573676.png">
+<meta property="og:image" content="http://yoursite.com/image/1570761040766.png">
+<meta property="og:image" content="http://yoursite.com/image/1570772482775.png">
+<meta property="og:image" content="http://yoursite.com/image/1570764601123.png">
+<meta property="og:image" content="http://yoursite.com/image/1570761094053.png">
+<meta property="og:image" content="http://yoursite.com/image/1570764636917.png">
+<meta property="article:published_time" content="2019-12-25T01:30:58.000Z">
+<meta property="article:modified_time" content="2019-12-25T01:34:58.610Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="elasticsearch">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1570773564670.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/25/es02-ElasticSearch与Java/"/>
+
+
+
+
+
+  <title>ElasticSearch与Java | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/25/es02-ElasticSearch%E4%B8%8EJava/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ElasticSearch与Java</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-25T09:30:58+08:00">
+                2019-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>ES对于Java客户端提供了两种连接方式</p>
+<ul>
+<li>Transport连接：基于TCP的连接方式，即使用9300端口，即执行Java请求</li>
+<li>REST client：高级客户端，使用REST请求，基于9200端口，执行Http请求</li>
+</ul>
+<p>对于ES来说 es8以上便没有transport客户端了，即弃用，所以更推荐使用High level rest client，简称高级客户端。</p>
+<p>对于学习阶段，准备将两种方式都简单学习一下。</p>
+<h2 id="一、Transport客户端"><a href="#一、Transport客户端" class="headerlink" title="一、Transport客户端"></a>一、Transport客户端</h2><p>Java对ES进行操作，首先需要一个客户端。</p>
+<a id="more"></a>
+<h3 id="1-1-获取TransportClient"><a href="#1-1-获取TransportClient" class="headerlink" title="1.1.获取TransportClient"></a>1.1.获取TransportClient</h3><p>客户端的创建：1.设置settings，配置集群名称 2.获取client，配置节点端口与IP</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> TransportClient client;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Before</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span>  Exception</span>&#123;</span><br><span class="line">    <span class="comment">// 1.创建settings，需要配置集群名称</span></span><br><span class="line">    Settings settings = Settings.builder().put(<span class="string">"cluster.name"</span>,<span class="string">"my-elasticsearch"</span>).build();</span><br><span class="line">    <span class="comment">// 2.创建TransportClient对象，因为是TCP连接，所以设置IP与端口</span></span><br><span class="line">    client = <span class="keyword">new</span> PreBuiltTransportClient(settings);</span><br><span class="line">    <span class="comment">// 这里设置三个节点时因为以防某个挂掉</span></span><br><span class="line">    client.addTransportAddress(<span class="keyword">new</span> InetSocketTransportAddress(InetAddress.getByName(<span class="string">"127.0.0.1"</span>),<span class="number">9300</span>));</span><br><span class="line">    client.addTransportAddress(<span class="keyword">new</span> InetSocketTransportAddress(InetAddress.getByName(<span class="string">"127.0.0.1"</span>),<span class="number">9301</span>));</span><br><span class="line">    client.addTransportAddress(<span class="keyword">new</span> InetSocketTransportAddress(InetAddress.getByName(<span class="string">"127.0.0.1"</span>),<span class="number">9302</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-2-创建索引"><a href="#1-2-创建索引" class="headerlink" title="1.2.创建索引"></a>1.2.创建索引</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 创建索引</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">createIndex</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    <span class="comment">// 3.创建索引</span></span><br><span class="line">    client.admin().indices().prepareCreate(<span class="string">"java_index2"</span>).get();</span><br><span class="line">    <span class="comment">// 4.关闭连接</span></span><br><span class="line">    client.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为上面已经在把client当做成员变量了，所以不再初始化。</p>
+<h3 id="1-3-设置mappings"><a href="#1-3-设置mappings" class="headerlink" title="1.3.设置mappings"></a>1.3.设置mappings</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 设置索引的mappings</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setIndexMappings</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    <span class="comment">// 3.设置mappings信息，多种方式，json或Map或XContentBuilder</span></span><br><span class="line">    XContentBuilder builder = XContentFactory.jsonBuilder()</span><br><span class="line">            .startObject()</span><br><span class="line">                .startObject(<span class="string">"book"</span>)</span><br><span class="line">                    .startObject(<span class="string">"properties"</span>)</span><br><span class="line">                        .startObject(<span class="string">"id"</span>)</span><br><span class="line">                            .field(<span class="string">"type"</span>, <span class="string">"integer"</span>)</span><br><span class="line">                            .field(<span class="string">"store"</span>, <span class="string">"yes"</span>)</span><br><span class="line">                        .endObject()</span><br><span class="line">                        .startObject(<span class="string">"title"</span>)</span><br><span class="line">                            .field(<span class="string">"type"</span>, <span class="string">"string"</span>)</span><br><span class="line">                            .field(<span class="string">"store"</span>, <span class="string">"yes"</span>)</span><br><span class="line">                            .field(<span class="string">"analyzer"</span>, <span class="string">"ik_smart"</span>)</span><br><span class="line">                        .endObject()</span><br><span class="line">                        .startObject(<span class="string">"content"</span>)</span><br><span class="line">                            .field(<span class="string">"type"</span>, <span class="string">"string"</span>)</span><br><span class="line">                            .field(<span class="string">"store"</span>, <span class="string">"yes"</span>)</span><br><span class="line">                            .field(<span class="string">"analyzer"</span>, <span class="string">"ik_smart"</span>)</span><br><span class="line">                        .endObject()</span><br><span class="line">                    .endObject()</span><br><span class="line">                .endObject()</span><br><span class="line">            .endObject();</span><br><span class="line">    <span class="comment">// 创建映射</span></span><br><span class="line">    client.admin().indices().preparePutMapping(<span class="string">"java_index"</span>).setType(<span class="string">"book"</span>).setSource(builder).get();</span><br><span class="line">    <span class="comment">// 关闭</span></span><br><span class="line">    client.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在post中，我们以json形式填入请求体，再java执行请求也一样需要拼接请求体，可以使用json字符串或es官方的XContentBuilder对象，这里我们使用XContentBuilder，创建Document时使用Json字符串。</p>
+<h3 id="1-4-创建Document"><a href="#1-4-创建Document" class="headerlink" title="1.4.创建Document"></a>1.4.创建Document</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 添加文档</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addDocument</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    <span class="comment">// 配置文档，上面我们使用了XContentBuilder的方式，这里我们使用json字符串,在postman写好复制过来即可</span></span><br><span class="line">    String json = <span class="string">"&#123;\n"</span> +</span><br><span class="line">            <span class="string">"\t\"id\":1,\n"</span> +</span><br><span class="line">            <span class="string">"\t\"title\":\"新的document\",\n"</span> +</span><br><span class="line">            <span class="string">"\t\"content\":\"新的document的content\"\n"</span> +</span><br><span class="line">            <span class="string">"&#125;"</span>;</span><br><span class="line">    <span class="comment">// client执行</span></span><br><span class="line">    client.prepareIndex()</span><br><span class="line">            .setIndex(<span class="string">"java_index"</span>) <span class="comment">// 设置索引</span></span><br><span class="line">            .setType(<span class="string">"book"</span>) <span class="comment">// 设置类型</span></span><br><span class="line">            .setId(<span class="string">"1"</span>) <span class="comment">// 设置主键ID，不设置即默认</span></span><br><span class="line">            .setSource(json,XContentType.JSON).get();</span><br><span class="line">    client.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里Json串是直接拼接的，当然，也可以使用<strong>Bean转Json插件</strong>，先创建个Entity实体，再进行转换json字符串。</p>
+<h3 id="1-5-查询功能"><a href="#1-5-查询功能" class="headerlink" title="1.5.查询功能"></a>1.5.查询功能</h3><p>查询有三种，根据id查询，根据Term查询与根据QueryString分词查询</p>
+<p>这三种查询都依赖QueryBuilder对象，差别也仅仅在QueryBuilder对象的构建上。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span> </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">search</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    <span class="comment">// 设置查询对象QueryBuilder</span></span><br><span class="line">    <span class="comment">// 根据ID</span></span><br><span class="line">    <span class="comment">//QueryBuilder queryBuilder = QueryBuilders.idsQuery().addIds("1");</span></span><br><span class="line">    <span class="comment">// 根据Term</span></span><br><span class="line">    <span class="comment">//QueryBuilder queryBuilder = QueryBuilders.termQuery("content","content");</span></span><br><span class="line">    <span class="comment">// 根据QueryString，指定default域，会在指定的上查询，没有指定在所有域查询</span></span><br><span class="line">    QueryBuilder queryBuilder = QueryBuilders.queryStringQuery(<span class="string">"document 2"</span>).defaultField(<span class="string">"title"</span>);</span><br><span class="line">    <span class="comment">// 执行查询</span></span><br><span class="line">    SearchResponse searchResponse = client.prepareSearch(<span class="string">"java_index"</span>)</span><br><span class="line">                    .setTypes(<span class="string">"book"</span>).setQuery(queryBuilder).get();</span><br><span class="line">    <span class="comment">// 获取查询出的数据</span></span><br><span class="line">    SearchHits searchHits = searchResponse.getHits();</span><br><span class="line">    <span class="comment">// 获取总记录数</span></span><br><span class="line">    System.out.println(<span class="string">"总记录："</span> + searchHits.totalHits);</span><br><span class="line">    <span class="comment">// 获取列表</span></span><br><span class="line">    Iterator&lt;SearchHit&gt; iterator = searchHits.iterator();</span><br><span class="line">    <span class="keyword">while</span>(iterator.hasNext())&#123;</span><br><span class="line">        SearchHit hit = iterator.next();</span><br><span class="line">        System.out.println(hit.getSourceAsString());</span><br><span class="line">    &#125;</span><br><span class="line">    client.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-6-查询分页与高亮"><a href="#1-6-查询分页与高亮" class="headerlink" title="1.6.查询分页与高亮"></a>1.6.查询分页与高亮</h3><p>对于分页与高亮都是在client查询时进行添加参数</p>
+<p>分页：执行查询时设置From（从第几个数据开始），Size（一页多少个数据）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">client.prepareSearch(<span class="string">"java_index"</span>).setTypes(<span class="string">"book"</span>).setQuery(queryBuilder)</span><br><span class="line">        .setFrom(<span class="number">0</span>).setSize(<span class="number">5</span>)</span><br><span class="line">        .get();</span><br></pre></td></tr></table></figure>
+
+<p>高亮：需要先设置HighlightBuilder对象，field（在哪个域高亮），preTags（关键字前添加），postTags（关键字后添加）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span> <span class="comment">// 高亮显示查出结果</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">searchByQueryStringhighLight</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">       <span class="comment">// 设置查询对象QueryBuilder,指定default域，会在指定的上查询，没有指定在所有域查询</span></span><br><span class="line">       QueryBuilder queryBuilder = QueryBuilders.queryStringQuery(<span class="string">"document 2"</span>).defaultField(<span class="string">"title"</span>);</span><br><span class="line">       HighlightBuilder highLight = <span class="keyword">new</span> HighlightBuilder();</span><br><span class="line">       highLight.field(<span class="string">"title"</span>);</span><br><span class="line">       highLight.preTags(<span class="string">"&lt;em&gt;"</span>);</span><br><span class="line">       highLight.postTags(<span class="string">"&lt;/em&gt;"</span>);</span><br><span class="line">       <span class="comment">// 执行查询</span></span><br><span class="line">       SearchResponse searchResponse = client.prepareSearch(<span class="string">"java_index"</span>)</span><br><span class="line">               .setTypes(<span class="string">"book"</span>).setQuery(queryBuilder)</span><br><span class="line">               .setFrom(<span class="number">0</span>).setSize(<span class="number">5</span>) <span class="comment">// 设置分页</span></span><br><span class="line">               .highlighter(highLight)<span class="comment">// 设置高亮显示</span></span><br><span class="line">               .get();</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 获取查询出的数据</span></span><br><span class="line">       SearchHits searchHits = searchResponse.getHits();</span><br><span class="line">       <span class="comment">// 获取总记录数</span></span><br><span class="line">       System.out.println(<span class="string">"总记录："</span> + searchHits.totalHits);</span><br><span class="line">       <span class="comment">// 获取列表</span></span><br><span class="line">       Iterator&lt;SearchHit&gt; iterator = searchHits.iterator();</span><br><span class="line">       <span class="keyword">while</span>(iterator.hasNext())&#123;</span><br><span class="line">           SearchHit hit = iterator.next();</span><br><span class="line">           System.out.println(hit.getSourceAsString());</span><br><span class="line"></span><br><span class="line">           <span class="comment">// 获取高亮显示内容</span></span><br><span class="line">           Map&lt;String, HighlightField&gt; highlightFields = hit.getHighlightFields();</span><br><span class="line">           Text[] text = highlightFields.get(<span class="string">"title"</span>).getFragments();</span><br><span class="line">           <span class="keyword">for</span> (Text str : text) &#123;</span><br><span class="line">               System.out.println(<span class="string">"**高亮**："</span>+str);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       client.close();</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于高亮结果的获取如代码所示。</p>
+<h2 id="二、High-Level-Rest客户端"><a href="#二、High-Level-Rest客户端" class="headerlink" title="二、High Level Rest客户端"></a>二、High Level Rest客户端</h2><h3 id="2-1-客户端初始化"><a href="#2-1-客户端初始化" class="headerlink" title="2.1.客户端初始化"></a>2.1.客户端初始化</h3><p>高级客户端的创建内部需要创建低级客户端来提供builder，低级客户端会维护一些线程，所以关闭时需要close释放线程。</p>
+<p>对比TransportClient，高级客户端的创建简单了很多，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testGetClient</span><span class="params">()</span> <span class="keyword">throws</span>  Exception</span>&#123;</span><br><span class="line">    <span class="comment">// 高级客户端创建方式,参数1是ip,参数2是HTTP端口，参数3是通信协议</span></span><br><span class="line">    RestHighLevelClient client = <span class="keyword">new</span> RestHighLevelClient(</span><br><span class="line">            RestClient.builder(</span><br><span class="line">                    <span class="keyword">new</span> HttpHost(<span class="string">"127.0.0.1"</span>,<span class="number">9200</span>,<span class="string">"http"</span>),</span><br><span class="line">                    <span class="keyword">new</span> HttpHost(<span class="string">"127.0.0.1"</span>,<span class="number">9201</span>,<span class="string">"http"</span>),</span><br><span class="line">                    <span class="keyword">new</span> HttpHost(<span class="string">"127.0.0.1"</span>,<span class="number">9202</span>,<span class="string">"http"</span>)));</span><br><span class="line">    <span class="comment">// 测试是否正确连接</span></span><br><span class="line">    GetRequest request = <span class="keyword">new</span> GetRequest(<span class="string">"java_index"</span>,<span class="string">"book"</span>,<span class="string">"1"</span>);</span><br><span class="line">    <span class="keyword">boolean</span> exists = client.exists(request, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(exists);</span><br><span class="line">    client.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里getRequest即根据ID查询索引信息</p>
+<h3 id="2-2-新增索引"><a href="#2-2-新增索引" class="headerlink" title="2.2.新增索引"></a>2.2.新增索引</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 创建索引</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">createIndex</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    CreateIndexRequest request = <span class="keyword">new</span> CreateIndexRequest(<span class="string">"high_level"</span>);</span><br><span class="line">    CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(response.isAcknowledged());</span><br><span class="line">    client.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，高级客户端明显比Transport客户端操作清晰明了，对于不同操作具有不同的Request</p>
+<h3 id="2-3-设置mappings"><a href="#2-3-设置mappings" class="headerlink" title="2.3.设置mappings"></a>2.3.设置mappings</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 设置Mappings</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">putMappings</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    PutMappingRequest request = <span class="keyword">new</span> PutMappingRequest(<span class="string">"high_level"</span>).type(<span class="string">"person"</span>);</span><br><span class="line">    <span class="comment">// 这里有三种方法，1）Map，2）Json，3）XContentBuilder</span></span><br><span class="line">    <span class="comment">// 在Transport中使用了XContentBuilder，这里使用Json</span></span><br><span class="line">    String json = <span class="string">"&#123;\n"</span> +</span><br><span class="line">            <span class="string">"\t\"person\":&#123;\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\"properties\":&#123;\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\t\"name\":&#123;\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\t\t\"type\":\"text\",\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\t\t\"store\":true,\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\t\t\"index\":true,\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\t\t\"analyzer\":\"ik_smart\"\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\t&#125;,\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\t\"age\":&#123;\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\t\t\"type\":\"text\",\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\t\t\"store\":true,\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\t\t\"index\":true,\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\t\t\"analyzer\":\"ik_smart\"\n"</span> +</span><br><span class="line">            <span class="string">"\t\t\t&#125;\n"</span> +</span><br><span class="line">            <span class="string">"\t\t&#125;\n"</span> +</span><br><span class="line">            <span class="string">"\t&#125;\n"</span> +</span><br><span class="line">            <span class="string">"&#125;"</span>;</span><br><span class="line">    request.source(json,XContentType.JSON);</span><br><span class="line">    AcknowledgedResponse acknowledgedResponse = client.indices().putMapping(request, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(acknowledgedResponse.isAcknowledged());</span><br><span class="line">    client.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-增加修改Document"><a href="#2-4-增加修改Document" class="headerlink" title="2.4.增加修改Document"></a>2.4.增加修改Document</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 创建修改Document</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addDocument</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    IndexRequest request = <span class="keyword">new</span> IndexRequest(<span class="string">"high_level"</span>).type(<span class="string">"person"</span>).id(<span class="string">"3"</span>);</span><br><span class="line">    <span class="comment">// 这里有三种方法，1）Map，2）Json，3）XContentBuilder</span></span><br><span class="line">    <span class="comment">// Json:</span></span><br><span class="line">   <span class="comment">/* String json = "&#123;\n" +</span></span><br><span class="line"><span class="comment">            "\t\"name\":\"李A\",\n" +</span></span><br><span class="line"><span class="comment">            "\t\"age\":\"22 32 11\"\n" +</span></span><br><span class="line"><span class="comment">            "&#125;";</span></span><br><span class="line"><span class="comment">    request.source(json,XContentType.JSON);*/</span></span><br><span class="line">    <span class="comment">// XContentBuilder:</span></span><br><span class="line">   <span class="comment">/* XContentBuilder xBuilder = XContentFactory.jsonBuilder()</span></span><br><span class="line"><span class="comment">            .startObject()</span></span><br><span class="line"><span class="comment">                .field("name","赵A")</span></span><br><span class="line"><span class="comment">                .field("age","22")</span></span><br><span class="line"><span class="comment">            .endObject();</span></span><br><span class="line"><span class="comment">    request.source(xBuilder);*/</span></span><br><span class="line">    <span class="comment">// Map:</span></span><br><span class="line">    Map&lt;String,Object&gt; map = <span class="keyword">new</span> HashMap&lt;String, Object&gt;();</span><br><span class="line">    map.put(<span class="string">"name"</span>,<span class="string">"王A"</span>);</span><br><span class="line">    map.put(<span class="string">"age"</span>,<span class="string">"22 32"</span>);</span><br><span class="line">    request.source(map);</span><br><span class="line">    IndexResponse index = client.index(request, RequestOptions.DEFAULT);</span><br><span class="line">    <span class="comment">// 这里通过getResult可以判断创建还是修改</span></span><br><span class="line">    <span class="keyword">if</span>(index.getResult().equals(DocWriteResponse.Result.CREATED))&#123;</span><br><span class="line">        System.out.println(<span class="string">"创建成功"</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(index.getResult().equals(DocWriteResponse.Result.UPDATED))&#123;</span><br><span class="line">        System.out.println(<span class="string">"修改成功"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    client.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-删除索引"><a href="#2-5-删除索引" class="headerlink" title="2.5.删除索引"></a>2.5.删除索引</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 删除索引</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteIndex</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    DeleteIndexRequest request = <span class="keyword">new</span> DeleteIndexRequest(<span class="string">"test"</span>);</span><br><span class="line">    <span class="keyword">boolean</span> acknowledged = client.indices().delete(request, RequestOptions.DEFAULT).isAcknowledged();</span><br><span class="line">    System.out.println(acknowledged);</span><br><span class="line">    client.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-6-删除Document"><a href="#2-6-删除Document" class="headerlink" title="2.6.删除Document"></a>2.6.删除Document</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 删除文档Document</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteDocument</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    DeleteRequest request = <span class="keyword">new</span> DeleteRequest(<span class="string">"high_level"</span>,<span class="string">"person"</span>,<span class="string">"3"</span>);</span><br><span class="line">    DocWriteResponse.Result result = client.delete(request, RequestOptions.DEFAULT).getResult();</span><br><span class="line">    System.out.println(result);</span><br><span class="line">    client.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-7-根据ID查询"><a href="#2-7-根据ID查询" class="headerlink" title="2.7.根据ID查询"></a>2.7.根据ID查询</h3><p>这里分为单个ID查询和批量ID查询，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 根据ID查询</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">searchByID</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    GetRequest request = <span class="keyword">new</span> GetRequest(<span class="string">"high_level"</span>,<span class="string">"person"</span>,<span class="string">"1"</span>);</span><br><span class="line">    GetResponse response = client.get(request, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(response.getSourceAsString());</span><br><span class="line">    client.close();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 根据ID批量查询</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">multiSearchByID</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    MultiGetRequest request = <span class="keyword">new</span> MultiGetRequest() <span class="comment">// 设置多条id查询</span></span><br><span class="line">            .add(<span class="keyword">new</span> MultiGetRequest.Item(<span class="string">"high_level"</span>,<span class="string">"person"</span>,<span class="string">"1"</span>))</span><br><span class="line">            .add(<span class="keyword">new</span> MultiGetRequest.Item(<span class="string">"high_level"</span>,<span class="string">"person"</span>,<span class="string">"2"</span>));</span><br><span class="line">    MultiGetResponse multiGetItemResponses = client.mget(request, RequestOptions.DEFAULT);</span><br><span class="line">    <span class="comment">// 循环显示数据</span></span><br><span class="line">    <span class="keyword">for</span>(MultiGetItemResponse response :multiGetItemResponses)&#123;</span><br><span class="line">        System.out.println(response.getResponse().getSourceAsString());</span><br><span class="line">    &#125;</span><br><span class="line">    client.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>即一个为GetRequest，一个为MultiGetRequest</p>
+<h3 id="2-8-根据Term查询"><a href="#2-8-根据Term查询" class="headerlink" title="2.8.根据Term查询"></a>2.8.根据Term查询</h3><p>根据Term查询会发现查询方式改变了，这也是es最常用的查询方式</p>
+<p>即：</p>
+<p>1.创建一个SearchRequest，设定请求信息，如：索引名，Type类型，SearchType类型。</p>
+<p>2.创建SearchSourceBuilder，配置查询信息，如：分页情况，如何查询（Term查询，聚合查询等），高亮显示，超时时间</p>
+<p>3.使用QueryBuilders配置查询方式，这里方式比较多，下面介绍</p>
+<p>这里searchType类型下面介绍。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据Term查询</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">searchByTerm</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">// 1.创建一个SearchRequest，设置索引名</span></span><br><span class="line">        SearchRequest request = <span class="keyword">new</span> SearchRequest(<span class="string">"java_index"</span>);</span><br><span class="line">        <span class="comment">// 2.配置SourceBuilder，设置查询信息</span></span><br><span class="line">        SearchSourceBuilder builder = <span class="keyword">new</span> SearchSourceBuilder();</span><br><span class="line">        <span class="comment">// 设置查询信息，以及分页信息</span></span><br><span class="line">        builder.query(QueryBuilders.termQuery(<span class="string">"title"</span>,<span class="string">"document"</span>));</span><br><span class="line">        builder.from(<span class="number">0</span>);</span><br><span class="line">        builder.size(<span class="number">5</span>);</span><br><span class="line">        builder.timeout(<span class="keyword">new</span> TimeValue(<span class="number">10</span>,TimeUnit.SECONDS));<span class="comment">//设置10秒的超时时间</span></span><br><span class="line">        request.source(builder); <span class="comment">// 填入request</span></span><br><span class="line">        SearchResponse response = client.search(request, RequestOptions.DEFAULT); <span class="comment">// 查询</span></span><br><span class="line">        SearchHits hits = response.getHits(); <span class="comment">// 获取数据</span></span><br><span class="line">        System.out.println(hits.totalHits);</span><br><span class="line">        <span class="comment">// 循环展示</span></span><br><span class="line">        <span class="keyword">for</span>(SearchHit hit : hits)&#123;</span><br><span class="line">            System.out.println(hit.getSourceAsString());</span><br><span class="line">        &#125;</span><br><span class="line">        client.close();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-7-1-QueryBuilders类型"><a href="#2-7-1-QueryBuilders类型" class="headerlink" title="2.7.1.QueryBuilders类型"></a>2.7.1.QueryBuilders类型</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置QueryBuilders查询方式</span></span><br><span class="line">QueryBuilder query = QueryBuilders.termQuery(<span class="string">"name"</span>, <span class="string">"小明"</span>); <span class="comment">//Term查询</span></span><br><span class="line"><span class="comment">//QueryBuilder query = QueryBuilders.matchQuery("content", "新"); //类似Term查询</span></span><br><span class="line"><span class="comment">//QueryBuilder query = QueryBuilders.matchAllQuery(); // 检索所有文档数据</span></span><br><span class="line"><span class="comment">//QueryBuilder query = QueryBuilders.multiMatchQuery("新", "content","title"); //多字段匹配</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到常见的有这几种，还有一种比较重要的是<strong>复合查询</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();</span><br><span class="line"><span class="comment">// 必须的查询条件，是一个List集合</span></span><br><span class="line">boolQuery.must(QueryBuilders.termQuery(<span class="string">"content"</span>, <span class="string">"content"</span>));</span><br><span class="line"><span class="comment">// 必须不含有的查询条件</span></span><br><span class="line">boolQuery.mustNot(QueryBuilders.termQuery(<span class="string">"title"</span>, <span class="string">"document"</span>));</span><br><span class="line"><span class="comment">// 设置查询信息，以及分页信息</span></span><br><span class="line">builder.query(boolQuery);</span><br></pre></td></tr></table></figure>
+
+<p>这段符合查询意思是，查询content中含有content且title中不含有document的数据</p>
+<p><img src="/image/1570773564670.png" alt="1570773564670"></p>
+<p><img src="/image/1570773573676.png" alt="1570773573676"></p>
+<p>可以看到正确显示出id为3的数据。</p>
+<h3 id="2-9-聚合查询"><a href="#2-9-聚合查询" class="headerlink" title="2.9.聚合查询"></a>2.9.聚合查询</h3><p>聚合查询使用<code>AggregationBuilders</code>来创建聚合条件</p>
+<p>一般来说使用方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 聚合查询，terms为聚合后字段名，field为字段名</span></span><br><span class="line">TermsAggregationBuilder aggre = AggregationBuilders.terms(<span class="string">"by_name"</span>).field(<span class="string">"name"</span>);</span><br><span class="line"><span class="comment">// 添加聚合条件</span></span><br><span class="line">aggre.subAggregation(AggregationBuilders.sum(<span class="string">"sum_score"</span>).field(<span class="string">"score"</span>));</span><br><span class="line"><span class="comment">// 设置聚合信息</span></span><br><span class="line">builder.aggregation(aggre);</span><br></pre></td></tr></table></figure>
+
+<p>我们想进行获取每个学生总成绩，便需要聚合查询：</p>
+<p><img src="/image/1570761040766.png" alt="1570761040766"></p>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 聚合查询</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">searchByAggregation</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">// 1.创建一个SearchRequest，设置索引名</span></span><br><span class="line">        SearchRequest request = <span class="keyword">new</span> SearchRequest(<span class="string">"student_index"</span>);</span><br><span class="line">        <span class="comment">// 设置type</span></span><br><span class="line">        request.types(<span class="string">"stu"</span>);</span><br><span class="line">        request.searchType(SearchType.DEFAULT);</span><br><span class="line">        <span class="comment">// 2.配置SourceBuilder，设置查询信息</span></span><br><span class="line">        SearchSourceBuilder builder = <span class="keyword">new</span> SearchSourceBuilder();</span><br><span class="line">        <span class="comment">// 聚合查询，terms为聚合后字段名，field为字段名</span></span><br><span class="line">        TermsAggregationBuilder aggre = AggregationBuilders.terms(<span class="string">"by_name"</span>).field(<span class="string">"name.keyword"</span>);</span><br><span class="line">        aggre.subAggregation(AggregationBuilders.sum(<span class="string">"sum_score"</span>).field(<span class="string">"score"</span>));</span><br><span class="line">        <span class="comment">// 设置查询信息，以及分页信息</span></span><br><span class="line">        builder.query(QueryBuilders.matchAllQuery());</span><br><span class="line">        builder.aggregation(aggre);</span><br><span class="line">        request.source(builder); <span class="comment">// 填入request</span></span><br><span class="line">        SearchResponse response = client.search(request, RequestOptions.DEFAULT); <span class="comment">// 查询</span></span><br><span class="line">        Aggregations aggregations = response.getAggregations();<span class="comment">// 获取聚合数据</span></span><br><span class="line">        Terms term = aggregations.get(<span class="string">"by_name"</span>);</span><br><span class="line">        <span class="keyword">for</span>(Terms.Bucket bucket : term.getBuckets())&#123;</span><br><span class="line">            Sum sum = bucket.getAggregations().get(<span class="string">"sum_score"</span>);</span><br><span class="line">            System.out.println(bucket.getKey()+<span class="string">" : "</span>+ sum.getValue());</span><br><span class="line">        &#125;</span><br><span class="line">        client.close();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行后会发现报错：</p>
+<p><img src="/image/1570772482775.png" alt="1570772482775"></p>
+<p>这是因为我们的name字段时text属性，而ES5之后对<strong>text属性聚合需要花费大量时间</strong>，默认是禁止的，这时我们需要重新设置name属性：</p>
+<p><img src="/image/1570764601123.png" alt="1570764601123"></p>
+<p>设置fielddata为true。</p>
+<p>再次执行，发现又报错！</p>
+<p><img src="/image/1570761094053.png" alt="1570761094053"></p>
+<p>上网查没有查到结果，思考一下，我这java是6.6的api，而es引擎是5.6的，是不是<strong>版本冲突问题</strong>呢，我下载一个6.x的ES启动后再次执行，可以获得想要的结果。</p>
+<p><img src="/image/1570764636917.png" alt="1570764636917"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/elasticsearch/" rel="tag"># elasticsearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/25/es01-ElasticSearch%E5%85%A5%E9%97%A8/" rel="next" title="ElasticSearch入门">
+                <i class="fa fa-chevron-left"></i> ElasticSearch入门
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/25/es03-ElasticSearch%E8%BF%9B%E9%98%B6/" rel="prev" title="ElasticSearch进阶">
+                ElasticSearch进阶 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、Transport客户端"><span class="nav-number">1.</span> <span class="nav-text">一、Transport客户端</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-获取TransportClient"><span class="nav-number">1.1.</span> <span class="nav-text">1.1.获取TransportClient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-创建索引"><span class="nav-number">1.2.</span> <span class="nav-text">1.2.创建索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-设置mappings"><span class="nav-number">1.3.</span> <span class="nav-text">1.3.设置mappings</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-创建Document"><span class="nav-number">1.4.</span> <span class="nav-text">1.4.创建Document</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-5-查询功能"><span class="nav-number">1.5.</span> <span class="nav-text">1.5.查询功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-6-查询分页与高亮"><span class="nav-number">1.6.</span> <span class="nav-text">1.6.查询分页与高亮</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、High-Level-Rest客户端"><span class="nav-number">2.</span> <span class="nav-text">二、High Level Rest客户端</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-客户端初始化"><span class="nav-number">2.1.</span> <span class="nav-text">2.1.客户端初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-新增索引"><span class="nav-number">2.2.</span> <span class="nav-text">2.2.新增索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-设置mappings"><span class="nav-number">2.3.</span> <span class="nav-text">2.3.设置mappings</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-增加修改Document"><span class="nav-number">2.4.</span> <span class="nav-text">2.4.增加修改Document</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-删除索引"><span class="nav-number">2.5.</span> <span class="nav-text">2.5.删除索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-删除Document"><span class="nav-number">2.6.</span> <span class="nav-text">2.6.删除Document</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-根据ID查询"><span class="nav-number">2.7.</span> <span class="nav-text">2.7.根据ID查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-8-根据Term查询"><span class="nav-number">2.8.</span> <span class="nav-text">2.8.根据Term查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-7-1-QueryBuilders类型"><span class="nav-number">2.8.1.</span> <span class="nav-text">2.7.1.QueryBuilders类型</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-9-聚合查询"><span class="nav-number">2.9.</span> <span class="nav-text">2.9.聚合查询</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="elasticsearch," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="我们开始学习搭建集群，这里搭建4节点的虚拟机集群，每个虚拟机1核2G，因为我笔记本只有16G，需要留8G。 一、在虚拟机中安装centos7软件：VMware10，centos7 1.1.安装centos7这里正常安装即可，主要配置下内存为2G，名称为elasticsearch01即可 1.2.配置网络安装完毕需要配置网络，因为是centos7与之前的6.x不同，6.x的百度一下 1）设置IP与D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ElasticSearch集群搭建">
+<meta property="og:url" content="http://yoursite.com/2019/12/25/es06-ElasticSearch%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="我们开始学习搭建集群，这里搭建4节点的虚拟机集群，每个虚拟机1核2G，因为我笔记本只有16G，需要留8G。 一、在虚拟机中安装centos7软件：VMware10，centos7 1.1.安装centos7这里正常安装即可，主要配置下内存为2G，名称为elasticsearch01即可 1.2.配置网络安装完毕需要配置网络，因为是centos7与之前的6.x不同，6.x的百度一下 1）设置IP与D">
+<meta property="og:image" content="http://yoursite.com/image/1571213456287.png">
+<meta property="og:image" content="http://yoursite.com/image/1571213644337.png">
+<meta property="og:image" content="http://yoursite.com/image/1571226810148.png">
+<meta property="article:published_time" content="2019-12-25T01:39:37.000Z">
+<meta property="article:modified_time" content="2019-12-25T01:43:48.300Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="elasticsearch">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1571213456287.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/25/es06-ElasticSearch集群搭建/"/>
+
+
+
+
+
+  <title>ElasticSearch集群搭建 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/25/es06-ElasticSearch%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ElasticSearch集群搭建</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-25T09:39:37+08:00">
+                2019-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我们开始学习搭建集群，这里搭建4节点的虚拟机集群，每个虚拟机1核2G，因为我笔记本只有16G，需要留8G。</p>
+<h2 id="一、在虚拟机中安装centos7"><a href="#一、在虚拟机中安装centos7" class="headerlink" title="一、在虚拟机中安装centos7"></a>一、在虚拟机中安装centos7</h2><p>软件：VMware10，centos7</p>
+<h3 id="1-1-安装centos7"><a href="#1-1-安装centos7" class="headerlink" title="1.1.安装centos7"></a>1.1.安装centos7</h3><p>这里正常安装即可，主要配置下内存为2G，名称为elasticsearch01即可</p>
+<h3 id="1-2-配置网络"><a href="#1-2-配置网络" class="headerlink" title="1.2.配置网络"></a>1.2.配置网络</h3><p>安装完毕需要配置网络，因为是centos7与之前的6.x不同，6.x的百度一下</p>
+<h4 id="1）设置IP与DNS"><a href="#1）设置IP与DNS" class="headerlink" title="1）设置IP与DNS"></a>1）设置IP与DNS</h4><p><code>vi /etc/sysconfig/network-scripts/ifcfg-ene33</code>，然后按照如下配置，其<code>IPADDR</code>和<code>GATEWAY</code>的前三位可以根据自己虚拟机默认配置的配，使用<code>ip addr</code>查看</p>
+<a id="more"></a>
+<p><img src="/image/1571213456287.png" alt="1571209948594"></p>
+<p>重启网络服务：<code>service network restart</code></p>
+<p>测试是否能与主机联通：<code>ping 192.168.25.1</code></p>
+<h4 id="2）配置hosts映射"><a href="#2）配置hosts映射" class="headerlink" title="2）配置hosts映射"></a>2）配置hosts映射</h4><p><code>vi /etc/hosts</code></p>
+<p><img src="/image/1571213644337.png" alt="1571213644337"></p>
+<h4 id="3）关闭防火墙"><a href="#3）关闭防火墙" class="headerlink" title="3）关闭防火墙"></a>3）关闭防火墙</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld.service</span><br><span class="line">systemctl disable firewalld.service</span><br></pre></td></tr></table></figure>
+
+<p>后面要搭建集群，有的大数据技术的集群之间，在本地你给了防火墙的话，可能会没有办法互相连接，会导致搭建失败</p>
+<h4 id="4）配置yum"><a href="#4）配置yum" class="headerlink" title="4）配置yum"></a>4）配置yum</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum clear all</span><br><span class="line">yum makecache</span><br><span class="line">yum install wget</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-安装JDK1-8"><a href="#1-3-安装JDK1-8" class="headerlink" title="1.3.安装JDK1.8"></a>1.3.安装JDK1.8</h3><p>1）下载jdk1.8的linux安装包</p>
+<p>2）放到/usr/local目录下，执行<code>rpm -ivh jdk-8u131-linux-x64.rpm</code>安装</p>
+<p>3）配置环境变量，<code>vi ~/.bashrc</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export JAVA_HOME&#x3D;&#x2F;usr&#x2F;java&#x2F;latest</span><br><span class="line">export PATH&#x3D;$PATH:$JAVA_HOME&#x2F;bin</span><br></pre></td></tr></table></figure>
+
+<p><code>source ~/.bashrc</code>执行使之生效</p>
+<p>4）<code>java -version</code>检查是否配置成功</p>
+<h2 id="二、创建4个节点"><a href="#二、创建4个节点" class="headerlink" title="二、创建4个节点"></a>二、创建4个节点</h2><p>重复上面的操作，创建出4个虚拟机，配置ip地址以及hosts</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">192.168.25.250 es01</span><br><span class="line">192.168.25.251 es02</span><br><span class="line">192.168.25.252 es03</span><br><span class="line">192.168.25.253 es04</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、配置4台机器ssh免密码通信"><a href="#三、配置4台机器ssh免密码通信" class="headerlink" title="三、配置4台机器ssh免密码通信"></a>三、配置4台机器ssh免密码通信</h2><p><font size="4" color="#deqw33">注意，这一步可以不用，只是学习阶段来回切换ssh方便而已</font></p>
+<h3 id="3-1-先配置对本机的免密码登录"><a href="#3-1-先配置对本机的免密码登录" class="headerlink" title="3.1.先配置对本机的免密码登录"></a>3.1.先配置对本机的免密码登录</h3><p><code>ssh-keygen -t rsa</code>生成公钥，直接全部回车默认</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd &#x2F;root&#x2F;.ssh</span><br><span class="line">cp id_rsa.pub authorized_keys</span><br></pre></td></tr></table></figure>
+
+<p>这样本机ssh连接便不需要密码了，可以<code>ssh elasticsearch01</code>测试</p>
+<h3 id="3-2-配置四台机器互相之间的ssh免密码登录"><a href="#3-2-配置四台机器互相之间的ssh免密码登录" class="headerlink" title="3.2.配置四台机器互相之间的ssh免密码登录"></a>3.2.配置四台机器互相之间的ssh免密码登录</h3><p>1）使用<code>ssh-copy-id -i es01</code>命令将es02,es03,es04三个机器的公钥拷贝到es01机器的authorized_keys文件中</p>
+<p>2）在es01中使用<code>scp authorized_keys root@es02:/root/.ssh</code>，将本机的authorized_keys文件拷贝到es02，es03，es04中，这样便完成了四台机器之间相互免密码ssh</p>
+<p>3）在四台机器上使用<code>ssh es0x</code>进行测试，<code>logout</code>退出</p>
+<p><img src="/image/1571226810148.png" alt="1571226810148"></p>
+<h2 id="四、安装ES"><a href="#四、安装ES" class="headerlink" title="四、安装ES"></a>四、安装ES</h2><p>安装es非常简单，网上下载压缩包，解压到/usr/local目录即可，一般最后再重命名一下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd &#x2F;usr&#x2F;local</span><br><span class="line">tar -zxvf elasticsearch-5.5.0.tar.gz</span><br><span class="line">mv elasticsearch-5.5.0 elasticsearch</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、安装ES-HEAD"><a href="#五、安装ES-HEAD" class="headerlink" title="五、安装ES-HEAD"></a>五、安装ES-HEAD</h2><p>es-head是个很好用的es可视化插件</p>
+<p>需要安装node以及grunt</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#安装node</span><br><span class="line">curl -sL https:&#x2F;&#x2F;rpm.nodesource.com&#x2F;setup_8.x | bash -</span><br><span class="line">yum install -y nodejs</span><br><span class="line"></span><br><span class="line">#检查是否安装成功</span><br><span class="line">node -v</span><br><span class="line"></span><br><span class="line">#安装grunt</span><br><span class="line">sudo npm install -g grunt-cli</span><br></pre></td></tr></table></figure>
+
+<p>确认安装成功并查看<code>grunt</code>版本：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grunt --version</span><br></pre></td></tr></table></figure>
+
+<p>下载安装es-head</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https:&#x2F;&#x2F;github.com&#x2F;mobz&#x2F;elasticsearch-head&#x2F;archive&#x2F;master.zip</span><br><span class="line">unzip master.zip</span><br></pre></td></tr></table></figure>
+
+<p>这样在/usr/local下便有elasticsearch-head-master文件夹</p>
+<p>赋予es用户权限</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chown -R es &#x2F;usr&#x2F;local&#x2F;elasticsearch-head-master&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p>安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install</span><br></pre></td></tr></table></figure>
+
+<p>head安装完成后，head运行起来</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">elasticsearch-head-master下：npm run start</span><br></pre></td></tr></table></figure>
+
+<p>因为es是端口9200，而head插件是9100，,解决跨域问题：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">elasticsearch-5x下的 config&#x2F;elasticsearch.yml</span><br><span class="line">http.cors.enabled: true</span><br><span class="line">http.cors.allow-origin: &quot;*&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<hr>
+<p align="center" style="font-size:1.5rem; color:red;">这样到此为止虚拟机集群已经搭建完毕</p>
+
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/elasticsearch/" rel="tag"># elasticsearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/25/es05-ElasticSearch%E9%9B%86%E7%BE%A4%E7%A1%AC%E4%BB%B6%E9%85%8D%E7%BD%AE/" rel="next" title="ElasticSearch集群硬件配置">
+                <i class="fa fa-chevron-left"></i> ElasticSearch集群硬件配置
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/25/es07-ElasticSearch%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/" rel="prev" title="ElasticSearch集群配置">
+                ElasticSearch集群配置 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、在虚拟机中安装centos7"><span class="nav-number">1.</span> <span class="nav-text">一、在虚拟机中安装centos7</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-安装centos7"><span class="nav-number">1.1.</span> <span class="nav-text">1.1.安装centos7</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-配置网络"><span class="nav-number">1.2.</span> <span class="nav-text">1.2.配置网络</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1）设置IP与DNS"><span class="nav-number">1.2.1.</span> <span class="nav-text">1）设置IP与DNS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2）配置hosts映射"><span class="nav-number">1.2.2.</span> <span class="nav-text">2）配置hosts映射</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3）关闭防火墙"><span class="nav-number">1.2.3.</span> <span class="nav-text">3）关闭防火墙</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4）配置yum"><span class="nav-number">1.2.4.</span> <span class="nav-text">4）配置yum</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-安装JDK1-8"><span class="nav-number">1.3.</span> <span class="nav-text">1.3.安装JDK1.8</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、创建4个节点"><span class="nav-number">2.</span> <span class="nav-text">二、创建4个节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、配置4台机器ssh免密码通信"><span class="nav-number">3.</span> <span class="nav-text">三、配置4台机器ssh免密码通信</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-先配置对本机的免密码登录"><span class="nav-number">3.1.</span> <span class="nav-text">3.1.先配置对本机的免密码登录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-配置四台机器互相之间的ssh免密码登录"><span class="nav-number">3.2.</span> <span class="nav-text">3.2.配置四台机器互相之间的ssh免密码登录</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、安装ES"><span class="nav-number">4.</span> <span class="nav-text">四、安装ES</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、安装ES-HEAD"><span class="nav-number">5.</span> <span class="nav-text">五、安装ES-HEAD</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
