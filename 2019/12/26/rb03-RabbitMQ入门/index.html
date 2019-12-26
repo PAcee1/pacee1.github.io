@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="rabbitmq," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、管理台 我们先介绍一下管理台 从这张图右上角可以看到用户信息，版本信息与登出。 紧接着有6个标签 Connection连接信息  因为我们没有任何连接，所以是空的，后面连接生产者和消费者时再看 Channels信道信息  也没有任何信息，因为信道是基于连接的 Exchanges交换机，生产者投递消息到这里  这里可以看到默认有多个交换机，并且有四种类型，对于其类型我们后面讲解 Features">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ入门">
+<meta property="og:url" content="http://yoursite.com/2019/12/26/rb03-RabbitMQ%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="一、管理台 我们先介绍一下管理台 从这张图右上角可以看到用户信息，版本信息与登出。 紧接着有6个标签 Connection连接信息  因为我们没有任何连接，所以是空的，后面连接生产者和消费者时再看 Channels信道信息  也没有任何信息，因为信道是基于连接的 Exchanges交换机，生产者投递消息到这里  这里可以看到默认有多个交换机，并且有四种类型，对于其类型我们后面讲解 Features">
+<meta property="og:image" content="http://yoursite.com/image/1577094623243.png">
+<meta property="og:image" content="http://yoursite.com/image/1577094742138.png">
+<meta property="og:image" content="http://yoursite.com/image/1577094807220.png">
+<meta property="og:image" content="http://yoursite.com/image/1577094838038.png">
+<meta property="og:image" content="http://yoursite.com/image/1577095146437.png">
+<meta property="og:image" content="http://yoursite.com/image/1577095197061.png">
+<meta property="og:image" content="http://yoursite.com/image/1577095291809.png">
+<meta property="og:image" content="http://yoursite.com/image/1577095316585.png">
+<meta property="og:image" content="http://yoursite.com/image/1577095336725.png">
+<meta property="og:image" content="http://yoursite.com/image/1577095363997.png">
+<meta property="og:image" content="http://yoursite.com/image/1577095376502.png">
+<meta property="og:image" content="http://yoursite.com/image/1577095492548.png">
+<meta property="og:image" content="http://yoursite.com/image/1577104595038.png">
+<meta property="og:image" content="http://yoursite.com/image/1577104603479.png">
+<meta property="og:image" content="http://yoursite.com/image/1577104617424.png">
+<meta property="og:image" content="http://yoursite.com/image/1577104668687.png">
+<meta property="og:image" content="http://yoursite.com/image/1577104701750.png">
+<meta property="og:image" content="http://yoursite.com/image/1577104765426.png">
+<meta property="og:image" content="http://yoursite.com/image/1577104816665.png">
+<meta property="og:image" content="http://yoursite.com/image/1577153828348.png">
+<meta property="og:image" content="http://yoursite.com/image/1577153928633.png">
+<meta property="og:image" content="http://yoursite.com/image/p">
+<meta property="og:image" content="http://yoursite.com/image/1577157156024.png">
+<meta property="og:image" content="http://yoursite.com/image/p-1577157204647">
+<meta property="og:image" content="http://yoursite.com/image/1577157979895.png">
+<meta property="og:image" content="http://yoursite.com/image/p-1577158001512">
+<meta property="og:image" content="http://yoursite.com/image/1577171235439.png">
+<meta property="article:published_time" content="2019-12-26T01:06:47.000Z">
+<meta property="article:modified_time" content="2019-12-26T01:12:50.828Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="rabbitmq">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1577094623243.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/26/rb03-RabbitMQ入门/"/>
+
+
+
+
+
+  <title>RabbitMQ入门 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/26/rb03-RabbitMQ%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RabbitMQ入门</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-26T09:06:47+08:00">
+                2019-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rabbitmq/" itemprop="url" rel="index">
+                    <span itemprop="name">rabbitmq</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="一、管理台"><a href="#一、管理台" class="headerlink" title="一、管理台"></a>一、管理台</h2><p><img src="/image/1577094623243.png" alt="1577094623243"></p>
+<p>我们先介绍一下管理台</p>
+<p>从这张图右上角可以看到用户信息，版本信息与登出。</p>
+<p>紧接着有6个标签</p>
+<h3 id="Connection"><a href="#Connection" class="headerlink" title="Connection"></a>Connection</h3><p>连接信息</p>
+<p><img src="/image/1577094742138.png" alt="1577094742138"></p>
+<p>因为我们没有任何连接，所以是空的，后面连接生产者和消费者时再看</p>
+<h3 id="Channels"><a href="#Channels" class="headerlink" title="Channels"></a>Channels</h3><p>信道信息</p>
+<p><img src="/image/1577094807220.png" alt="1577094807220"></p>
+<p>也没有任何信息，因为信道是基于连接的</p>
+<h3 id="Exchanges"><a href="#Exchanges" class="headerlink" title="Exchanges"></a>Exchanges</h3><p>交换机，生产者投递消息到这里</p>
+<p><img src="/image/1577094838038.png" alt="1577094838038"></p>
+<p>这里可以看到默认有多个交换机，并且有四种类型，对于其类型我们后面讲解</p>
+<p>Features里有D和I的信息</p>
+<ul>
+<li>D：<code>durable=true</code>，即持久化，就是MQ如果停掉，这些交换机都不会被清除，一直保留</li>
+<li>I：<code>internal=true</code>，一个特征，后面详说</li>
+</ul>
+<h3 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h3><p>MQ队列</p>
+<p><img src="/image/1577095146437.png" alt="1577095146437"></p>
+<p>也是为空的</p>
+<h3 id="Admin"><a href="#Admin" class="headerlink" title="Admin"></a>Admin</h3><p><img src="/image/1577095197061.png" alt="1577095197061"></p>
+<p>可以进行用户，虚拟机，以及权限的操作，比如添加用户，添加虚拟机，以及权限配置</p>
+<h3 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h3><p>MQ概览，大体信息都在这里</p>
+<p><img src="/image/1577095291809.png" alt="1577095291809"></p>
+<p>MQ中连接，信道等合计</p>
+<p><img src="/image/1577095316585.png" alt="1577095316585"></p>
+<p>节点信息，内存占用，磁盘占用等等</p>
+<p><img src="/image/1577095336725.png" alt="1577095336725"></p>
+<p>保存路径，比如配置文件路径，数据存储的路径，日志的保存</p>
+<p><img src="/image/1577095363997.png" alt="1577095363997"></p>
+<p>端口号信息</p>
+<p><img src="/image/1577095376502.png" alt="1577095376502"></p>
+<p>最后这个很重要，MQ信息的导入导出，当我们集群的服务器想升级，或者迁移时，比如centos6升centos7。</p>
+<p>如果慢慢调整要耗费很长时间，使用MQ信息导入导出，可以节省大量时间，只需对某些升级所需改动的配置改造即可。</p>
+<p>导出后是json文件信息，如下，保存了比如用户，虚拟主机，包括exchange，binding，queue，该有的都有</p>
+<p><img src="/image/1577095492548.png" alt="1577095492548"></p>
+<h2 id="二、极速入门"><a href="#二、极速入门" class="headerlink" title="二、极速入门"></a>二、极速入门</h2><p>这里我们使用SpringBoot快速搭建一个生产者与消费者，并配合Rabbitmq进行消费。</p>
+<p>对于SpringBoot如何搭建就不介绍了，主要使用依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.rabbitmq<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>amqp-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.6.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Provider"><a href="#Provider" class="headerlink" title="Provider"></a>Provider</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Provider</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 需要将消息投递到MQ中</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> args</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">// 1.创建连接工程</span></span><br><span class="line">        ConnectionFactory connectionFactory = <span class="keyword">new</span> ConnectionFactory();</span><br><span class="line">        connectionFactory.setHost(<span class="string">"192.168.56.120"</span>);</span><br><span class="line">        connectionFactory.setPort(<span class="number">5672</span>);</span><br><span class="line">        connectionFactory.setVirtualHost(<span class="string">"/"</span>); <span class="comment">// 默认创建 "/" 为虚拟主机</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2.创建连接</span></span><br><span class="line">        Connection connection = connectionFactory.newConnection();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3.创建Channel通道</span></span><br><span class="line">        Channel channel = connection.createChannel();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; <span class="number">5</span>;i ++)&#123;</span><br><span class="line">            String msg = <span class="string">"hello rabbit"</span>;</span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">             * 4.投递消息 四个参数</span></span><br><span class="line"><span class="comment">             * exchange，指定投递到哪个交换机</span></span><br><span class="line"><span class="comment">             * routingKey，路由键</span></span><br><span class="line"><span class="comment">             * props，之前说的Msg由props与body组成，props是描述消息的一些信息，比如优先级</span></span><br><span class="line"><span class="comment">             * body，消息中真正存放的信息</span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line">            channel.basicPublish(<span class="string">""</span>,<span class="string">"test01"</span>,<span class="keyword">null</span>,msg.getBytes());</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 5.关闭连接</span></span><br><span class="line">        channel.close();</span><br><span class="line">        connection.close();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>消息生产者/提供方 代码比较简单，主要是建立连接，建立通道，然后进行消息的投递。</p>
+<p>注意最后要关闭连接。</p>
+<h3 id="Consumer"><a href="#Consumer" class="headerlink" title="Consumer"></a>Consumer</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Consumer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">// 1.创建连接工程</span></span><br><span class="line">        ConnectionFactory connectionFactory = <span class="keyword">new</span> ConnectionFactory();</span><br><span class="line">        connectionFactory.setHost(<span class="string">"192.168.56.120"</span>);</span><br><span class="line">        connectionFactory.setPort(<span class="number">5672</span>);</span><br><span class="line">        connectionFactory.setVirtualHost(<span class="string">"/"</span>); <span class="comment">// 默认创建 "/" 为虚拟主机</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2.创建连接</span></span><br><span class="line">        Connection connection = connectionFactory.newConnection();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3.创建Channel通道</span></span><br><span class="line">        Channel channel = connection.createChannel();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4.创建队列</span></span><br><span class="line">        String queueName = <span class="string">"test01"</span>;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 五个参数</span></span><br><span class="line"><span class="comment">         * queue，队列名称</span></span><br><span class="line"><span class="comment">         * durable，是否持久化</span></span><br><span class="line"><span class="comment">         * exclusive，是否独占，即只能这个连接使用的队列</span></span><br><span class="line"><span class="comment">         * autoDelete，是否自动删除，即如果该队列没有任何exchange进行绑定，会自动被删除</span></span><br><span class="line"><span class="comment">         * arguments，其他一些参数</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        channel.queueDeclare(queueName,<span class="keyword">true</span>,<span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5.创建消费者</span></span><br><span class="line">        QueueingConsumer queueingConsumer = <span class="keyword">new</span> QueueingConsumer(channel);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 6.设置信道的消费者</span></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 三个参数</span></span><br><span class="line"><span class="comment">         * queue，获取消息的队列名</span></span><br><span class="line"><span class="comment">         * autoAck，自动返回Ack</span></span><br><span class="line"><span class="comment">         *      当消费端消费时，MQ会发送信息给消费者</span></span><br><span class="line"><span class="comment">         *      消费者成功获取后，会返回Ack，代表成功消费</span></span><br><span class="line"><span class="comment">         *      如果不设置自动，需要手动返回Ack</span></span><br><span class="line"><span class="comment">         *  callback，消费者</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        channel.basicConsume(queueName,<span class="keyword">true</span>,queueingConsumer);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 7.消费</span></span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">            <span class="comment">// 这里可以添加long参数，即超时时间，不设置会一直阻塞</span></span><br><span class="line">            <span class="comment">// Delivery 是封装的类，封装了消息信息，配置信息，交换机信息，路由键等信息</span></span><br><span class="line">            Delivery delivery = queueingConsumer.nextDelivery();</span><br><span class="line">            <span class="keyword">byte</span>[] body = delivery.getBody();</span><br><span class="line">            System.out.println(<span class="keyword">new</span> String(body));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Consumer的代码就比较多一点了，Rabbitmq在消息提供方不需要创建提供者，但在消费方需要创建消费者，通道设置并进行消费。</p>
+<p>还有一点是队列的创建，因为现在MQ中队列是空的，所以在消费方创建一个队列，如果有相同名称的队列，便不会创建，没有会自动创建。</p>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>这里<strong>先启动Consumer</strong>，因为先启动Provider的话，<strong>没有<code>test01</code>这个队列，就无法投递消息</strong></p>
+<p>启动Consumer后，会一直处在监听状态，查看一下MQ管理台</p>
+<p><img src="/image/1577104595038.png" alt="1577104595038"></p>
+<p><img src="/image/1577104603479.png" alt="1577104603479"></p>
+<p><img src="/image/1577104617424.png" alt="1577104617424"></p>
+<p>出现了连接，队列，信道等等信息，等待消息的产生并消费</p>
+<p><strong>这时开启Provider</strong></p>
+<p><img src="/image/1577104668687.png" alt="1577104668687"></p>
+<p>瞬间执行完毕，并且消费方获取5条消息并打印</p>
+<p><img src="/image/1577104701750.png" alt="1577104701750"></p>
+<p>控制台也有消息消费的折线图</p>
+<p><strong>这里有一个问题，我们没有<code>Exchange</code>，那么消息是如何投递并消费的呢？</strong></p>
+<h4 id="Default-Exchange"><a href="#Default-Exchange" class="headerlink" title="Default Exchange"></a>Default Exchange</h4><p><img src="/image/1577104765426.png" alt="1577104765426"></p>
+<p>在控制台可以清楚看到一个<code>default</code>交换机，进去看看他的说明</p>
+<p><img src="/image/1577104816665.png" alt="1577104816665"></p>
+<p>意思就是，在提供方没有指明使用哪个<code>Exchange</code>时，默认投递到这个<code>Exchange</code>上，并且路由规则是，<strong>路由键的名称和队列名称相同</strong>，便可成功路由消费，这也是我们没有指定<code>Exchange</code>缺能消费成功的原因。</p>
+<p>在上面的代码中也可以发现，<code>routingKey</code>和<code>queueName</code>是相同的，都为<code>test01</code></p>
+<h2 id="三、Exchange"><a href="#三、Exchange" class="headerlink" title="三、Exchange"></a>三、Exchange</h2><p>在上一节快速入门中，我们使用了默认的Exchange，路由规则是路由键名称和队列名相同。</p>
+<p>这一节，我们会详细介绍三大Exchange类型</p>
+<h3 id="Direct"><a href="#Direct" class="headerlink" title="Direct"></a>Direct</h3><p>英文翻译为直接，这个Exchange就和其名字一样，是直连的，也是RabbitMQ默认的Exchange类型，完全根据RoutingKey来路由消息。</p>
+<p>消费者设置Exchange的Queue和Binding时要指定<code>RoutingKey</code>，生产者提供消息时要指定相同的<code>RoutingKey</code>，才能使消息正确被消费。</p>
+<p>上一节使用的<code>Default Exchange</code>就是Direct类型，但他比较特殊，没有Binding操作，必须<code>RoutingKey</code>与<code>QueueName</code>完全匹配才可以。</p>
+<h4 id="代码理解"><a href="#代码理解" class="headerlink" title="代码理解"></a>代码理解</h4><p><strong>消费者Consumer</strong>，这里对于信道连接的创建代码就不再重复了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 声明Exchange，QueueName，RoutingKey的设置</span></span><br><span class="line">String exchangeName = <span class="string">"test_direct_exchange"</span>;</span><br><span class="line">String exchangeType = <span class="string">"direct"</span>;</span><br><span class="line">String queueName = <span class="string">"test_direct_queue"</span>;</span><br><span class="line">String routingKey = <span class="string">"test.direct"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 参数：交换机名称，类型，是否持久化，是否自动删除，Internal 用不到，其他参数 null</span></span><br><span class="line">channel.exchangeDeclare(exchangeName,exchangeType,<span class="keyword">true</span>,<span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">null</span>);</span><br><span class="line">channel.queueDeclare(queueName,<span class="keyword">true</span>,<span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">null</span>);</span><br><span class="line">channel.queueBind(queueName,exchangeName,routingKey); <span class="comment">// 设置绑定关系</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建消费者</span></span><br><span class="line">QueueingConsumer consumer = <span class="keyword">new</span> QueueingConsumer(channel);</span><br><span class="line"><span class="comment">// 绑定消费者</span></span><br><span class="line">channel.basicConsume(queueName,<span class="keyword">true</span>,consumer);</span><br><span class="line"><span class="comment">// 消费</span></span><br><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">    QueueingConsumer.Delivery delivery = consumer.nextDelivery();</span><br><span class="line">    System.out.println(<span class="keyword">new</span> String(delivery.getBody()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过Channel创建了direct类型的交换机，queue和其中绑定关系，路由键为<code>test.direct</code></p>
+<p><strong>生产者Provider</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 声明Exchange，RoutingKey的设置</span></span><br><span class="line">String exchangeName = <span class="string">"test_direct_exchange"</span>;</span><br><span class="line">String routingKey = <span class="string">"test.direct"</span>;</span><br><span class="line">String msg = <span class="string">"hello direct Exchange"</span>;</span><br><span class="line"><span class="comment">// 投递消息</span></span><br><span class="line">channel.basicPublish(exchangeName,routingKey,<span class="keyword">null</span>,msg.getBytes());</span><br></pre></td></tr></table></figure>
+
+<p>生产者比较简单，设置好Exchange名称与<code>RoutingKey</code>即可，注意这里名称要与Consumer的相同，才能成功投递路由消费。</p>
+<p><strong>测试</strong></p>
+<p><img src="/image/1577153828348.png" alt="1577153828348"></p>
+<p>开启消费者后，会发现创建了<code>Direct</code>类型的Exchange，并且Binding关系就是根据<code>test.direct</code>这个路由键，去传递到<code>test_direct_queue</code>这个队列。</p>
+<p>启动消息提供者</p>
+<p><img src="/image/1577153928633.png" alt="1577153928633"></p>
+<p>成功消费</p>
+<h4 id="图解"><a href="#图解" class="headerlink" title="图解"></a>图解</h4><p><img src="/image/p" alt="640?wx_fmt=png"></p>
+<p>如图，清晰明确的画出了Direct交换机，<code>Messages</code>根据<code>RoutingKey</code>一一对应到不同的Queue中。</p>
+<h4 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h4><p>在做日志收集时，想只把 <code>Error</code>级别的日志发送给负责记录写入磁盘文件的 Queue。这种场景下我们可以使用指定的 <code>RoutingKey</code>（例如 <code>error</code>）将写入磁盘文件的 Queue 绑定到 <code>Direct Exchange</code> 上。</p>
+<h3 id="Topic"><a href="#Topic" class="headerlink" title="Topic"></a>Topic</h3><p>Topic类型的Exchange，其实也是根据RoutingKey路由的，它有些类似于Direct，但却不同，不同点就是它可以模糊匹配。</p>
+<p>分别支持<code>*</code>和<code>#</code>通配符</p>
+<ul>
+<li><code>*</code>表示匹配一个单词</li>
+<li><code>#</code>则表示匹配没有或一个或多个单词</li>
+</ul>
+<h4 id="代码理解-1"><a href="#代码理解-1" class="headerlink" title="代码理解"></a>代码理解</h4><p><strong>Consumer</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 声明Exchange，QueueName，RoutingKey的设置</span></span><br><span class="line">String exchangeName = <span class="string">"test_topic_exchange"</span>;</span><br><span class="line">String exchangeType = <span class="string">"topic"</span>;</span><br><span class="line">String queueName = <span class="string">"test_topic_queue"</span>;</span><br><span class="line">String routingKey = <span class="string">"user.#"</span>;</span><br></pre></td></tr></table></figure>
+
+<p>对比Direct的代码，这里只修改了设置，需要注意的是Type类型改成了topic，并且routingKey为<code>user.#</code></p>
+<p><strong>Provider</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 声明Exchange，RoutingKey的设置</span></span><br><span class="line">String exchangeName = <span class="string">"test_topic_exchange"</span>;</span><br><span class="line">String routingKey1 = <span class="string">"user"</span>;</span><br><span class="line">String routingKey2 = <span class="string">"user.pacee"</span>;</span><br><span class="line">String routingKey3 = <span class="string">"user.pacee.info"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 投递消息</span></span><br><span class="line">String msg = <span class="string">"hello direct Exchange"</span>;</span><br><span class="line">channel.basicPublish(exchangeName,routingKey1,<span class="keyword">null</span>,msg.getBytes());</span><br><span class="line">channel.basicPublish(exchangeName,routingKey2,<span class="keyword">null</span>,msg.getBytes());</span><br><span class="line">channel.basicPublish(exchangeName,routingKey3,<span class="keyword">null</span>,msg.getBytes());</span><br></pre></td></tr></table></figure>
+
+<p>在生产者这边，我们投递三个消息，分别是<code>user</code>、<code>user.pacee</code>、<code>user.pacee.info</code></p>
+<p><strong>测试</strong></p>
+<p><img src="/image/1577157156024.png" alt="1577157156024"></p>
+<p>三个全部映射成功，<strong>这里忘记修改打印的字符串了：)</strong></p>
+<h4 id="图解-1"><a href="#图解-1" class="headerlink" title="图解"></a>图解</h4><p><img src="/image/p-1577157204647" alt="640?wx_fmt=png"></p>
+<h4 id="应用场景-1"><a href="#应用场景-1" class="headerlink" title="应用场景"></a>应用场景</h4><p>假设我们的消息路由规则除了需要根据日志级别来分发之外还需要根据消息来源分发，可以将 RoutingKey 定义为 <code>消息来源.级别</code> 如 <code>order.info</code>、<code>user.error</code>等。处理所有来源为 <code>user</code> 的 Queue 就可以通过 <code>user.*</code> 绑定到 Topic Exchange 上，而处理所有日志级别为 <code>info</code> 的 Queue 可以通过 <code>*.info</code> 绑定到 Exchange上。</p>
+<h3 id="Fanout"><a href="#Fanout" class="headerlink" title="Fanout"></a>Fanout</h3><p>Fanout类型的交换机，<strong>与<code>RoutingKey</code>无关</strong>，即会将消息分发到所有和他绑定的队列上，看重<code>Binding</code>关系</p>
+<h4 id="代码理解-2"><a href="#代码理解-2" class="headerlink" title="代码理解"></a>代码理解</h4><p><strong>Consumer</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 声明Exchange，QueueName，RoutingKey的设置</span></span><br><span class="line">String exchangeName = <span class="string">"test_fanout_exchange"</span>;</span><br><span class="line">String exchangeType = <span class="string">"fanout"</span>;</span><br><span class="line">String queueName = <span class="string">"test_fanout_queue"</span>;</span><br><span class="line">String routingKey = <span class="string">"test.fanout.01"</span>;</span><br></pre></td></tr></table></figure>
+
+<p>其他代码和之前一样，这里设置<code>type</code>为<code>fanout</code>，路由<code>key</code>为<code>test.fanout.01</code></p>
+<p><strong>Provider</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 声明Exchange，RoutingKey的设置</span></span><br><span class="line">String exchangeName = <span class="string">"test_fanout_exchange"</span>;</span><br><span class="line">String routingKey = <span class="string">"test.fanout.02"</span>; <span class="comment">// 故意设置的和Consumer不同的RoutingKey</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 投递消息</span></span><br><span class="line">String msg = <span class="string">"hello fanout Exchange"</span>;</span><br><span class="line">channel.basicPublish(exchangeName,routingKey,<span class="keyword">null</span>,msg.getBytes());</span><br></pre></td></tr></table></figure>
+
+<p>这里故意设置与Consumer不同的<code>RoutingKey</code>，看看消息会不会被成功投递</p>
+<p><strong>测试</strong></p>
+<p><img src="/image/1577157979895.png" alt="1577157979895"></p>
+<p>被成功投递，应证说法</p>
+<h4 id="图解-2"><a href="#图解-2" class="headerlink" title="图解"></a>图解</h4><p><img src="/image/p-1577158001512" alt="640?wx_fmt=png"></p>
+<h4 id="应用场景-2"><a href="#应用场景-2" class="headerlink" title="应用场景"></a>应用场景</h4><p>假设我们定义了一个 Exchange 来接收日志消息，同时定义了两个 Queue 来存储消息：一个记录将被打印到控制台的日志消息；另一个记录将被写入磁盘文件的日志消息。我们希望 Exchange 接收到的每一条消息都会同时被转发到两个 Queue，这种场景下就可以使用 <code>Fanout Exchange</code> 来广播消息到所有绑定的 Queue。</p>
+<h3 id="Headers"><a href="#Headers" class="headerlink" title="Headers"></a>Headers</h3><p>Headers Exchange 会忽略 RoutingKey 而根据消息中的 Headers 和创建绑定关系时指定的 Arguments 来匹配决定路由到哪些 Queue。</p>
+<p>Headers Exchange 的性能比较差，而且 Direct Exchange 完全可以代替它，所以不建议使用。这里也不过多介绍了。</p>
+<h2 id="四、核心概念再理解"><a href="#四、核心概念再理解" class="headerlink" title="四、核心概念再理解"></a>四、核心概念再理解</h2><h3 id="Binding"><a href="#Binding" class="headerlink" title="Binding"></a>Binding</h3><p>上一个笔记中了解，绑定是将Exchange和Queue连接起来，通过路由键。</p>
+<p>在这一节，我们实际编写了绑定的代码，如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">channel.queueBind(queueName,exchangeName,routingKey); <span class="comment">// 设置绑定关系</span></span><br></pre></td></tr></table></figure>
+
+<p>主要就是三个关键信息，来组成一个绑定关系，<strong>主要操作再消息消费方</strong></p>
+<ul>
+<li>队列名</li>
+<li>交换机名</li>
+<li>路由键</li>
+</ul>
+<h3 id="Queue-1"><a href="#Queue-1" class="headerlink" title="Queue"></a>Queue</h3><p>通过代码编写，我们知道了Queue也有几大属性</p>
+<ul>
+<li><code>durable</code>：是否持久化 <code>true/false</code></li>
+<li><code>exclusive</code>：是否该连接独占，一般都为false</li>
+<li><code>autoDelete</code>：是否自动删除，即如果没有Exchange与其连接（Binding），将会自动删除</li>
+</ul>
+<h3 id="Message"><a href="#Message" class="headerlink" title="Message"></a>Message</h3><p>Message比较重要，主要由<code>Properties</code>和<code>Body</code>组成，<code>Properties</code>中常用属性有：</p>
+<ul>
+<li><code>deliveryMode</code>：是否持久化，默认1为不持久化，2为持久化</li>
+<li><code>headers</code>：自定义一些属性，保存到<code>headers</code>中，之后代码有体现</li>
+<li><code>contentType</code></li>
+<li><code>contentEncoding</code>：字符集</li>
+<li><code>priority</code>：优先级</li>
+<li><code>correlationId</code>：可以用作消息的唯一ID，作用挺多的</li>
+<li><code>replyTo</code>：可以用作消息失败后返回的队列，后面再细说</li>
+<li><code>expiration</code>：消息过期时间</li>
+<li><code>messageId</code>：消息的ID</li>
+<li>····：还有很多，这里就不赘述了</li>
+</ul>
+<p>接着我们在代码中设置一些Message属性</p>
+<p><strong>Provider</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置消息的Properties 使用链式编程</span></span><br><span class="line">Map&lt;String,Object&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">map.put(<span class="string">"myattr"</span>,<span class="string">"head attr"</span>);</span><br><span class="line">AMQP.BasicProperties properties = <span class="keyword">new</span> AMQP.BasicProperties.Builder()</span><br><span class="line">        .deliveryMode(<span class="number">2</span>) <span class="comment">// 设置是否持久化，1：false，2：true</span></span><br><span class="line">        .contentEncoding(<span class="string">"UTF-8"</span>) <span class="comment">// 设置字符集</span></span><br><span class="line">        .expiration(<span class="string">"10000"</span>) <span class="comment">// 设置10秒的过期时间</span></span><br><span class="line">        .headers(map) <span class="comment">// 设置headers，一些自定义的键值对</span></span><br><span class="line">        .build();</span><br><span class="line"></span><br><span class="line">String msg = <span class="string">"hello rabbit message"</span>;</span><br><span class="line">channel.basicPublish(<span class="string">""</span>,<span class="string">"test01"</span>,properties,msg.getBytes());</span><br></pre></td></tr></table></figure>
+
+<p><strong>Consumer</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 7.消费</span></span><br><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">    <span class="comment">// 这里可以添加long参数，即超时时间，不设置会一直阻塞</span></span><br><span class="line">    <span class="comment">// Delivery 是封装的类，封装了消息信息，配置信息，交换机信息，路由键等信息</span></span><br><span class="line">    Delivery delivery = queueingConsumer.nextDelivery();</span><br><span class="line">    <span class="keyword">byte</span>[] body = delivery.getBody();</span><br><span class="line">    AMQP.BasicProperties properties = delivery.getProperties();</span><br><span class="line">    Map&lt;String, Object&gt; headers = properties.getHeaders();</span><br><span class="line">    System.out.println(<span class="keyword">new</span> String(body));</span><br><span class="line">    System.out.println(headers.get(<span class="string">"myattr"</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要是消费时，打印出在<code>headers</code>中添加的自定义属性<code>myattr</code></p>
+<p><img src="/image/1577171235439.png" alt="1577171235439"></p>
+<p>启动消费后，成功显示信息</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/rabbitmq/" rel="tag"># rabbitmq</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/26/rb02-RabbitMQ%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%89%E8%A3%85/" rel="next" title="RabbitMQ简介与安装">
+                <i class="fa fa-chevron-left"></i> RabbitMQ简介与安装
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/26/rb04-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E6%81%AF100-%E6%8A%95%E9%80%92%E6%88%90%E5%8A%9F%E6%96%B9%E6%A1%88/" rel="prev" title="RabbitMQ高级-消息100%投递成功方案">
+                RabbitMQ高级-消息100%投递成功方案 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、管理台"><span class="nav-number">1.</span> <span class="nav-text">一、管理台</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Connection"><span class="nav-number">1.1.</span> <span class="nav-text">Connection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Channels"><span class="nav-number">1.2.</span> <span class="nav-text">Channels</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Exchanges"><span class="nav-number">1.3.</span> <span class="nav-text">Exchanges</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Queue"><span class="nav-number">1.4.</span> <span class="nav-text">Queue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Admin"><span class="nav-number">1.5.</span> <span class="nav-text">Admin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Overview"><span class="nav-number">1.6.</span> <span class="nav-text">Overview</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、极速入门"><span class="nav-number">2.</span> <span class="nav-text">二、极速入门</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Provider"><span class="nav-number">2.1.</span> <span class="nav-text">Provider</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consumer"><span class="nav-number">2.2.</span> <span class="nav-text">Consumer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试"><span class="nav-number">2.3.</span> <span class="nav-text">测试</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Default-Exchange"><span class="nav-number">2.3.1.</span> <span class="nav-text">Default Exchange</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、Exchange"><span class="nav-number">3.</span> <span class="nav-text">三、Exchange</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Direct"><span class="nav-number">3.1.</span> <span class="nav-text">Direct</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#代码理解"><span class="nav-number">3.1.1.</span> <span class="nav-text">代码理解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#图解"><span class="nav-number">3.1.2.</span> <span class="nav-text">图解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#应用场景"><span class="nav-number">3.1.3.</span> <span class="nav-text">应用场景</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Topic"><span class="nav-number">3.2.</span> <span class="nav-text">Topic</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#代码理解-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">代码理解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#图解-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">图解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#应用场景-1"><span class="nav-number">3.2.3.</span> <span class="nav-text">应用场景</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fanout"><span class="nav-number">3.3.</span> <span class="nav-text">Fanout</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#代码理解-2"><span class="nav-number">3.3.1.</span> <span class="nav-text">代码理解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#图解-2"><span class="nav-number">3.3.2.</span> <span class="nav-text">图解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#应用场景-2"><span class="nav-number">3.3.3.</span> <span class="nav-text">应用场景</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Headers"><span class="nav-number">3.4.</span> <span class="nav-text">Headers</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、核心概念再理解"><span class="nav-number">4.</span> <span class="nav-text">四、核心概念再理解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Binding"><span class="nav-number">4.1.</span> <span class="nav-text">Binding</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Queue-1"><span class="nav-number">4.2.</span> <span class="nav-text">Queue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Message"><span class="nav-number">4.3.</span> <span class="nav-text">Message</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

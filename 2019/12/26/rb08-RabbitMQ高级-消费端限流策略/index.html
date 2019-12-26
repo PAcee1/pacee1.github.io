@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="rabbitmq," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="为什么要进行限流假设一个情景：某个消费端挂掉了，因为不是很重要，所以程序员第二天才发现，这时在MQ Broker上已经囤积了可能上千上万条message，如果这时直接重启消费端，巨量消息冲击，如果单机客户端无法抵御冲击很可能导致服务器崩溃，引发线上故障。 除了这个情景，还有其他情况，生产端每分钟有几百条消息，但消费端每分钟只能处理几十条，这时生产与消费肯定是不平衡的，如果长此以往超出了最大负荷，消">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ高级-消费端限流策略">
+<meta property="og:url" content="http://yoursite.com/2019/12/26/rb08-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AF%E9%99%90%E6%B5%81%E7%AD%96%E7%95%A5/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="为什么要进行限流假设一个情景：某个消费端挂掉了，因为不是很重要，所以程序员第二天才发现，这时在MQ Broker上已经囤积了可能上千上万条message，如果这时直接重启消费端，巨量消息冲击，如果单机客户端无法抵御冲击很可能导致服务器崩溃，引发线上故障。 除了这个情景，还有其他情况，生产端每分钟有几百条消息，但消费端每分钟只能处理几十条，这时生产与消费肯定是不平衡的，如果长此以往超出了最大负荷，消">
+<meta property="og:image" content="http://yoursite.com/image/1577258086848.png">
+<meta property="og:image" content="http://yoursite.com/image/1577258134824.png">
+<meta property="og:image" content="http://yoursite.com/image/1577258250830.png">
+<meta property="og:image" content="http://yoursite.com/image/1577258265758.png">
+<meta property="article:published_time" content="2019-12-26T01:08:55.000Z">
+<meta property="article:modified_time" content="2019-12-26T01:17:04.955Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="rabbitmq">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1577258086848.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/26/rb08-RabbitMQ高级-消费端限流策略/"/>
+
+
+
+
+
+  <title>RabbitMQ高级-消费端限流策略 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/26/rb08-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AF%E9%99%90%E6%B5%81%E7%AD%96%E7%95%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RabbitMQ高级-消费端限流策略</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-26T09:08:55+08:00">
+                2019-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rabbitmq/" itemprop="url" rel="index">
+                    <span itemprop="name">rabbitmq</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="为什么要进行限流"><a href="#为什么要进行限流" class="headerlink" title="为什么要进行限流"></a>为什么要进行限流</h2><p>假设一个情景：某个消费端挂掉了，因为不是很重要，所以程序员第二天才发现，这时在MQ Broker上已经囤积了可能上千上万条message，如果这时直接重启消费端，巨量消息冲击，如果单机客户端无法抵御冲击很可能导致服务器崩溃，引发线上故障。</p>
+<p>除了这个情景，还有其他情况，生产端每分钟有几百条消息，但消费端每分钟只能处理几十条，这时生产与消费肯定是不平衡的，如果长此以往超出了最大负荷，消费端性能必定下降，导致服务器卡顿崩溃等问题。</p>
+<p>这两个情景下都离不开限流，只要有了限流，这些问题都能迎刃而解。</p>
+<h2 id="RabbitMQ限流机制"><a href="#RabbitMQ限流机制" class="headerlink" title="RabbitMQ限流机制"></a>RabbitMQ限流机制</h2><p>对于限流，肯定是在消费端的，与生产端无关。</p>
+<p>RabbitMQ提供了一种<code>QOS</code>（服务质量保证）功能：即在未开启自动确认（<code>autoAck</code>）功能的前提下，如果一定数量的消息未确认，即未返回<code>ACK</code>，消费端不进行新消息的消费</p>
+<p><strong>最重要一点：不能开启<code>autoAck</code>，即<code>autoAck=false</code>，否则无法做到限流</strong></p>
+<a id="more"></a>
+<h3 id="限流相关API"><a href="#限流相关API" class="headerlink" title="限流相关API"></a>限流相关API</h3><h4 id="限流设置-BasicQos"><a href="#限流设置-BasicQos" class="headerlink" title="限流设置 - BasicQos()"></a>限流设置 - BasicQos()</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">basicQos</span><span class="params">(<span class="keyword">int</span> prefetchSize, <span class="keyword">int</span> prefetchCount, <span class="keyword">boolean</span> global)</span> <span class="keyword">throws</span> IOException</span>;</span><br></pre></td></tr></table></figure>
+
+<p>三个参数：</p>
+<ul>
+<li><code>prefetchSize</code>：消息的大小限制，0为不限制，一般来说都设为0</li>
+<li><code>prefetchCount</code>：每次最多能处理多少条消息，一般为1，每次消费1条</li>
+<li><code>global</code>：是否对Channel限制，<code>false</code>即只对Consumer端限制，一般为<code>false</code></li>
+</ul>
+<h4 id="手动ACK-basicAck"><a href="#手动ACK-basicAck" class="headerlink" title="手动ACK - basicAck()"></a>手动ACK - basicAck()</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">basicAck</span><span class="params">(<span class="keyword">long</span> deliveryTag, <span class="keyword">boolean</span> multiple)</span> <span class="keyword">throws</span> IOException</span>;</span><br></pre></td></tr></table></figure>
+
+<p>两个参数：</p>
+<ul>
+<li><code>deliveryTag</code>：消息的标志，标识，可从<code>Envelope</code>中获取</li>
+<li><code>multiple</code>：是否批量返回，如果在限流设置中<code>prefetchCount</code>设置大于1，需要设为<code>true</code>，反之<code>false</code></li>
+</ul>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><h4 id="生产端"><a href="#生产端" class="headerlink" title="生产端"></a>生产端</h4><p>生产端循环发送5条消息到队列中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Provider</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        <span class="comment">// 1.创建连接工程</span></span><br><span class="line">        ConnectionFactory connectionFactory = <span class="keyword">new</span> ConnectionFactory();</span><br><span class="line">        connectionFactory.setHost(<span class="string">"192.168.56.120"</span>);</span><br><span class="line">        connectionFactory.setPort(<span class="number">5672</span>);</span><br><span class="line">        connectionFactory.setVirtualHost(<span class="string">"/"</span>); <span class="comment">// 默认创建 "/" 为虚拟主机</span></span><br><span class="line">        <span class="comment">// 2.创建连接</span></span><br><span class="line">        Connection connection = connectionFactory.newConnection();</span><br><span class="line">        <span class="comment">// 3.创建Channel通道</span></span><br><span class="line">        Channel channel = connection.createChannel();</span><br><span class="line"></span><br><span class="line">        String exchange = <span class="string">"test_limit_exchange"</span>;</span><br><span class="line">        String routingKey = <span class="string">"limit"</span>;</span><br><span class="line">        String msg = <span class="string">"hello rabbit consumer limit"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">            channel.basicPublish(exchange,routingKey,<span class="keyword">null</span>,msg.getBytes());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5.关闭连接</span></span><br><span class="line">        channel.close();</span><br><span class="line">        connection.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="消费端"><a href="#消费端" class="headerlink" title="消费端"></a>消费端</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Consumer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">        ConnectionFactory connectionFactory = <span class="keyword">new</span> ConnectionFactory();</span><br><span class="line">        connectionFactory.setHost(<span class="string">"192.168.56.120"</span>);</span><br><span class="line">        connectionFactory.setPort(<span class="number">5672</span>);</span><br><span class="line">        connectionFactory.setVirtualHost(<span class="string">"/"</span>); <span class="comment">// 默认创建 "/" 为虚拟主机</span></span><br><span class="line"></span><br><span class="line">        Connection connection = connectionFactory.newConnection();</span><br><span class="line"></span><br><span class="line">        Channel channel = connection.createChannel();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 队列 交换机 绑定</span></span><br><span class="line">        String exchange = <span class="string">"test_limit_exchange"</span>;</span><br><span class="line">        String queue = <span class="string">"test_limit_queue"</span>;</span><br><span class="line">        String routingKey = <span class="string">"limit"</span>;</span><br><span class="line">        channel.exchangeDeclare(exchange,<span class="string">"direct"</span>,<span class="keyword">true</span>);</span><br><span class="line">        channel.queueDeclare(queue,<span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">null</span>);</span><br><span class="line">        channel.queueBind(queue,exchange,routingKey);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 限流</span></span><br><span class="line">        channel.basicQos(<span class="number">0</span>,<span class="number">1</span>,<span class="keyword">false</span>);</span><br><span class="line">        <span class="comment">// 最重要一点 autoAck = false</span></span><br><span class="line">        channel.basicConsume(queue,<span class="keyword">false</span>,<span class="keyword">new</span> MyConsumer(channel));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最重要的代码为下面两句</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 限流</span></span><br><span class="line">channel.basicQos(<span class="number">0</span>,<span class="number">1</span>,<span class="keyword">false</span>);</span><br><span class="line"><span class="comment">// 最重要一点 autoAck = false</span></span><br><span class="line">channel.basicConsume(queue,<span class="keyword">false</span>,<span class="keyword">new</span> MyConsumer(channel));</span><br></pre></td></tr></table></figure>
+
+<h4 id="自定义消费者"><a href="#自定义消费者" class="headerlink" title="自定义消费者"></a>自定义消费者</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyConsumer</span> <span class="keyword">extends</span> <span class="title">DefaultConsumer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Channel channel;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyConsumer</span><span class="params">(Channel channel)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(channel);</span><br><span class="line">        <span class="keyword">this</span>.channel = channel;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleDelivery</span><span class="params">(String consumerTag, Envelope envelope,</span></span></span><br><span class="line"><span class="function"><span class="params">                               AMQP.BasicProperties properties, <span class="keyword">byte</span>[] body)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"----------MyConsumer----------"</span>);</span><br><span class="line">        System.out.println(consumerTag);</span><br><span class="line">        System.out.println(envelope);</span><br><span class="line">        System.out.println(properties);</span><br><span class="line">        System.out.println(<span class="keyword">new</span> String(body));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 手动ACK</span></span><br><span class="line">        <span class="comment">//channel.basicAck(envelope.getDeliveryTag(),false);</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意，这里我把手动<code>ACK</code>注释掉了，为了更好的展示效果</p>
+<h4 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h4><p>先开启Consumer，然后查看<code>15672</code>可视化界面，是否创建对应的exchange，queue</p>
+<p>开启Provider，投递五条消息到Exchange中，查看控制台</p>
+<p><img src="/image/1577258086848.png" alt="1577258086848"></p>
+<p>可以发现，这里只有一条消息被打印了出来，在看下可视化界面</p>
+<p><img src="/image/1577258134824.png" alt="1577258134824"></p>
+<p>我们的队列中，5条消息，4条在准备阶段，1条被消费但是没有返回ACK，因为我们把返回<code>ACK</code>的代码给注释掉了，这也可以说明我们限流成功。</p>
+<p>当我们没有回送<code>ack</code>应答时，Broker端就认为消费端还没有处理完这条消息，基于这种限流机制就不会给消费端发送新的消息了，所以消费端只打印了一条消息。</p>
+<p>这时我们把响应<code>ACK</code>的代码放开，并重启Consumer</p>
+<p><img src="/image/1577258250830.png" alt="1577258250830"></p>
+<p>成功消费五条消息</p>
+<p><img src="/image/1577258265758.png" alt="1577258265758"></p>
+<p>队列为空</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/rabbitmq/" rel="tag"># rabbitmq</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/26/rb07-RabbitMQ%E9%AB%98%E7%BA%A7-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B6%88%E8%B4%B9%E8%80%85/" rel="next" title="RabbitMQ高级-自定义消费者">
+                <i class="fa fa-chevron-left"></i> RabbitMQ高级-自定义消费者
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/26/rb09-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AFACK%E4%B8%8E%E9%87%8D%E5%9B%9E%E9%98%9F%E5%88%97/" rel="prev" title="RabbitMQ高级-消费端ACK与重回队列">
+                RabbitMQ高级-消费端ACK与重回队列 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要进行限流"><span class="nav-number">1.</span> <span class="nav-text">为什么要进行限流</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RabbitMQ限流机制"><span class="nav-number">2.</span> <span class="nav-text">RabbitMQ限流机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#限流相关API"><span class="nav-number">2.1.</span> <span class="nav-text">限流相关API</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#限流设置-BasicQos"><span class="nav-number">2.1.1.</span> <span class="nav-text">限流设置 - BasicQos()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#手动ACK-basicAck"><span class="nav-number">2.1.2.</span> <span class="nav-text">手动ACK - basicAck()</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现"><span class="nav-number">2.2.</span> <span class="nav-text">代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#生产端"><span class="nav-number">2.2.1.</span> <span class="nav-text">生产端</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#消费端"><span class="nav-number">2.2.2.</span> <span class="nav-text">消费端</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义消费者"><span class="nav-number">2.2.3.</span> <span class="nav-text">自定义消费者</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试"><span class="nav-number">2.2.4.</span> <span class="nav-text">测试</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

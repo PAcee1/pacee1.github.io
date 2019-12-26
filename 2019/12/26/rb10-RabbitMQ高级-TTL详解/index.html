@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="rabbitmq," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="什么是TTL TTL意为Time To Live，即生存时间 RabbitMQ中适用于队列和消息 消息：即消息过期时间，比如设置10秒，10秒后如果没有被消费则删除 队列：队列中消息的存活时间，从消息入队列开始计算，只要超过了队列的超时时间配置，那么消息会自动的清除    TTL控制台操作因为之前都是代码操作，还没有在15672控制台操作过，所以我们先使用控制台进行TTL测试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ高级-TTL详解">
+<meta property="og:url" content="http://yoursite.com/2019/12/26/rb10-RabbitMQ%E9%AB%98%E7%BA%A7-TTL%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="什么是TTL TTL意为Time To Live，即生存时间 RabbitMQ中适用于队列和消息 消息：即消息过期时间，比如设置10秒，10秒后如果没有被消费则删除 队列：队列中消息的存活时间，从消息入队列开始计算，只要超过了队列的超时时间配置，那么消息会自动的清除    TTL控制台操作因为之前都是代码操作，还没有在15672控制台操作过，所以我们先使用控制台进行TTL测试">
+<meta property="og:image" content="http://yoursite.com/image/1577264820257.png">
+<meta property="og:image" content="http://yoursite.com/image/1577264832108.png">
+<meta property="og:image" content="http://yoursite.com/image/1577264934751.png">
+<meta property="og:image" content="http://yoursite.com/image/1577265000283.png">
+<meta property="og:image" content="http://yoursite.com/image/1577265045236.png">
+<meta property="og:image" content="http://yoursite.com/image/1577265049652.png">
+<meta property="og:image" content="http://yoursite.com/image/1577265172206.png">
+<meta property="og:image" content="http://yoursite.com/image/1577265221707.png">
+<meta property="og:image" content="http://yoursite.com/image/1577265254082.png">
+<meta property="og:image" content="http://yoursite.com/image/1577265532983.png">
+<meta property="og:image" content="http://yoursite.com/image/1577265555650.png">
+<meta property="og:image" content="http://yoursite.com/image/1577265571355.png">
+<meta property="article:published_time" content="2019-12-26T01:09:23.000Z">
+<meta property="article:modified_time" content="2019-12-26T01:17:52.548Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="rabbitmq">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1577264820257.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/26/rb10-RabbitMQ高级-TTL详解/"/>
+
+
+
+
+
+  <title>RabbitMQ高级-TTL详解 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/26/rb10-RabbitMQ%E9%AB%98%E7%BA%A7-TTL%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RabbitMQ高级-TTL详解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-26T09:09:23+08:00">
+                2019-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rabbitmq/" itemprop="url" rel="index">
+                    <span itemprop="name">rabbitmq</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="什么是TTL"><a href="#什么是TTL" class="headerlink" title="什么是TTL"></a>什么是TTL</h3><ul>
+<li>TTL意为<code>Time To Live</code>，即生存时间</li>
+<li>RabbitMQ中适用于队列和消息<ul>
+<li>消息：即消息过期时间，比如设置10秒，10秒后如果没有被消费则删除</li>
+<li>队列：队列中消息的存活时间，从消息入队列开始计算，只要超过了队列的超时时间配置，那么消息会自动的清除</li>
+</ul>
+</li>
+</ul>
+<h3 id="TTL控制台操作"><a href="#TTL控制台操作" class="headerlink" title="TTL控制台操作"></a>TTL控制台操作</h3><p>因为之前都是代码操作，还没有在15672控制台操作过，所以我们先使用控制台进行TTL测试</p>
+<a id="more"></a>
+<h4 id="创建Exchange"><a href="#创建Exchange" class="headerlink" title="创建Exchange"></a>创建Exchange</h4><p>在<code>Exchange Tab</code>下，添加一个新的Exchange，<code>test_ttl_exchange</code></p>
+<p><img src="/image/1577264820257.png" alt="1577264820257"></p>
+<p><img src="/image/1577264832108.png" alt="1577264832108"></p>
+<p>成功添加</p>
+<h4 id="TTL队列"><a href="#TTL队列" class="headerlink" title="TTL队列"></a>TTL队列</h4><p>在<code>Queue Tab</code>下，添加一个新的Queue ，<code>test_ttl_queue</code></p>
+<p><img src="/image/1577264934751.png" alt="1577264934751"></p>
+<p>点击下面的红框，就会弹出参数的添加，<code>x-message-ttl</code>就是设置TTL队列的配置</p>
+<p><img src="/image/1577265000283.png" alt="1577265000283"></p>
+<h4 id="设置绑定关系"><a href="#设置绑定关系" class="headerlink" title="设置绑定关系"></a>设置绑定关系</h4><p>在<code>Exchange Tab</code>中点击<code>test_ttl_exchange</code></p>
+<p><img src="/image/1577265045236.png" alt="1577265045236"></p>
+<p><img src="/image/1577265049652.png" alt="1577265049652"></p>
+<h4 id="投递普通消息"><a href="#投递普通消息" class="headerlink" title="投递普通消息"></a>投递普通消息</h4><p>在<code>Queue Tab</code>中点击<code>test_ttl_queue</code></p>
+<p><img src="/image/1577265172206.png" alt="1577265172206"></p>
+<p><img src="/image/1577265221707.png" alt="1577265221707"></p>
+<p>投递成功后，会发现队列中有一条消息等待消费，这时我们等10秒钟</p>
+<p><img src="/image/1577265254082.png" alt="1577265254082"></p>
+<p>会发现消息消失了，即过期时间一过便被删除了</p>
+<h4 id="投递TTL消息"><a href="#投递TTL消息" class="headerlink" title="投递TTL消息"></a>投递TTL消息</h4><p>我们接着测试TTL消息的投递，这时我们就不再TTL队列中测试了，随便找个其他的队列投递</p>
+<p>这里我们使用到<code>test01</code>队列，其实对于TTL消息我们在之前讲消息的时候就使用过，通过链式编程，添加Properties信息的时候</p>
+<p><img src="/image/1577265532983.png" alt="1577265532983"></p>
+<p>主要参数就是<code>expiration</code></p>
+<p><img src="/image/1577265555650.png" alt="1577265555650"></p>
+<p>投递完我们再等待10秒</p>
+<p><img src="/image/1577265571355.png" alt="1577265571355"></p>
+<p>消息成功被删除</p>
+<h3 id="TTL代码操作"><a href="#TTL代码操作" class="headerlink" title="TTL代码操作"></a>TTL代码操作</h3><h4 id="TTL消息"><a href="#TTL消息" class="headerlink" title="TTL消息"></a>TTL消息</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">AMQP.BasicProperties properties = <span class="keyword">new</span> AMQP.BasicProperties.Builder()</span><br><span class="line">                .expiration(<span class="string">"10000"</span>) <span class="comment">//10s过期</span></span><br><span class="line">                .build();</span><br><span class="line"><span class="comment">//发送消息</span></span><br><span class="line">channel.basicPublish(exchange, routingKey, <span class="keyword">true</span>, properties, msg.getBytes());</span><br></pre></td></tr></table></figure>
+
+<h4 id="TTL队列-1"><a href="#TTL队列-1" class="headerlink" title="TTL队列"></a>TTL队列</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Map argument = <span class="keyword">new</span> HashMap();</span><br><span class="line">argument.put(<span class="string">"x-message-ttl"</span>,<span class="number">10000</span>);</span><br><span class="line">channel.queueDeclare(queue,<span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">false</span>,argument);</span><br></pre></td></tr></table></figure>
+
+<p>通过创建队列时的最后一个入参<code>arguments</code>添加<code>ttl</code>配置</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/rabbitmq/" rel="tag"># rabbitmq</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/26/rb09-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AFACK%E4%B8%8E%E9%87%8D%E5%9B%9E%E9%98%9F%E5%88%97/" rel="next" title="RabbitMQ高级-消费端ACK与重回队列">
+                <i class="fa fa-chevron-left"></i> RabbitMQ高级-消费端ACK与重回队列
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/26/rb11-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97/" rel="prev" title="-RabbitMQ高级-死信队列">
+                -RabbitMQ高级-死信队列 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是TTL"><span class="nav-number">1.</span> <span class="nav-text">什么是TTL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TTL控制台操作"><span class="nav-number">2.</span> <span class="nav-text">TTL控制台操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建Exchange"><span class="nav-number">2.1.</span> <span class="nav-text">创建Exchange</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TTL队列"><span class="nav-number">2.2.</span> <span class="nav-text">TTL队列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#设置绑定关系"><span class="nav-number">2.3.</span> <span class="nav-text">设置绑定关系</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#投递普通消息"><span class="nav-number">2.4.</span> <span class="nav-text">投递普通消息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#投递TTL消息"><span class="nav-number">2.5.</span> <span class="nav-text">投递TTL消息</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TTL代码操作"><span class="nav-number">3.</span> <span class="nav-text">TTL代码操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#TTL消息"><span class="nav-number">3.1.</span> <span class="nav-text">TTL消息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TTL队列-1"><span class="nav-number">3.2.</span> <span class="nav-text">TTL队列</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

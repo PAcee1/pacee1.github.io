@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="消息中间件介绍什么是MQ消息队列（Messages Queue），从字面意思是，本质是一个队列，先进先出规则，只不过队列中存放的是messages消息而已。 主要用途是不同进程&#x2F;线程间通信，比如服务A调用服务B就可以通过MQ。 为什么会产生消息队列有几个原因：  不同进程（process）之间传递消息时，两个进程之间耦合程度过高，改动一个进程，引发必须修改另一个进程，为了隔离这两个进程，在两进程间">
+<meta property="og:type" content="article">
+<meta property="og:title" content="消息中间件介绍">
+<meta property="og:url" content="http://yoursite.com/2019/12/26/rb01-%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="消息中间件介绍什么是MQ消息队列（Messages Queue），从字面意思是，本质是一个队列，先进先出规则，只不过队列中存放的是messages消息而已。 主要用途是不同进程&#x2F;线程间通信，比如服务A调用服务B就可以通过MQ。 为什么会产生消息队列有几个原因：  不同进程（process）之间传递消息时，两个进程之间耦合程度过高，改动一个进程，引发必须修改另一个进程，为了隔离这两个进程，在两进程间">
+<meta property="og:image" content="http://yoursite.com/image/1576809199184.png">
+<meta property="og:image" content="http://yoursite.com/image/1576809818246.png">
+<meta property="og:image" content="http://yoursite.com/image/1576821542731.png">
+<meta property="og:image" content="http://yoursite.com/image/1576822401812.png">
+<meta property="article:published_time" content="2019-12-26T01:06:24.000Z">
+<meta property="article:modified_time" content="2019-12-26T01:11:07.846Z">
+<meta property="article:author" content="PAcee">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1576809199184.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/26/rb01-消息中间件介绍/"/>
+
+
+
+
+
+  <title>消息中间件介绍 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/26/rb01-%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6%E4%BB%8B%E7%BB%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">消息中间件介绍</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-26T09:06:24+08:00">
+                2019-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="消息中间件介绍"><a href="#消息中间件介绍" class="headerlink" title="消息中间件介绍"></a>消息中间件介绍</h2><h3 id="什么是MQ"><a href="#什么是MQ" class="headerlink" title="什么是MQ"></a>什么是MQ</h3><p>消息队列（Messages Queue），从字面意思是，本质是一个队列，先进先出规则，只不过队列中存放的是messages消息而已。</p>
+<p>主要用途是不同进程/线程间通信，比如服务A调用服务B就可以通过MQ。</p>
+<h3 id="为什么会产生消息队列"><a href="#为什么会产生消息队列" class="headerlink" title="为什么会产生消息队列"></a>为什么会产生消息队列</h3><p>有几个原因：</p>
+<ul>
+<li>不同进程（process）之间传递消息时，两个进程之间耦合程度过高，改动一个进程，引发必须修改另一个进程，为了隔离这两个进程，在两进程间抽离出一层（一个模块），所有两进程之间传递的消息，都必须通过消息队列来传递，单独修改某一个进程，不会影响另一个；</li>
+<li>不同进程（process）之间传递消息时，为了实现标准化，将消息的格式规范化了，并且，某一个进程接受的消息太多，一下子无法处理完，并且也有先后顺序，必须对收到的消息进行排队，因此诞生了事实上的消息队列</li>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzAxOTc0NzExNg==&mid=2665513507&idx=1&sn=d6db79c1ae03ba9260fb0fb77727bb54&chksm=80d67a60b7a1f376e7ad1e2c3276e8b565f045b1c7e21ef90926f69d99f969557737eb5d8128&mpshare=1&scene=1&srcid=1019awkBx8kaLyFohcuW4Ee7" target="_blank" rel="noopener">《Java帝国之消息队列》</a>，<a href="https://github.com/jasonGeng88/blog/blob/master/201705/MQ.md" target="_blank" rel="noopener">《一个故事告诉你什么是消息队列》</a><a id="more"></a>
+<h3 id="主流的MQ区别"><a href="#主流的MQ区别" class="headerlink" title="主流的MQ区别"></a>主流的MQ区别</h3></li>
+</ul>
+<h4 id="ActiveMQ"><a href="#ActiveMQ" class="headerlink" title="ActiveMQ"></a>ActiveMQ</h4><p>ActiveMQ是一款非常老牌的MQ，由Apache出品，功能强大，支持JMS规范。</p>
+<p>具有很多丰富的API，多种集群构建模式，在中小型企业应用广泛。</p>
+<p>MQ衡量指标：</p>
+<ul>
+<li>性能：ActiveMQ对于其他MQ来说，<strong>性能比较一般</strong>，所以在以前Active的使用率比较高，但是现在到处都是<strong>高并发大数据的场景</strong>，ActiveMQ的使用有些力不从心了，经常会出现<strong>阻塞，消息延迟，堆积过多</strong>等问题。</li>
+<li>数据存储：<ul>
+<li>kahaDB：默认</li>
+<li>LevelDB：高性能</li>
+<li>关系型数据库：消息100%可靠</li>
+</ul>
+</li>
+<li>集群架构：<ul>
+<li>主备模式：使用Zookeeper来进行节点协调，如果主挂了，切换备用节点</li>
+<li>分布式主备模式，也叫NetWork模式：MQ集群，使用网关相互通信连接</li>
+</ul>
+</li>
+</ul>
+<p><img src="/image/1576809199184.png" alt="1576809199184"></p>
+<h4 id="kafka"><a href="#kafka" class="headerlink" title="kafka"></a>kafka</h4><p>kafka是Apache顶级项目，分布式发布-订阅消息系统，基于Pull模式来处理消费，追求<strong>超高吞吐量</strong>，也正因此，Kafka多用于大数据的服务。用来对日志进行采集传输</p>
+<p>kafka0.8版本之后，支持复制，但是<strong>不支持事物，对消息的丢失，重复，错误没有严格要求</strong>，所以它主攻吞吐量这块，使用它的时候要考虑这些缺点是否影响业务。</p>
+<p>kafka如此高性能也和对于操作系统底层的<em>PageCache</em>有关，因为大量使用内存，而非磁盘读写，所以性能高，这有点类似ElasticSearch，所以如果服务器的内存较大，cpu性能低也不会影响kafka的高性能高吞吐。</p>
+<p>集群架构：</p>
+<p><img src="/image/1576809818246.png" alt="1576809818246"></p>
+<p>kafka也是依赖Zookeeper来调节各个节点的，每个节点会进行replicate副本复制，这样每个节点的数据都是同步的。</p>
+<h4 id="RocketMQ"><a href="#RocketMQ" class="headerlink" title="RocketMQ"></a>RocketMQ</h4><p>RocketMQ是阿里开源的MQ中间件，也孵化成Apache顶级项目，纯Java开发，<strong>具有高吞吐高性能</strong>的特点，思路起源于kafka，但是对于<strong>消息一致性以及可靠性传输</strong>做了优化，被阿里在内部广泛使用与交易，充值，流计算，日志推送等场景。</p>
+<p>但是RocketMQ缺点是<strong>维护难度高</strong>，需要非常专业的MQ运维人员去维护。还有一个重要缺点，商业版收费，很多功能不对外提供。</p>
+<p>特点是，<strong>保证消息顺序性，提供丰富的消息拉取的模式，高效订阅者的水平扩展，实时性以及上亿级别的消息</strong></p>
+<p>集群架构：</p>
+<p><img src="/image/1576821542731.png" alt="1576821542731"></p>
+<p>在2.0及之前，都是使用的Zookeeper来协调主从节点</p>
+<p>在3.x之后，使用自己编写的Name Server来进行协调工作。</p>
+<p>可选的分布式集群架构方式有很多种，一主一从，双主双从或者多主多从，随便选。</p>
+<h4 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h4><p>RabbitMQ使用Erlang语言实现，基于AMQP协议实现。AMQP主要特征是面向消息，队列，路由，可靠，安全。AMQP更多用在企业内，<strong>对数据一致性，稳定性，可靠性要求很高的场景</strong>，而对于吞吐量性能肯定没用kafka那么高，但也不差，比ActiveMQ高了很多。</p>
+<p>集群架构</p>
+<p><img src="/image/1576822401812.png" alt="1576822401812"></p>
+<p>多个组使用<code>mirror queue</code>镜像队列，来保证数据100%不丢失，前端使用<code>HA-proxy</code>实现负载均衡，使用<code>KeepAlived</code>实现高可用。</p>
+<p>优点：<strong>完善，高可用，性能也很好，稳定性超强（节点挂掉，磁盘损坏也可以修复）</strong></p>
+<p>RabbitMQ高性能的原因就是因为底层的<strong>Erlang语言</strong>，Erlang语言一开始是做交换机领域的，所以他<strong>有着和Socket一样的网络延迟</strong>，也导致了RabbitMQ的Broker之间进行数据交互的性能优秀。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/25/es08-ElasticSearch%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" rel="next" title="ElasticSearch性能优化">
+                <i class="fa fa-chevron-left"></i> ElasticSearch性能优化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/26/rb02-RabbitMQ%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%89%E8%A3%85/" rel="prev" title="RabbitMQ简介与安装">
+                RabbitMQ简介与安装 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#消息中间件介绍"><span class="nav-number">1.</span> <span class="nav-text">消息中间件介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是MQ"><span class="nav-number">1.1.</span> <span class="nav-text">什么是MQ</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么会产生消息队列"><span class="nav-number">1.2.</span> <span class="nav-text">为什么会产生消息队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主流的MQ区别"><span class="nav-number">1.3.</span> <span class="nav-text">主流的MQ区别</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ActiveMQ"><span class="nav-number">1.3.1.</span> <span class="nav-text">ActiveMQ</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#kafka"><span class="nav-number">1.3.2.</span> <span class="nav-text">kafka</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RocketMQ"><span class="nav-number">1.3.3.</span> <span class="nav-text">RocketMQ</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RabbitMQ"><span class="nav-number">1.3.4.</span> <span class="nav-text">RabbitMQ</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
