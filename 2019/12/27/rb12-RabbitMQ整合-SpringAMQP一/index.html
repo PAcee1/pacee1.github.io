@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="rabbitmq," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Spring AMQP是用于以AMQP为基础的MQ中间件的解决方案，对于底层API进行封装，使开发者在对MQ进行操作时更加易用，并进行了一些拓展与优化。 这里我们主要使用RabbitMQ与SpringAMQP整合，对于其他以AMQP规范制作的中间件也是差不多的整合方式。 SpringAMQP核心内容 RabbitAdmin：管控组件 RabbitTemplate：消息模板组件 SimpleMess">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ整合-SpringAMQP(一)">
+<meta property="og:url" content="http://yoursite.com/2019/12/27/rb12-RabbitMQ%E6%95%B4%E5%90%88-SpringAMQP%E4%B8%80/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="Spring AMQP是用于以AMQP为基础的MQ中间件的解决方案，对于底层API进行封装，使开发者在对MQ进行操作时更加易用，并进行了一些拓展与优化。 这里我们主要使用RabbitMQ与SpringAMQP整合，对于其他以AMQP规范制作的中间件也是差不多的整合方式。 SpringAMQP核心内容 RabbitAdmin：管控组件 RabbitTemplate：消息模板组件 SimpleMess">
+<meta property="og:image" content="http://yoursite.com/image/1577331837654.png">
+<meta property="og:image" content="http://yoursite.com/image/1577342664941.png">
+<meta property="og:image" content="http://yoursite.com/image/1577347040970.png">
+<meta property="og:image" content="http://yoursite.com/image/1577347472865.png">
+<meta property="og:image" content="http://yoursite.com/image/1577347668908.png">
+<meta property="og:image" content="http://yoursite.com/2019/12/1%E7%AC%94%E8%AE%B0/image/1577351440989.png">
+<meta property="og:image" content="http://yoursite.com/2019/12/1%E7%AC%94%E8%AE%B0/image/1577351301968.png">
+<meta property="og:image" content="http://yoursite.com/2019/12/1%E7%AC%94%E8%AE%B0/image/1577352468337.png">
+<meta property="og:image" content="http://yoursite.com/2019/12/1%E7%AC%94%E8%AE%B0/image/1577352679509.png">
+<meta property="article:published_time" content="2019-12-27T09:58:33.000Z">
+<meta property="article:modified_time" content="2019-12-27T10:00:03.314Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="rabbitmq">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1577331837654.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/27/rb12-RabbitMQ整合-SpringAMQP一/"/>
+
+
+
+
+
+  <title>RabbitMQ整合-SpringAMQP(一) | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/27/rb12-RabbitMQ%E6%95%B4%E5%90%88-SpringAMQP%E4%B8%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RabbitMQ整合-SpringAMQP(一)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-27T17:58:33+08:00">
+                2019-12-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rabbitmq/" itemprop="url" rel="index">
+                    <span itemprop="name">rabbitmq</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Spring AMQP是用于以AMQP为基础的MQ中间件的解决方案，对于底层API进行封装，使开发者在对MQ进行操作时更加易用，并进行了一些拓展与优化。</p>
+<p>这里我们主要使用RabbitMQ与SpringAMQP整合，对于其他以AMQP规范制作的中间件也是差不多的整合方式。</p>
+<h2 id="SpringAMQP核心内容"><a href="#SpringAMQP核心内容" class="headerlink" title="SpringAMQP核心内容"></a>SpringAMQP核心内容</h2><ul>
+<li><code>RabbitAdmin</code>：管控组件</li>
+<li><code>RabbitTemplate</code>：消息模板组件</li>
+<li><code>SimpleMessageListenerContainer</code>：简单消息监听容器</li>
+<li><code>MessageListenerAdapter</code>：消息适配器</li>
+<li><code>MessageConverter</code>：消息转换器</li>
+</ul>
+<p>接下来，我们就需要对这些核心内容进行研究</p>
+<h2 id="RabbitAdmin"><a href="#RabbitAdmin" class="headerlink" title="RabbitAdmin"></a>RabbitAdmin</h2><p><code>RabbitAdmin</code>的主要作用就是方便的操作Exchange，Queue，Binding这些信息</p>
+<p>使用它需要几点注意：</p>
+<ul>
+<li>需要将<code>RabbitAdmin</code>注入到上下文中，注入的前提是<code>ConnectionFactory</code>在上下文中，所以要先注入<code>ConnectionFactory</code></li>
+<li>注入时要设置<code>autoStartup=true</code>，不然不会加载<code>RabbitAdmin</code><a id="more"></a>
+<h3 id="快速入门"><a href="#快速入门" class="headerlink" title="快速入门"></a>快速入门</h3></li>
+</ul>
+<h4 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h4><p>需要使用spring的amqp依赖，这里为了方便，使用的springboot的工程</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.rabbitmq<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>amqp-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.6.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-amqp<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="注入RabbitAdmin"><a href="#注入RabbitAdmin" class="headerlink" title="注入RabbitAdmin"></a>注入RabbitAdmin</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(Application<span class="class">.<span class="keyword">class</span>,<span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ConnectionFactory <span class="title">connectionFactory</span><span class="params">()</span></span>&#123;</span><br><span class="line">        CachingConnectionFactory cachingConnectionFactory = <span class="keyword">new</span> CachingConnectionFactory();</span><br><span class="line">        cachingConnectionFactory.setAddresses(<span class="string">"192.168.56.120:5672"</span>);</span><br><span class="line">        cachingConnectionFactory.setUsername(<span class="string">"guest"</span>);</span><br><span class="line">        cachingConnectionFactory.setPassword(<span class="string">"guest"</span>);</span><br><span class="line">        cachingConnectionFactory.setVirtualHost(<span class="string">"/"</span>);</span><br><span class="line">        <span class="keyword">return</span> cachingConnectionFactory;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RabbitAdmin <span class="title">rabbitAdmin</span><span class="params">(ConnectionFactory connectionFactory)</span></span>&#123;</span><br><span class="line">        RabbitAdmin rabbitAdmin = <span class="keyword">new</span> RabbitAdmin(connectionFactory);</span><br><span class="line">        rabbitAdmin.setAutoStartup(<span class="keyword">true</span>);</span><br><span class="line">        <span class="keyword">return</span> rabbitAdmin;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里，我直接写在启动器类了，注入<code>RabbitAdmin</code>前提是注入<code>ConnectionFactory</code>，这里使用的<code>spring.amqp</code>下的而不是之前使用的<code>rabbit</code>下的<code>ConnectionFactory</code></p>
+<p>需要注意的是 <code>rabbitAdmin.setAutoStartup(true);</code> 要设置为true，不然不会被加载此类</p>
+<h4 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h4><p>接着我们在Test类进行测试，简单的创建一个交换机，试试是否注入成功</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith</span>(SpringRunner<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">SpringBootTest</span></span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">ApplicationTests</span> </span>&#123;</span><br><span class="line">   </span><br><span class="line">   <span class="meta">@Autowired</span></span><br><span class="line">   <span class="keyword">private</span> RabbitAdmin rabbitAdmin;</span><br><span class="line">   </span><br><span class="line">   <span class="meta">@Test</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testAdmin</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">      <span class="comment">// 添加Exchange</span></span><br><span class="line">      rabbitAdmin.declareExchange(<span class="keyword">new</span> DirectExchange(<span class="string">"spring.direct"</span>,<span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">null</span>));</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里使用SpringBoot的Test类，然后运行，查看控制台</p>
+<p><img src="/image/1577331837654.png" alt="1577331837654"></p>
+<p>成功创建，说明<code>RabbitAdmin</code>注入成功</p>
+<h3 id="RabbiAdmin基本操作"><a href="#RabbiAdmin基本操作" class="headerlink" title="RabbiAdmin基本操作"></a>RabbiAdmin基本操作</h3><h4 id="针对Exchange"><a href="#针对Exchange" class="headerlink" title="针对Exchange"></a>针对Exchange</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testExchange</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">   <span class="comment">/* 对Exchange的操作 */</span></span><br><span class="line">   <span class="comment">// 添加Exchange</span></span><br><span class="line">   rabbitAdmin.declareExchange(<span class="keyword">new</span> DirectExchange(<span class="string">"spring.direct"</span>,</span><br><span class="line">         <span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">null</span>));</span><br><span class="line">   <span class="comment">// 添加 topic类型的Exchange</span></span><br><span class="line">   rabbitAdmin.declareExchange(<span class="keyword">new</span> TopicExchange(<span class="string">"spring.topic"</span>,</span><br><span class="line">         <span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">null</span>));</span><br><span class="line">   <span class="comment">// 添加fanout类型的Exchange</span></span><br><span class="line">   rabbitAdmin.declareExchange(<span class="keyword">new</span> FanoutExchange(<span class="string">"spring.fanout"</span>,</span><br><span class="line">         <span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">null</span>));</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 删除Exchange</span></span><br><span class="line">   rabbitAdmin.deleteExchange(<span class="string">"spring.fanout"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>具有声明以及删除的操作</p>
+<h4 id="针对Queue"><a href="#针对Queue" class="headerlink" title="针对Queue"></a>针对Queue</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testQueue</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">   <span class="comment">/* 对Queue的操作 */</span></span><br><span class="line">   <span class="comment">// 创建Queue，并设置不持久化</span></span><br><span class="line">   rabbitAdmin.declareQueue(<span class="keyword">new</span> Queue(<span class="string">"spring.direct.queue"</span>,<span class="keyword">false</span>));</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 获取Queue的属性</span></span><br><span class="line">   Properties properties = rabbitAdmin.getQueueProperties(<span class="string">"spring.direct.queue"</span>);</span><br><span class="line">   System.out.println(properties);</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 删除Queue</span></span><br><span class="line">   rabbitAdmin.deleteQueue(<span class="string">"spring.direct.queue"</span>);</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 清空Queue中的消息</span></span><br><span class="line">   <span class="comment">// 这里使用死信队列，因为之前有一条死信消息没有被消费</span></span><br><span class="line">   rabbitAdmin.purgeQueue(<span class="string">"dlx_queue"</span>,<span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们获取了Queue中的信息，主要获取到了消费者数量，信息数量，队列名，如下图：</p>
+<p><img src="/image/1577342664941.png" alt="1577342664941"></p>
+<h4 id="针对Binding"><a href="#针对Binding" class="headerlink" title="针对Binding"></a>针对Binding</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testBinding</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">   <span class="comment">/* 对Binding的操作 */</span></span><br><span class="line">   <span class="comment">// 添加Exchange与Queue绑定关系，先添加一条队列和一个Exchange</span></span><br><span class="line">   rabbitAdmin.declareExchange(<span class="keyword">new</span> DirectExchange(<span class="string">"spring.direct"</span>,<span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">null</span>));</span><br><span class="line">   rabbitAdmin.declareQueue(<span class="keyword">new</span> Queue(<span class="string">"spring.direct.queue"</span>,<span class="keyword">false</span>));</span><br><span class="line">   rabbitAdmin.declareBinding(<span class="keyword">new</span> Binding(</span><br><span class="line">         <span class="string">"spring.direct.queue"</span>, <span class="comment">// 队列名</span></span><br><span class="line">         Binding.DestinationType.QUEUE, <span class="comment">// 绑定的是队列，也可以交换机之间进行绑定</span></span><br><span class="line">         <span class="string">"spring.direct"</span>, <span class="comment">// 交换机名称</span></span><br><span class="line">         <span class="string">"direct"</span>, <span class="comment">// 路由键</span></span><br><span class="line">         <span class="keyword">null</span>));</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 解除绑定关系</span></span><br><span class="line">   rabbitAdmin.removeBinding(<span class="keyword">new</span> Binding(</span><br><span class="line">         <span class="string">"spring.direct.queue"</span>, <span class="comment">// 队列名</span></span><br><span class="line">         Binding.DestinationType.QUEUE, <span class="comment">// 绑定的是队列，也可以交换机之间进行绑定</span></span><br><span class="line">         <span class="string">"spring.direct"</span>, <span class="comment">// 交换机名称</span></span><br><span class="line">         <span class="string">"direct"</span>, <span class="comment">// 路由键</span></span><br><span class="line">         <span class="keyword">null</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要就是绑定和解绑</p>
+<h3 id="注解声明"><a href="#注解声明" class="headerlink" title="注解声明"></a>注解声明</h3><p>在刚开始学习RabbitMQ的时候，使用最基础的<code>API</code>进行创建Exchange，Queue或Binding</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">channel.exchangeDeclare(exchange,<span class="string">"topic"</span>,<span class="keyword">true</span>);</span><br><span class="line">channel.queueDeclare(queue,<span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">false</span>,<span class="keyword">null</span>);</span><br><span class="line">channel.queueBind(queue,exchange,routingKey);</span><br></pre></td></tr></table></figure>
+
+<p>通过上面的学习，我们使用<code>RabbitAdmin</code>进行创建</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rabbitAdmin.declareExchange(DirectExchange);</span><br><span class="line">rabbitAdmin.declareQueue(Queue);</span><br><span class="line">rabbitAdmin.declareBinding(Binding);</span><br></pre></td></tr></table></figure>
+
+<p>那么有没有更简单的创建方式呢？</p>
+<p>就是使用<code>@Bean</code>注解进行声明，放入到容器中，然后配合<code>RabbitAdmin</code>会自动进行加载并统一创建</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RabbitBean</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> DirectExchange <span class="title">directExchange</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> DirectExchange(<span class="string">"spring.ann.direct"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Queue <span class="title">queue</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Queue(<span class="string">"spring.ann.direct.queue"</span>,<span class="keyword">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Binding <span class="title">binding</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Binding(<span class="string">"spring.ann.direct.queue"</span>,</span><br><span class="line">                Binding.DestinationType.QUEUE,</span><br><span class="line">                <span class="string">"spring.ann.direct"</span>,</span><br><span class="line">                <span class="string">"ann.direct"</span>,</span><br><span class="line">                <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我创建一个<code>RabbitBean</code>类，并添加<code>@Component</code>注解，使之注入到上下文容器中。</p>
+<p>然后再到Test测试类，随便执行一条<code>RabbitAdmin</code>的语句，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testQueue</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">   rabbitAdmin.purgeQueue(<span class="string">"dlx_queue"</span>,<span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时，回到控制台，会发现已经创建成功，并绑定了关联关系</p>
+<p><img src="/image/1577347040970.png" alt="1577347040970"></p>
+<p><strong>注意：必须使用<code>rabbitAdmin</code>执行某个方法，才能成功创建</strong></p>
+<p>为什么要这样呢？我们进入源码探究</p>
+<h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><p>首先进入到<code>RabbitAdmin</code>类中</p>
+<p><img src="/image/1577347472865.png" alt="1577347472865"></p>
+<p>可以发现之前那些创建Exchange，Queue的方法，都是先调用<code>RabbitTemplate</code>，<strong>由<code>RabbitTemplate</code>创建<code>Channel</code>再返回<code>RabbitAdmin</code>的<code>ChannelCallback()</code>回调函数</strong></p>
+<p>比如如下的回调函数：</p>
+<p><img src="/image/1577347668908.png" alt="1577347668908"></p>
+<p>最终调用的方法和我们一开始单独使用rabbitmq时一样</p>
+<p>接着我们看看<code>RabbitAdmin</code>是如何自动创建被<code>@Bean</code>声明的交换机队列的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RabbitAdmin</span> <span class="keyword">implements</span> <span class="title">AmqpAdmin</span>, <span class="title">ApplicationContextAware</span>, <span class="title">ApplicationEventPublisherAware</span>,</span></span><br><span class="line"><span class="class">      <span class="title">InitializingBean</span> </span>&#123;</span><br></pre></td></tr></table></figure>
+
+<p>首先在类的实现接口中，就能发现端倪，<code>InitializingBean</code>，初始化Bean，按理说要自动创建肯定是初始化的时候，那么和这个接口肯定息息相关</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">InitializingBean</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个类中只有一个方法，就是初始化之后执行的方法，再回到<code>RabbitAdmin</code>中看看这个方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">synchronized</span> (<span class="keyword">this</span>.lifecycleMonitor) &#123;</span><br><span class="line">	  <span class="comment">// 判断autoStartup是否开启 也是我们一开始说的那个参数，只有开启了才会接着加载</span></span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.running || !<span class="keyword">this</span>.autoStartup) &#123;</span><br><span class="line">         <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      ··· <span class="comment">// 省略一些配置</span></span><br><span class="line">	 <span class="comment">//  添加一个Connection监听器</span></span><br><span class="line">      <span class="keyword">this</span>.connectionFactory.addConnectionListener(<span class="keyword">new</span> ConnectionListener() &#123;</span><br><span class="line"></span><br><span class="line">         <span class="comment">// Prevent stack overflow...</span></span><br><span class="line">         <span class="keyword">private</span> <span class="keyword">final</span> AtomicBoolean initializing = <span class="keyword">new</span> AtomicBoolean(<span class="keyword">false</span>);</span><br><span class="line"></span><br><span class="line">         <span class="meta">@Override</span> <span class="comment">// 当创建连接时 执行</span></span><br><span class="line">         <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Connection connection)</span> </span>&#123;</span><br><span class="line">             <span class="keyword">if</span> (RabbitAdmin.<span class="keyword">this</span>.retryTemplate != <span class="keyword">null</span>) &#123;</span><br><span class="line">                 RabbitAdmin.<span class="keyword">this</span>.retryTemplate.execute(</span><br><span class="line">                     <span class="keyword">new</span> RetryCallback&lt;Object, RuntimeException&gt;() &#123;</span><br><span class="line">                         <span class="meta">@Override</span></span><br><span class="line">                         <span class="function"><span class="keyword">public</span> Object <span class="title">doWithRetry</span><span class="params">(RetryContext c)</span> <span class="keyword">throws</span> RuntimeException </span>&#123;</span><br><span class="line">                             initialize();</span><br><span class="line">                             <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">                         &#125;</span><br><span class="line">                     &#125;);</span><br><span class="line">         	&#125;</span><br><span class="line">      &#125;);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里主要是添加一个<code>connection</code>监听器，并当监听器连接时，调用<code>initialize()</code>方法，然后我们再进入这个方法看看</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initialize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 先创建各种类型的集合，用来保存Exchange，Queue等等</span></span><br><span class="line">   Collection&lt;Exchange&gt; contextExchanges = <span class="keyword">new</span> LinkedList&lt;Exchange&gt;(</span><br><span class="line">         <span class="keyword">this</span>.applicationContext.getBeansOfType(Exchange<span class="class">.<span class="keyword">class</span>).<span class="title">values</span>())</span>;</span><br><span class="line">   Collection&lt;Queue&gt; contextQueues = <span class="keyword">new</span> LinkedList&lt;Queue&gt;(</span><br><span class="line">         <span class="keyword">this</span>.applicationContext.getBeansOfType(Queue<span class="class">.<span class="keyword">class</span>).<span class="title">values</span>())</span>;</span><br><span class="line">   Collection&lt;Binding&gt; contextBindings = <span class="keyword">new</span> LinkedList&lt;Binding&gt;(</span><br><span class="line">         <span class="keyword">this</span>.applicationContext.getBeansOfType(Binding<span class="class">.<span class="keyword">class</span>).<span class="title">values</span>())</span>;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@SuppressWarnings</span>(<span class="string">"rawtypes"</span>)</span><br><span class="line">    <span class="comment">// 从上下文容器中获取Exchange，Queue，Binding类型的类</span></span><br><span class="line">    <span class="comment">// 这里就是获取我们刚刚使用@Bean进行声明的类</span></span><br><span class="line">   Collection&lt;Collection&gt; collections = <span class="keyword">this</span>.declareCollections</span><br><span class="line">         ? <span class="keyword">this</span>.applicationContext.getBeansOfType(Collection<span class="class">.<span class="keyword">class</span>, <span class="title">false</span>, <span class="title">false</span>).<span class="title">values</span>()</span></span><br><span class="line">         : Collections.&lt;Collection&gt;emptyList();</span><br><span class="line">   <span class="keyword">for</span> (Collection&lt;?&gt; collection : collections) &#123;</span><br><span class="line">      <span class="keyword">if</span> (collection.size() &gt; <span class="number">0</span> &amp;&amp; collection.iterator().next() <span class="keyword">instanceof</span> Declarable) &#123;</span><br><span class="line">         <span class="keyword">for</span> (Object declarable : collection) &#123;</span><br><span class="line">            <span class="keyword">if</span> (declarable <span class="keyword">instanceof</span> Exchange) &#123;</span><br><span class="line">               contextExchanges.add((Exchange) declarable);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (declarable <span class="keyword">instanceof</span> Queue) &#123;</span><br><span class="line">               contextQueues.add((Queue) declarable);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (declarable <span class="keyword">instanceof</span> Binding) &#123;</span><br><span class="line">               contextBindings.add((Binding) declarable);</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">final</span> Collection&lt;Exchange&gt; exchanges = filterDeclarables(contextExchanges);</span><br><span class="line">   <span class="keyword">final</span> Collection&lt;Queue&gt; queues = filterDeclarables(contextQueues);</span><br><span class="line">   <span class="keyword">final</span> Collection&lt;Binding&gt; bindings = filterDeclarables(contextBindings);</span><br><span class="line"></span><br><span class="line">   ··· <span class="comment">// 保存日志</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// 如果没有声明，直接返回不用创建</span></span><br><span class="line">   <span class="keyword">if</span> (exchanges.size() == <span class="number">0</span> &amp;&amp; queues.size() == <span class="number">0</span> &amp;&amp; bindings.size() == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">this</span>.logger.debug(<span class="string">"Nothing to declare"</span>);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">this</span>.rabbitTemplate.execute(<span class="keyword">new</span> ChannelCallback&lt;Object&gt;() &#123;</span><br><span class="line">	  <span class="comment">// 将被@Bean声明的那些Exchange，Queue，Binding进行创建</span></span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> Object <span class="title">doInRabbit</span><span class="params">(Channel channel)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">         declareExchanges(channel, exchanges.toArray(<span class="keyword">new</span> Exchange[exchanges.size()]));</span><br><span class="line">         declareQueues(channel, queues.toArray(<span class="keyword">new</span> Queue[queues.size()]));</span><br><span class="line">         declareBindings(channel, bindings.toArray(<span class="keyword">new</span> Binding[bindings.size()]));</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;);</span><br><span class="line">   <span class="keyword">this</span>.logger.debug(<span class="string">"Declarations finished"</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过这段源码的查看，就清晰明了了，会将<code>applicationcontext</code>中的所有Exchange，Queue，Binding类型的对象进行取出，再统一通过<code>channel</code>进行创建。</p>
+<p>这里又回到我们刚刚的问题了，为何必须使用<code>RabbitAdmin</code>执行某一个方法，才能创建？</p>
+<ul>
+<li>首先通过源码可以知道，想要创建，必须由监听器监听到<code>connection</code>连接，才会走初始化方法</li>
+<li>那么可以确定就是如果不使用RabbitAdmin执行某个方法，那么它不会进行<code>connection</code>连接，所以这里我大胆猜测，<strong><code>RabbitAdmin</code>是懒加载的</strong>，只有使用到它，它才会进行连接</li>
+<li>所以我们必须要执行某个方法，让他进行连接，才能进行声明式<code>Bean</code>的创建</li>
+</ul>
+<h2 id="RabbitTemplate"><a href="#RabbitTemplate" class="headerlink" title="RabbitTemplate"></a>RabbitTemplate</h2><p><code>RabbitTemplate</code>是一个非常好用的消息模板组件，它是非常重要的消息发送类，有大量不同的<code>send API</code>，可以非常灵活的进行消息发送。</p>
+<p>他还提供了可靠性投递，回调监听<code>ConfirmCallBack</code>，返回确认<code>ReturnCallBack</code>等方法，来实现<code>Confirm</code>与<code>Return</code></p>
+<h3 id="注入到容器中"><a href="#注入到容器中" class="headerlink" title="注入到容器中"></a>注入到容器中</h3><p>RabbitTemplate和RabbitAdmin一样，都需要注入到上下文里</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> RabbitTemplate <span class="title">rabbitTemplate</span><span class="params">(ConnectionFactory connectionFactory)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> RabbitTemplate(connectionFactory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里可以进行confirm已经return方法的编写，如下</p>
+<p><img src="../../1%E7%AC%94%E8%AE%B0/image/1577351440989.png" alt="1577351440989"></p>
+<p>这里我就不做添加了。</p>
+<h3 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h3><p>首先可以看到RabbitTemplate有重载了大量的发送消息方法，进行灵活多样的操作</p>
+<p><img src="../../1%E7%AC%94%E8%AE%B0/image/1577351301968.png" alt="1577351301968"></p>
+<p>接下来我们通过RabbitTemplate进行发消息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith</span>(SpringRunner<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">SpringBootTest</span></span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">RabbitTemplateTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RabbitTemplate rabbitTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendMessage</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">// Message的Properties配置</span></span><br><span class="line">        MessageProperties messageProperties = <span class="keyword">new</span> MessageProperties();</span><br><span class="line">        messageProperties.setHeader(<span class="string">"desc"</span>,<span class="string">"一些信息"</span>); <span class="comment">// 添加Header</span></span><br><span class="line">        String msg = <span class="string">"hello rabbitTemplate"</span>;</span><br><span class="line">        <span class="comment">// 创建消息</span></span><br><span class="line">        Message message = <span class="keyword">new</span> Message(msg.getBytes(),messageProperties);</span><br><span class="line">        <span class="comment">// 发送一条消息 投递到spring.ann.direct Exchange上，路由键为ann.direct</span></span><br><span class="line">        rabbitTemplate.convertAndSend(<span class="string">"spring.ann.direct"</span>,<span class="string">"ann.direct"</span>,message);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 发送一条消息，并添加后置处理，添加一些额外的信息</span></span><br><span class="line">        rabbitTemplate.convertAndSend(<span class="string">"spring.ann.direct"</span>, <span class="string">"ann.direct"</span>, message,</span><br><span class="line">                <span class="keyword">new</span> MessagePostProcessor() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> Message <span class="title">postProcessMessage</span><span class="params">(Message message)</span> <span class="keyword">throws</span> AmqpException </span>&#123;</span><br><span class="line">                message.getMessageProperties().setHeader(<span class="string">"ex"</span>,<span class="string">"postProcess Msg"</span>);</span><br><span class="line">                <span class="keyword">return</span> message;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 这里也可以使用send进行发送</span></span><br><span class="line">        rabbitTemplate.send(<span class="string">"spring.ann.direct"</span>,<span class="string">"ann.direct"</span>,message);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 简单的发送一条字符串信息</span></span><br><span class="line">        rabbitTemplate.convertAndSend(<span class="string">"spring.ann.direct"</span>,<span class="string">"ann.direct"</span>,<span class="string">"simple send"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们使用了几种常用发送方式，但其实它还有更多更灵活的发送方式</p>
+<ul>
+<li><code>convertAndSend(String exchange, String routingKey, final Object object)</code>：简单的发送方式，exchange，routingkey进行对应，最后消息的类型可以是多种多样的，底层进行转换，字符串或者<code>Message</code>类封装</li>
+<li><code>convertAndSend(String exchange, String routingKey, final Object message,final MessagePostProcessor messagePostProcessor)</code>：添加一个后置处理器，根据需求处理</li>
+<li><code>send(final String exchange, final String routingKey, final Message message)</code>：<code>send</code>方法的不同是必须是<code>Message</code>类型的参数，而<code>convertAndSend</code>是<code>Object</code></li>
+</ul>
+<p><img src="../../1%E7%AC%94%E8%AE%B0/image/1577352468337.png" alt="1577352468337"></p>
+<p>发送完可以看到有4条消息，点进去详细查看</p>
+<p><img src="../../1%E7%AC%94%E8%AE%B0/image/1577352679509.png" alt="1577352679509"></p>
+<p>这里可以看到，第二第三条消息都添加了后置处理的<code>header</code>头，是因为在第二条消息发送的时候，那个<code>MessagePostProcessor</code>方法中，就已经在<code>Message</code>对象添加<code>header</code>头了，所以在第三条消息发送时，并不是他也进行了后置方法，只是<code>Message</code>对象还是用的原来的，导致也出现<code>postProcess Msg</code>（如果图片看不清，可以右键在新建标签页打开查看）</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/rabbitmq/" rel="tag"># rabbitmq</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/26/rb11-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97/" rel="next" title="RabbitMQ高级-死信队列">
+                <i class="fa fa-chevron-left"></i> RabbitMQ高级-死信队列
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/27/rb13-RabbitMQ%E6%95%B4%E5%90%88-SpringAMQP%E4%BA%8C/" rel="prev" title="RabbitMQ整合-SpringAMQP(二)">
+                RabbitMQ整合-SpringAMQP(二) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">47</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringAMQP核心内容"><span class="nav-number">1.</span> <span class="nav-text">SpringAMQP核心内容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RabbitAdmin"><span class="nav-number">2.</span> <span class="nav-text">RabbitAdmin</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#快速入门"><span class="nav-number">2.1.</span> <span class="nav-text">快速入门</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#添加依赖"><span class="nav-number">2.1.1.</span> <span class="nav-text">添加依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注入RabbitAdmin"><span class="nav-number">2.1.2.</span> <span class="nav-text">注入RabbitAdmin</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试"><span class="nav-number">2.1.3.</span> <span class="nav-text">测试</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RabbiAdmin基本操作"><span class="nav-number">2.2.</span> <span class="nav-text">RabbiAdmin基本操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#针对Exchange"><span class="nav-number">2.2.1.</span> <span class="nav-text">针对Exchange</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#针对Queue"><span class="nav-number">2.2.2.</span> <span class="nav-text">针对Queue</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#针对Binding"><span class="nav-number">2.2.3.</span> <span class="nav-text">针对Binding</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注解声明"><span class="nav-number">2.3.</span> <span class="nav-text">注解声明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#源码分析"><span class="nav-number">2.4.</span> <span class="nav-text">源码分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RabbitTemplate"><span class="nav-number">3.</span> <span class="nav-text">RabbitTemplate</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#注入到容器中"><span class="nav-number">3.1.</span> <span class="nav-text">注入到容器中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#发送消息"><span class="nav-number">3.2.</span> <span class="nav-text">发送消息</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
