@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="rabbitmq," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="快速入门相同配置这里我们把生产端和消费端分离，为两个不同的模块 但是具有相同的一些配置 Maven依赖添加SpringBoot依赖">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ整合-SpringBoot">
+<meta property="og:url" content="http://yoursite.com/2019/12/30/rb14-RabbitMQ%E6%95%B4%E5%90%88-SpringBoot/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="快速入门相同配置这里我们把生产端和消费端分离，为两个不同的模块 但是具有相同的一些配置 Maven依赖添加SpringBoot依赖">
+<meta property="og:image" content="http://yoursite.com/image/1577439608213.png">
+<meta property="og:image" content="http://yoursite.com/image/1577440573875.png">
+<meta property="og:image" content="http://yoursite.com/image/1577537627880.png">
+<meta property="og:image" content="http://yoursite.com/image/1577537595324.png">
+<meta property="og:image" content="http://yoursite.com/image/1577537473224.png">
+<meta property="og:image" content="http://yoursite.com/image/1577535737626.png">
+<meta property="article:published_time" content="2019-12-30T01:21:09.000Z">
+<meta property="article:modified_time" content="2019-12-30T01:22:34.124Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="rabbitmq">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1577439608213.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/30/rb14-RabbitMQ整合-SpringBoot/"/>
+
+
+
+
+
+  <title>RabbitMQ整合-SpringBoot | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/30/rb14-RabbitMQ%E6%95%B4%E5%90%88-SpringBoot/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RabbitMQ整合-SpringBoot</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-30T09:21:09+08:00">
+                2019-12-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rabbitmq/" itemprop="url" rel="index">
+                    <span itemprop="name">rabbitmq</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="快速入门"><a href="#快速入门" class="headerlink" title="快速入门"></a>快速入门</h2><h3 id="相同配置"><a href="#相同配置" class="headerlink" title="相同配置"></a>相同配置</h3><p>这里我们把生产端和消费端分离，为两个不同的模块</p>
+<p>但是具有相同的一些配置</p>
+<h4 id="Maven依赖"><a href="#Maven依赖" class="headerlink" title="Maven依赖"></a>Maven依赖</h4><p>添加SpringBoot依赖</p>
+<a id="more"></a>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.14.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">project.reporting.outputEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.reporting.outputEncoding</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-amqp<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h4><p>修改application.properties配置文件</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rabbitmq 连接配置</span></span><br><span class="line"><span class="meta">spring.rabbitmq.addresses</span>=<span class="string">192.168.56.120:5672</span></span><br><span class="line"><span class="meta">spring.rabbitmq.username</span>=<span class="string">guest</span></span><br><span class="line"><span class="meta">spring.rabbitmq.password</span>=<span class="string">guest</span></span><br><span class="line"><span class="meta">spring.rabbitmq.virtual-host</span>=<span class="string">/</span></span><br></pre></td></tr></table></figure>
+
+<p>这里使用配置的方式，也是和Spring一大不同，不用再去配置ConnectionFactory去获取连接了，因为SpringBoot有大量的自动配置类，自动进行初始化并添加到ApplicationContext中</p>
+<h3 id="生产端快速入门"><a href="#生产端快速入门" class="headerlink" title="生产端快速入门"></a>生产端快速入门</h3><p>想要快速的使用RabbitMQ在SpringBoot中非常简单</p>
+<p><strong>1.创建启动器类</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(Application<span class="class">.<span class="keyword">class</span>,<span class="title">args</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2.创建一个测试类发送消息</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith</span>(SpringRunner<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">SpringBootTest</span></span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">ApplicationTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RabbitTemplate rabbitTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendMsg</span><span class="params">()</span></span>&#123;</span><br><span class="line">        MessageProperties properties = <span class="keyword">new</span> MessageProperties();</span><br><span class="line">        String str = <span class="keyword">new</span> String(<span class="string">"msg"</span>);</span><br><span class="line">        Message msg = <span class="keyword">new</span> Message(str.getBytes(),properties);</span><br><span class="line"></span><br><span class="line">        rabbitTemplate.send(<span class="string">"springboot.exchange"</span>,<span class="string">"springboot.test"</span>,msg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注：这里的exchange需要自己去创建一个，我这个是直接在控制台创建的</p>
+<p><strong>3.运行测试类</strong></p>
+<p><img src="/image/1577439608213.png" alt="1577439608213"></p>
+<p>运行后，可以看到队列中有一条消息等待消费了</p>
+<h3 id="消费端快速入门"><a href="#消费端快速入门" class="headerlink" title="消费端快速入门"></a>消费端快速入门</h3><p>消费端的使用就更简单了，主要就是<code>@RabbitListener</code>这个注解</p>
+<p><strong>1.创建启动器类和配置（同生产端）</strong></p>
+<p><strong>2.创建一个Consumer类</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Consumer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RabbitListener</span>(queues = <span class="string">"springboot.queue"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(Message message)</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="keyword">new</span> String(message.getBody()));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>分为两步走：</p>
+<ul>
+<li>添加@Component注解，将消费者注入到容器中</li>
+<li>在方法上添加<code>@RabbitListener</code>注解，指定队列名，便可以持续监听消费</li>
+</ul>
+<p><strong>3.启动Application测试</strong></p>
+<p><img src="/image/1577440573875.png" alt="1577440573875"></p>
+<p>正确消费</p>
+<p><strong>对于SpringBoot使用RabbitMQ就是这么简单</strong>，接下来说一些其他重要使用方式</p>
+<h2 id="生产端高级使用"><a href="#生产端高级使用" class="headerlink" title="生产端高级使用"></a>生产端高级使用</h2><h3 id="消息的confirm和return机制"><a href="#消息的confirm和return机制" class="headerlink" title="消息的confirm和return机制"></a>消息的confirm和return机制</h3><p>使用springboot时，在application.properties中进行一些配置，可以简单方便的开启一些高级特性，比如：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开启confirm机制</span></span><br><span class="line"><span class="meta">spring.rabbitmq.publisher-confirms</span>=<span class="string">true</span></span><br><span class="line"><span class="comment"># 开启return模式</span></span><br><span class="line"><span class="meta">spring.rabbitmq.publisher-returns</span>=<span class="string">true</span></span><br><span class="line"><span class="comment"># 配合return机制使用，表示接收路由不可达的消息</span></span><br><span class="line"><span class="meta">spring.rabbitmq.template.mandatory</span>=<span class="string">true</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>publisher-confirms</code>：开启Confirm，对应需要创建Confirm监听器，进行confirm处理，使用 <code>RabbitTemplate.ConfirmCallback</code>，然后为RabbitTemplate进行设置<code>setConfirmCallback()</code></li>
+<li><code>publisher-returns</code>：开启Return机制，对应需要创建Confirm监听器，进行confirm处理，使用 <code>RabbitTemplate.ReturnCallback</code>，然后为RabbitTemplate进行设置<code>setReturnCallback()</code></li>
+</ul>
+<h4 id="代码演示"><a href="#代码演示" class="headerlink" title="代码演示"></a>代码演示</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith</span>(SpringRunner<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">SpringBootTest</span></span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">SendTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RabbitTemplate rabbitTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> RabbitTemplate.ConfirmCallback confirmCallback = <span class="keyword">new</span> RabbitTemplate.ConfirmCallback() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">confirm</span><span class="params">(CorrelationData correlationData, <span class="keyword">boolean</span> ack, String cause)</span> </span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"------------- confirm Callback --------------"</span>);</span><br><span class="line">            System.out.println(<span class="string">"correlationData："</span> + correlationData);</span><br><span class="line">            System.out.println(<span class="string">"ack："</span> + ack);</span><br><span class="line">            System.out.println(<span class="string">"cause："</span> + cause);</span><br><span class="line">            <span class="keyword">if</span>(!ack)&#123;</span><br><span class="line">                System.err.println(<span class="string">"ack false，进行补偿机制"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> RabbitTemplate.ReturnCallback returnCallback = <span class="keyword">new</span> RabbitTemplate.ReturnCallback() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">returnedMessage</span><span class="params">(Message message, <span class="keyword">int</span> replyCode, String replyText, String exchange, String routingKey)</span> </span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"------------- return Callback --------------"</span>);</span><br><span class="line">            System.out.println(<span class="string">"return exchange: "</span> + exchange + <span class="string">", routingKey: "</span></span><br><span class="line">                    + routingKey + <span class="string">", replyCode: "</span> + replyCode + <span class="string">", replyText: "</span> + replyText);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendMsg</span><span class="params">()</span></span>&#123;</span><br><span class="line">        MessageProperties properties = <span class="keyword">new</span> MessageProperties();</span><br><span class="line">        String str = <span class="keyword">new</span> String(<span class="string">"RabbitMQ SpringBoot Quick Start"</span>);</span><br><span class="line">        Message msg = <span class="keyword">new</span> Message(str.getBytes(),properties);</span><br><span class="line">        <span class="comment">// 为RabbitTemplate添加Confirm Return</span></span><br><span class="line">        rabbitTemplate.setConfirmCallback(confirmCallback);</span><br><span class="line">        rabbitTemplate.setReturnCallback(returnCallback);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//需保证全局唯一 ，这个是实际消息的ID</span></span><br><span class="line">        <span class="comment">//在做补偿性机制的时候通过ID来获取到这条消息进行重发</span></span><br><span class="line">        String id = UUID.randomUUID().toString();</span><br><span class="line">        CorrelationData correlationData = <span class="keyword">new</span> CorrelationData(id);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//rabbitTemplate.send("springboot.exchange","springboot.test",msg,correlationData);</span></span><br><span class="line">        <span class="comment">// 不存在的exchange，测试confirm中 ack为false的情况</span></span><br><span class="line">        <span class="comment">//rabbitTemplate.send("rbtError","1",msg,correlationData);</span></span><br><span class="line">        <span class="comment">// 不存在的routingKey，测试return机制</span></span><br><span class="line">        rabbitTemplate.send(<span class="string">"springboot.exchange"</span>,<span class="string">"1"</span>,msg,correlationData);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码非常简单，首先创建两个Callback类，进行方法实现，然后再发消息时进行设置，这里我发送三次消息</p>
+<p><strong>第一次，正确的消息投递</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitTemplate.send(<span class="string">"springboot.exchange"</span>,<span class="string">"springboot.test"</span>,msg,correlationData);</span><br></pre></td></tr></table></figure>
+
+<p>控制台打印：</p>
+<p><img src="/image/1577537627880.png" alt="1577537627880"></p>
+<p><strong>第二次，不存在的exchange，错误投递，走confirm，但是ack为false</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitTemplate.send(<span class="string">"springboot.exchange"</span>,<span class="string">"1"</span>,msg,correlationData);</span><br></pre></td></tr></table></figure>
+
+<p>控制台打印：</p>
+<p><img src="/image/1577537595324.png" alt="1577537595324"></p>
+<p><strong>第三次，不存在的routingkey，即路由不可达，走return机制</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitTemplate.send(<span class="string">"springboot.exchange"</span>,<span class="string">"1"</span>,msg,correlationData);</span><br></pre></td></tr></table></figure>
+
+<p>控制台打印：</p>
+<p><img src="/image/1577537473224.png" alt="1577537473224"></p>
+<h2 id="消费端高级使用"><a href="#消费端高级使用" class="headerlink" title="消费端高级使用"></a>消费端高级使用</h2><p>对于消费端来说，最重要的就是两个注解 </p>
+<ul>
+<li><code>@RabbitListener</code> ：使用这个注解标记方法，用来监听配置的队列，也可以声明绑定关系在RabbitMQ中创建</li>
+<li><code>@RabbitHandler</code>：表示这个方法是一个RabbitMQ的消费方法，一般配合<code>@RabbitListener</code>使用</li>
+</ul>
+<h3 id="RabbitListener-使用方式"><a href="#RabbitListener-使用方式" class="headerlink" title="@RabbitListener 使用方式"></a>@RabbitListener 使用方式</h3><p>使用方式主要有两种</p>
+<ul>
+<li>一种是直接配置监听的队列，如果有消息就进行消费</li>
+<li>第二种是可以声明绑定关系，这样如果MQ中没有这些<code>Exchange</code>，<code>Queue</code>会自动创建，有的话就不创建</li>
+</ul>
+<p><strong>第一种使用方式</strong></p>
+<p>就是我们快速入门中的使用方式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RabbitListener</span>(queues = &#123;<span class="string">"springboot.queue"</span>,<span class="string">"springboot.queue2"</span>&#125;)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(Message message)</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="keyword">new</span> String(message.getBody()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里可以声明多个</p>
+<p><strong>第二种使用方式</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RabbitListener</span>(bindings = <span class="meta">@QueueBinding</span>(</span><br><span class="line">    value = <span class="meta">@Queue</span>(value = <span class="string">"springboot.queue"</span>,durable = <span class="string">"true"</span>),</span><br><span class="line">    exchange = <span class="meta">@Exchange</span>(value = <span class="string">"springboot.exchange"</span>,type = <span class="string">"topic"</span>),</span><br><span class="line">    key = <span class="string">"springboot.#"</span></span><br><span class="line">))</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(Message message)</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="keyword">new</span> String(message.getBody()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如上代码，可以配置<code>Binding</code>（多个），如果没有这样的绑定关系，会根据是否存在<code>Queue</code>，<code>Exchange</code>进行创建</p>
+<h3 id="RabbitHandler-使用方式"><a href="#RabbitHandler-使用方式" class="headerlink" title="@RabbitHandler 使用方式"></a>@RabbitHandler 使用方式</h3><p>这个注解一般配置<code>@RabbitListener</code>使用，并且<strong>当<code>@RabbitListener</code>绑定在类上时</strong></p>
+<ul>
+<li><code>@RabbitListener</code> 可以标注在类上面，需配合 <code>@RabbitHandler</code> 注解一起使用</li>
+<li><code>@RabbitListener</code> 标注在类上面表示当有收到消息的时候，就交给 <code>@RabbitHandler</code> 的方法处理，具体使用哪个方法处理，根据 <code>MessageConverter</code>转换后的参数类型</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@RabbitListener</span>(queues = <span class="string">"springboot.exchange"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Receiver</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RabbitHandler</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processMessage1</span><span class="params">(String message)</span> </span>&#123;</span><br><span class="line">        System.out.println(message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RabbitHandler</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processMessage2</span><span class="params">(<span class="keyword">byte</span>[] message)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="keyword">new</span> String(message));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Payload与-Headers"><a href="#Payload与-Headers" class="headerlink" title="@Payload与@Headers"></a>@Payload与@Headers</h3><p>这也是RabbitMQ对于SpringBoot来说，常用的一种注解方式，主要<strong>用作方法的入参上</strong>，类似<code>@RequestParam</code></p>
+<ul>
+<li><code>@Payload</code>：绑定入参，表示此参数为消息的<code>body</code></li>
+<li><code>@Headers</code>：绑定入参，表示此参数为消息的<code>Properties</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RabbitListener</span>(queues = &#123;<span class="string">"springboot.queue"</span>,<span class="string">"springboot.queue2"</span>&#125;)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(@Payload <span class="keyword">byte</span>[] body, @Headers Map&lt;String,Object&gt; headers)</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"使用@Payload接收的body："</span> + <span class="keyword">new</span> String(body));</span><br><span class="line">    System.out.println(<span class="string">"使用@Headers接收的headers："</span> + headers);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1577535737626.png" alt="1577535737626"></p>
+<p>打印出消息体以及消息的<code>Properties</code>信息</p>
+<p>也可以使用<code>@Header</code>， 获取单个 <code>Header</code>属性 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RabbitListener</span>(queues = <span class="string">"debug"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processMessage1</span><span class="params">(@Payload String body, @Header String contentType)</span> </span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"body："</span>+ body);</span><br><span class="line">    System.out.println(<span class="string">"contentType："</span>+ contentType);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="高级配置"><a href="#高级配置" class="headerlink" title="高级配置"></a>高级配置</h3><p>使用springboot时，在application.properties中进行一些配置，可以简单方便的开启一些高级特性，比如：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置签收模式：AUTO(自动签收)、MANUAL(手工签收)、NONE(不签收，没有任何操作)</span></span><br><span class="line"><span class="meta">spring.rabbitmq.listener.simple.acknowledge-mode</span>=<span class="string">MANUAL</span></span><br><span class="line"><span class="comment"># 设置当前消费者数量(线程数)</span></span><br><span class="line"><span class="meta">spring.rabbitmq.listener.simple.concurrency</span>=<span class="string">1</span></span><br><span class="line"><span class="comment"># 设置消费者最大并发数量</span></span><br><span class="line"><span class="meta">spring.rabbitmq.listener.simple.max-concurrency</span>=<span class="string">5</span></span><br></pre></td></tr></table></figure>
+
+<p>在设置手工签收后，对于消息的消费需要进行ACK返回</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">@RabbitListener</span>(queues = <span class="string">"springboot.queue"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(Message message, Channel channel)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    System.out.println(<span class="keyword">new</span> String(message.getBody()));</span><br><span class="line">    <span class="keyword">long</span> deliveryTag = message.getMessageProperties().getDeliveryTag();</span><br><span class="line">    channel.basicAck(deliveryTag,<span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/rabbitmq/" rel="tag"># rabbitmq</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/27/rb13-RabbitMQ%E6%95%B4%E5%90%88-SpringAMQP%E4%BA%8C/" rel="next" title="RabbitMQ整合-SpringAMQP(二)">
+                <i class="fa fa-chevron-left"></i> RabbitMQ整合-SpringAMQP(二)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">48</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#快速入门"><span class="nav-number">1.</span> <span class="nav-text">快速入门</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#相同配置"><span class="nav-number">1.1.</span> <span class="nav-text">相同配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Maven依赖"><span class="nav-number">1.1.1.</span> <span class="nav-text">Maven依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置文件"><span class="nav-number">1.1.2.</span> <span class="nav-text">配置文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生产端快速入门"><span class="nav-number">1.2.</span> <span class="nav-text">生产端快速入门</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#消费端快速入门"><span class="nav-number">1.3.</span> <span class="nav-text">消费端快速入门</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生产端高级使用"><span class="nav-number">2.</span> <span class="nav-text">生产端高级使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#消息的confirm和return机制"><span class="nav-number">2.1.</span> <span class="nav-text">消息的confirm和return机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#代码演示"><span class="nav-number">2.1.1.</span> <span class="nav-text">代码演示</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#消费端高级使用"><span class="nav-number">3.</span> <span class="nav-text">消费端高级使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RabbitListener-使用方式"><span class="nav-number">3.1.</span> <span class="nav-text">@RabbitListener 使用方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RabbitHandler-使用方式"><span class="nav-number">3.2.</span> <span class="nav-text">@RabbitHandler 使用方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Payload与-Headers"><span class="nav-number">3.3.</span> <span class="nav-text">@Payload与@Headers</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高级配置"><span class="nav-number">3.4.</span> <span class="nav-text">高级配置</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
