@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="rabbitmq," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="RabbitMQ高可用集群搭建我们接着上一章介绍的架构模式，开始在虚拟机上搭建高可用的RabbitMQ集群，这里使用的是最常用的镜像模式 这里我使用的CentOS7 集群节点说明">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ集群-集群搭建">
+<meta property="og:url" content="http://yoursite.com/2020/01/02/rb17-RabbitMQ%E9%9B%86%E7%BE%A4-%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="RabbitMQ高可用集群搭建我们接着上一章介绍的架构模式，开始在虚拟机上搭建高可用的RabbitMQ集群，这里使用的是最常用的镜像模式 这里我使用的CentOS7 集群节点说明">
+<meta property="og:image" content="http://yoursite.com/image/1577958951142.png">
+<meta property="og:image" content="http://yoursite.com/image/1577780404050.png">
+<meta property="og:image" content="http://yoursite.com/image/1577776133574.png">
+<meta property="og:image" content="http://yoursite.com/image/1577777252613.png">
+<meta property="og:image" content="http://yoursite.com/image/1577779535432.png">
+<meta property="og:image" content="http://yoursite.com/image/1577780788981.png">
+<meta property="og:image" content="http://yoursite.com/image/1577780956462.png">
+<meta property="og:image" content="http://yoursite.com/image/1577781148383.png">
+<meta property="og:image" content="http://yoursite.com/image/1577784500411.png">
+<meta property="og:image" content="http://yoursite.com/image/1577930958675.png">
+<meta property="og:image" content="http://yoursite.com/image/1577931095354.png">
+<meta property="og:image" content="http://yoursite.com/image/1577931112785.png">
+<meta property="og:image" content="http://yoursite.com/image/1577944639166.png">
+<meta property="og:image" content="http://yoursite.com/image/1577944716750.png">
+<meta property="og:image" content="http://yoursite.com/image/1577944834923.png">
+<meta property="og:image" content="http://yoursite.com/image/1577944791964.png">
+<meta property="og:image" content="http://yoursite.com/image/1577944801030.png">
+<meta property="og:image" content="http://yoursite.com/image/1577944875037.png">
+<meta property="og:image" content="http://yoursite.com/image/1577944921933.png">
+<meta property="og:image" content="http://yoursite.com/image/1577944936634.png">
+<meta property="og:image" content="http://yoursite.com/image/1577944960812.png">
+<meta property="article:published_time" content="2020-01-02T09:51:37.000Z">
+<meta property="article:modified_time" content="2020-01-02T09:58:33.281Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="rabbitmq">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1577958951142.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/02/rb17-RabbitMQ集群-集群搭建/"/>
+
+
+
+
+
+  <title>RabbitMQ集群-集群搭建 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/02/rb17-RabbitMQ%E9%9B%86%E7%BE%A4-%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RabbitMQ集群-集群搭建</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-02T17:51:37+08:00">
+                2020-01-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rabbitmq/" itemprop="url" rel="index">
+                    <span itemprop="name">rabbitmq</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="RabbitMQ高可用集群搭建"><a href="#RabbitMQ高可用集群搭建" class="headerlink" title="RabbitMQ高可用集群搭建"></a>RabbitMQ高可用集群搭建</h2><p>我们接着上一章介绍的架构模式，开始在虚拟机上搭建高可用的RabbitMQ集群，这里使用的是最常用的镜像模式</p>
+<p><strong>这里我使用的CentOS7</strong></p>
+<h3 id="集群节点说明"><a href="#集群节点说明" class="headerlink" title="集群节点说明"></a>集群节点说明</h3><p><img src="/image/1577958951142.png" alt="1577958951142"></p>
+<a id="more"></a>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>准备5台虚拟机，这里可以先创建一个，然后根据第二章RabbitMQ的安装与启动，配置好后，进行虚拟机的复制，复制出多个后</p>
+<ul>
+<li>修改其网络设置</li>
+<li>修改hostname，<code>hostnamectl set-hostname xxx</code>，然后重启</li>
+<li>设置hosts文件，<code>vi /etc/hosts</code>，这一步非常关键，如果不加，后面从节点加入机器是就要报错<br><img src="/image/1577780404050.png" alt="1577780076344"></li>
+</ul>
+<p>创建好5个后，将120,121,122的RabbitMQ启动，并访问控制台，看看是否都启动成功</p>
+<p><img src="/image/1577776133574.png" alt="1577776133574"></p>
+<h3 id="文件同步"><a href="#文件同步" class="headerlink" title="文件同步"></a>文件同步</h3><p>需要将主节点的cookie文件同步到其他节点上，这里就是将120的同步到121和122上</p>
+<p><strong>同步之前需要将RabbitMQ关闭</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ scp .erlang.cookie 192.168.56.121:&#x2F;var&#x2F;lib&#x2F;rabbitmq</span><br><span class="line">$ scp .erlang.cookie 192.168.56.122:&#x2F;var&#x2F;lib&#x2F;rabbitmq</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1577777252613.png" alt="1577777252613"></p>
+<h3 id="组成集群"><a href="#组成集群" class="headerlink" title="组成集群"></a>组成集群</h3><p>接着就要搭建集群了</p>
+<p><strong>1.停止MQ服务</strong></p>
+<p>PS:我们首先停止3个节点的服务</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rabbitmqctl stop</span><br></pre></td></tr></table></figure>
+
+<p><strong>2.组成集群操作</strong></p>
+<p>使用以下命令对120,121,122执行，以集群状态启动</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rabbitmq-server -detached</span><br></pre></td></tr></table></figure>
+
+<p>启动后可以使用<code>lsof -i:5672</code>命令，查看是否启动成功</p>
+<p><img src="/image/1577779535432.png" alt="1577779535432"></p>
+<p><strong>3.slave加入集群操作</strong></p>
+<p>对121和122重复以下操作，注意！hosts中需要配置了ip与hostname的映射</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ rabbitmqctl stop_app</span><br><span class="line">$ rabbitmqctl join_cluster rabbit@cent120</span><br><span class="line">$ rabbitmqctl start_app</span><br><span class="line"></span><br><span class="line"># 移除节点操作</span><br><span class="line">$ rabbitmqctl forget_cluster_node rabbit@cent121</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1577780788981.png" alt="1577780788981"></p>
+<p>出现以下日志，说明启动成功，</p>
+<p><strong>4.修改集群名称</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rabbitmqctl set_cluster_name rabbitmq_cluster1</span><br></pre></td></tr></table></figure>
+
+<p><strong>5.然后可以看一下集群状态</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rabbitmqctl cluster_status</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1577780956462.png" alt="1577780956462"></p>
+<p>节点信息，包括集群名称，都有显示，说明集群构建成功</p>
+<p><strong>6.控制台访问</strong></p>
+<p><img src="/image/1577781148383.png" alt="1577781148383"></p>
+<p>在Nodes模块，具有三个节点，可以看到，这些节点都有一个<code>Disc</code>标识，表示以磁盘形式存储，如果想要使用内存存储，可以在加入集群时添加参数，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rabbitmqctl join_cluster --ram rabbit@cent120</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置镜像队列"><a href="#配置镜像队列" class="headerlink" title="配置镜像队列"></a>配置镜像队列</h3><p>设置镜像队列策略（在任意一个节点上执行）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rabbitmqctl set_policy ha-all &quot;^&quot;   &#39;&#123;&quot;ha-mode&quot;:&quot;all&quot;&#125;&#39;</span><br></pre></td></tr></table></figure>
+
+<p><strong>将所有队列设置为镜像队列</strong>，即队列会被复制到各个节点，各个节点状态一致，如果有消息发送到某个队列，会自动同步到其他节点的队列中</p>
+<p>RabbitMQ高可用集群就已经搭建好了,我们可以重启服务，查看其队列是否在从节点同步。</p>
+<h2 id="整合HaProxy实现负载均衡"><a href="#整合HaProxy实现负载均衡" class="headerlink" title="整合HaProxy实现负载均衡"></a>整合HaProxy实现负载均衡</h2><h3 id="HaProxy简介"><a href="#HaProxy简介" class="headerlink" title="HaProxy简介"></a>HaProxy简介</h3><p>HAProxy是一款提供高可用性、负载均衡以及基于TCP和HTTP应用的代理软件，HAProxy是完全免费的、借助HAProxy可以快速并且可靠的提供基于TCP和HTTP应用的代理解决方案。</p>
+<p>HAProxy适用于那些负载较大的web站点，这些站点通常又需要会话保持或七层处理。 </p>
+<p>HAProxy可以支持数以万计的并发连接,并且HAProxy的运行模式使得它可以很简单安全的整合进架构中，同时可以保护web服务器不被暴露到网络上。</p>
+<h3 id="HaProxy安装"><a href="#HaProxy安装" class="headerlink" title="HaProxy安装"></a>HaProxy安装</h3><p>因为我们之后要实现高可用，所以这里也使用两个节点部署，即123和124，步骤：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//下载依赖包</span></span><br><span class="line">yum install gcc vim wget</span><br><span class="line"></span><br><span class="line"><span class="comment">//下载haproxy</span></span><br><span class="line">wget http:<span class="comment">//www.haproxy.org/download/1.6/src/haproxy-1.6.5.tar.gz</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//解压</span></span><br><span class="line">tar -zxvf haproxy-<span class="number">1.6</span><span class="number">.5</span>.tar.gz -C /usr/local</span><br><span class="line"></span><br><span class="line"><span class="comment">//进入目录、进行编译、安装</span></span><br><span class="line">cd /usr/local/haproxy-<span class="number">1.6</span><span class="number">.5</span></span><br><span class="line">make TARGET=linux31 PREFIX=/usr/local/haproxy</span><br><span class="line">make install PREFIX=/usr/local/haproxy</span><br><span class="line">mkdir /etc/haproxy</span><br><span class="line"></span><br><span class="line"><span class="comment">//赋权</span></span><br><span class="line">groupadd -r -g <span class="number">149</span> haproxy</span><br><span class="line">useradd -g haproxy -r -s /sbin/nologin -u <span class="number">149</span> haproxy</span><br><span class="line"></span><br><span class="line"><span class="comment">//创建haproxy配置文件</span></span><br><span class="line">touch /etc/haproxy/haproxy.cfg</span><br></pre></td></tr></table></figure>
+
+<p>问题：下载HaProxy时可能下载不了，可以直接浏览器访问下载下来后扔到服务器上进行解压</p>
+<h3 id="Haproxy配置"><a href="#Haproxy配置" class="headerlink" title="Haproxy配置"></a>Haproxy配置</h3><p>haproxy 配置文件haproxy.cfg详解，首先进入文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ vi &#x2F;etc&#x2F;haproxy&#x2F;haproxy.cfg</span><br></pre></td></tr></table></figure>
+
+<p>配置：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#logging options</span></span><br><span class="line"><span class="attr">global</span></span><br><span class="line">    <span class="attr">log</span> <span class="string">127.0.0.1 local0 info</span></span><br><span class="line">    <span class="attr">maxconn</span> <span class="string">5120</span></span><br><span class="line"><span class="comment">    #安装地址</span></span><br><span class="line">    <span class="attr">chroot</span> <span class="string">/usr/local/haproxy </span></span><br><span class="line">    <span class="attr">uid</span> <span class="string">99</span></span><br><span class="line">    <span class="attr">gid</span> <span class="string">99</span></span><br><span class="line">    <span class="attr">daemon</span></span><br><span class="line">    <span class="attr">quiet</span></span><br><span class="line">    <span class="attr">nbproc</span> <span class="string">20</span></span><br><span class="line">    <span class="attr">pidfile</span> <span class="string">/var/run/haproxy.pid</span></span><br><span class="line"></span><br><span class="line"><span class="attr">defaults</span></span><br><span class="line">    <span class="attr">log</span> <span class="string">global</span></span><br><span class="line"><span class="comment">    #使用4层代理模式，"mode http"为7层代理模式</span></span><br><span class="line">    <span class="attr">mode</span> <span class="string">tcp</span></span><br><span class="line"><span class="comment">    #if you set mode to tcp,then you nust change tcplog into httplog</span></span><br><span class="line">    <span class="attr">option</span> <span class="string">tcplog</span></span><br><span class="line">    <span class="attr">option</span> <span class="string">dontlognull</span></span><br><span class="line">    <span class="attr">retries</span> <span class="string">3</span></span><br><span class="line">    <span class="attr">option</span> <span class="string">redispatch</span></span><br><span class="line">    <span class="attr">maxconn</span> <span class="string">2000</span></span><br><span class="line">    <span class="attr">contimeout</span> <span class="string">5s</span></span><br><span class="line"><span class="comment">    ##客户端空闲超时时间为 60秒 则HA 发起重连机制</span></span><br><span class="line">    <span class="attr">clitimeout</span> <span class="string">60s</span></span><br><span class="line"><span class="comment">    ##服务器端链接超时时间为 15秒 则HA 发起重连机制</span></span><br><span class="line">    <span class="attr">srvtimeout</span> <span class="string">15s	</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 监听rabbitmq集群</span></span><br><span class="line"><span class="attr">listen</span> <span class="string">rabbitmq_cluster</span></span><br><span class="line">	<span class="attr">bind</span> <span class="string">0.0.0.0:5672</span></span><br><span class="line"><span class="comment">	#配置TCP模式</span></span><br><span class="line">	<span class="attr">mode</span> <span class="string">tcp</span></span><br><span class="line"><span class="comment">	#balance url_param userid</span></span><br><span class="line"><span class="comment">	#balance url_param session_id check_post 64</span></span><br><span class="line"><span class="comment">	#balance hdr(User-Agent)</span></span><br><span class="line"><span class="comment">	#balance hdr(host)</span></span><br><span class="line"><span class="comment">	#balance hdr(Host) use_domain_only</span></span><br><span class="line"><span class="comment">	#balance rdp-cookie</span></span><br><span class="line"><span class="comment">	#balance leastconn</span></span><br><span class="line"><span class="comment">	#balance source //ip</span></span><br><span class="line"><span class="comment">	#简单的轮询</span></span><br><span class="line">	<span class="attr">balance</span> <span class="string">roundrobin</span></span><br><span class="line"><span class="comment">	#rabbitmq集群节点配置 #inter 每隔五秒对mq集群做健康检查， 2次正确证明服务器可用，2次失败证明服务器不可用，并且配置主备机制</span></span><br><span class="line">        <span class="attr">server</span> <span class="string">cent120 192.168.56.120:5672 check inter 5000 rise 2 fall 2</span></span><br><span class="line">        <span class="attr">server</span> <span class="string">cent121 192.168.56.121:5672 check inter 5000 rise 2 fall 2</span></span><br><span class="line">        <span class="attr">server</span> <span class="string">cent122 192.168.56.122:5672 check inter 5000 rise 2 fall 2</span></span><br><span class="line">        </span><br><span class="line"><span class="comment">#配置haproxy web监控，查看统计信息</span></span><br><span class="line"><span class="attr">listen</span> <span class="string">stats</span></span><br><span class="line">	<span class="attr">bind</span> <span class="string">192.168.56.123:8100</span></span><br><span class="line"><span class="comment">	# http模式，因为要浏览器访问</span></span><br><span class="line">	<span class="attr">mode</span> <span class="string">http</span></span><br><span class="line">	<span class="attr">option</span> <span class="string">httplog</span></span><br><span class="line">	<span class="attr">stats</span> <span class="string">enable</span></span><br><span class="line"><span class="comment">	#设置haproxy监控地址为http://localhost:8100/rabbitmq-stats</span></span><br><span class="line">	<span class="attr">stats</span> <span class="string">uri /rabbitmq-stats</span></span><br><span class="line">	<span class="attr">stats</span> <span class="string">refresh 5s</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="HaProxy启动"><a href="#HaProxy启动" class="headerlink" title="HaProxy启动"></a>HaProxy启动</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ &#x2F;usr&#x2F;local&#x2F;haproxy&#x2F;sbin&#x2F;haproxy -f &#x2F;etc&#x2F;haproxy&#x2F;haproxy.cfg</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;查看haproxy进程状态</span><br><span class="line">$ ps -ef | grep haproxy</span><br></pre></td></tr></table></figure>
+
+<p>启动后，可以访问<a href="http://192.168.56.123:8100/rabbitmq-stats" target="_blank" rel="noopener">http://192.168.56.123:8100/rabbitmq-stats</a>，查看是否启动成功</p>
+<p><img src="/image/1577784500411.png" alt="1577784500411"></p>
+<p>正确启动，并且有我们的三个节点</p>
+<h2 id="整合KeepAlived实现HaProxy的高可用"><a href="#整合KeepAlived实现HaProxy的高可用" class="headerlink" title="整合KeepAlived实现HaProxy的高可用"></a>整合KeepAlived实现HaProxy的高可用</h2><h3 id="KeepAlived简介"><a href="#KeepAlived简介" class="headerlink" title="KeepAlived简介"></a>KeepAlived简介</h3><p>Keepalived，它是一个高性能的服务器高可用或热备解决方案，Keepalived主要来<strong>防止服务器单点故障的发生问题</strong>，可以通过其与Nginx、Haproxy等反向代理的负载均衡服务器配合实现web服务端的高可用。Keepalived以VRRP协议为实现基础，用VRRP协议来实现高可用性（HA）.VRRP（Virtual Router Redundancy Protocol）协议是用于实现路由器冗余的协议，VRRP协议将两台或多台路由器设备虚拟成一个设备，对外提供虚拟路由器IP（一个或多个）。</p>
+<h3 id="KeepAlived重要特性"><a href="#KeepAlived重要特性" class="headerlink" title="KeepAlived重要特性"></a>KeepAlived重要特性</h3><ul>
+<li>管理LVS负载均衡软件，比如Nginx，HaProxy</li>
+<li>实现LVS集群中节点健康检查</li>
+<li>系统网络的高可用，失败转移<ul>
+<li>KeepAlived维护了一个心跳，主节点回向备用节点发送心跳，表示自己还活在，如果心跳停止，备用节点会自动接管程序，成为主节点；当主节点恢复心跳，备用节点会释放资源，恢复备胎身份</li>
+</ul>
+</li>
+</ul>
+<h3 id="KeepAlived安装"><a href="#KeepAlived安装" class="headerlink" title="KeepAlived安装"></a>KeepAlived安装</h3><p>安装在123和124节点上</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;安装所需软件包</span><br><span class="line">yum install -y openssl openssl-devel</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;下载</span><br><span class="line">wget http:&#x2F;&#x2F;www.keepalived.org&#x2F;software&#x2F;keepalived-1.2.18.tar.gz</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;解压、编译、安装</span><br><span class="line">tar -zxvf keepalived-1.2.18.tar.gz -C &#x2F;usr&#x2F;local&#x2F;</span><br><span class="line">cd keepalived-1.2.18&#x2F; &amp;&amp; .&#x2F;configure --prefix&#x3D;&#x2F;usr&#x2F;local&#x2F;keepalived</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;将keepalived安装成Linux系统服务，因为没有使用keepalived的默认安装路径（默认路径：&#x2F;usr&#x2F;local）,安装完成之后，需要做一些修改工作</span><br><span class="line">&#x2F;&#x2F;首先创建文件夹，将keepalived配置文件进行复制：</span><br><span class="line"></span><br><span class="line">mkdir &#x2F;etc&#x2F;keepalived</span><br><span class="line">cp &#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf &#x2F;etc&#x2F;keepalived&#x2F;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;然后复制keepalived脚本文件：</span><br><span class="line">cp &#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;etc&#x2F;rc.d&#x2F;init.d&#x2F;keepalived &#x2F;etc&#x2F;init.d&#x2F;</span><br><span class="line">cp &#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;etc&#x2F;sysconfig&#x2F;keepalived &#x2F;etc&#x2F;sysconfig&#x2F;</span><br><span class="line">ln -s &#x2F;usr&#x2F;local&#x2F;sbin&#x2F;keepalived &#x2F;usr&#x2F;sbin&#x2F;</span><br><span class="line">ln -s &#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;sbin&#x2F;keepalived &#x2F;sbin&#x2F;</span><br><span class="line"># 这里如果创建软连接失败，提示已经存在，则需要删除</span><br><span class="line">rm -f &#x2F;usr&#x2F;sbin&#x2F;keepalived 或 rm -f &#x2F;sbin&#x2F;keepalived</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;可以设置开机启动：chkconfig keepalived on，到此我们安装完毕!</span><br><span class="line">chkconfig keepalived on</span><br></pre></td></tr></table></figure>
+
+<p>问题：下载HaProxy时可能下载不了，可以直接浏览器访问下载下来后扔到服务器上进行解压</p>
+<h3 id="KeepAlived配置"><a href="#KeepAlived配置" class="headerlink" title="KeepAlived配置"></a>KeepAlived配置</h3><p>修改keepalived.conf配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ vi &#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf</span><br></pre></td></tr></table></figure>
+
+<p>这里我们把123节点当做主节点，配置为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File for keepalived</span><br><span class="line"></span><br><span class="line">global_defs &#123;</span><br><span class="line">   router_id cent123  ##标识节点的字符串，通常为hostname</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">## 设置脚本，这里脚本是为了判断HaProxy是否正常运行，需要自己编写</span><br><span class="line">vrrp_script chk_haproxy &#123;</span><br><span class="line">    script &quot;&#x2F;etc&#x2F;keepalived&#x2F;haproxy_check.sh&quot;  ##执行脚本位置</span><br><span class="line">    interval 2  ##检测时间间隔</span><br><span class="line">    weight -20  ##如果条件成立则权重减20</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state MASTER  ## 主节点为MASTER，备份节点为BACKUP</span><br><span class="line">    interface enp0s8 ## 绑定虚拟IP的网络接口（网卡），与本机IP地址所在的网络接口相同（我这里是eth0）</span><br><span class="line">    virtual_router_id 79  ## 虚拟路由ID号（主备节点一定要相同）</span><br><span class="line">    mcast_src_ip 192.168.56.123 ## 本机ip地址</span><br><span class="line">    priority 100  ##优先级配置（0-254的值）</span><br><span class="line">    nopreempt</span><br><span class="line">    advert_int 1  ## 组播信息发送间隔，俩个节点必须配置一致，默认1s</span><br><span class="line">authentication &#123;  ## 认证匹配</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass zyj</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    track_script &#123;</span><br><span class="line">        chk_haproxy</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        192.168.56.130  ## 虚拟ip，可以指定多个</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>124节点（备用节点）配置为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File for keepalived</span><br><span class="line"></span><br><span class="line">global_defs &#123;</span><br><span class="line">   router_id cent124  ##标识节点的字符串，通常为hostname</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">## 设置脚本，这里脚本是为了判断HaProxy是否正常运行，需要自己编写</span><br><span class="line">vrrp_script chk_haproxy &#123;</span><br><span class="line">    script &quot;&#x2F;etc&#x2F;keepalived&#x2F;haproxy_check.sh&quot;  ##执行脚本位置</span><br><span class="line">    interval 2  ##检测时间间隔</span><br><span class="line">    weight -20  ##如果条件成立则权重减20</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state BACKUP  ## 主节点为MASTER，备份节点为BACKUP</span><br><span class="line">    interface enp0s8 ## 绑定虚拟IP的网络接口（网卡），与本机IP地址所在的网络接口相同（我这里是eth0）</span><br><span class="line">    virtual_router_id 79  ## 虚拟路由ID号（主备节点一定要相同）</span><br><span class="line">    mcast_src_ip 192.168.56.124 ## 本机ip地址</span><br><span class="line">    priority 80  ##优先级配置（0-254的值）</span><br><span class="line">    nopreempt</span><br><span class="line">    advert_int 1  ## 组播信息发送间隔，俩个节点必须配置一致，默认1s</span><br><span class="line">authentication &#123;  ## 认证匹配</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass zyj</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    track_script &#123;</span><br><span class="line">        chk_haproxy</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        192.168.56.130  ## 虚拟ip，可以指定多个</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>编写脚本</strong></p>
+<p>添加文件位置为<code>vi /etc/keepalived/haproxy_check.sh</code>（79、80两个节点文件内容一致即可）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">COUNT=`ps -C haproxy --no-header |wc -l`</span><br><span class="line">if [ $COUNT -eq 0 ];then</span><br><span class="line">    /usr/local/haproxy/sbin/haproxy -f /etc/haproxy/haproxy.cfg</span><br><span class="line">    sleep 2</span><br><span class="line">    if [ `ps -C haproxy --no-header |wc -l` -eq 0 ];then</span><br><span class="line">        killall keepalived</span><br><span class="line">    fi</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+
+<p><strong>执行脚本赋权</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ chmod +x &#x2F;etc&#x2F;keepalived&#x2F;haproxy_check.sh</span><br></pre></td></tr></table></figure>
+
+<h3 id="keepalived启动"><a href="#keepalived启动" class="headerlink" title="keepalived启动"></a>keepalived启动</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">service keepalived start | stop | status | restart</span><br><span class="line"># 查看状态</span><br><span class="line">ps -ef|grep keepalived</span><br></pre></td></tr></table></figure>
+
+<p>启动后，输入<code>ip addr</code>命令查看网络</p>
+<p><img src="/image/1577930958675.png" alt="1577930958675"></p>
+<p>看到我们配置的130ip，即成功实现KeepAlived，<strong>这里130虚拟IP就是别人访问的IP先通过KeepAlived定位到123节点，然后通过HaProxy进行负载均衡，最后访问某个节点的RabbitMQ</strong></p>
+<p>这时我们可以测试一下，把123的KeepAlived关闭，看看备用节点会不会将130路由到它身上。</p>
+<p><img src="/image/1577931095354.png" alt="1577931095354"></p>
+<p><img src="/image/1577931112785.png" alt="1577931112785"></p>
+<p>成功路由到130节点上，说明我们已经成功搭建一个高可用高性能的RabbitMQ集群</p>
+<h2 id="RabbitMQ配置文件"><a href="#RabbitMQ配置文件" class="headerlink" title="RabbitMQ配置文件"></a>RabbitMQ配置文件</h2><p>这里有两种配置：</p>
+<ul>
+<li>环境变量配置文件：rabbitmq-env.conf</li>
+<li>配置信息配置文件：rabbit.app</li>
+</ul>
+<h3 id="环境变量配置"><a href="#环境变量配置" class="headerlink" title="环境变量配置"></a>环境变量配置</h3><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">RABBITMQ_NODENAME</span>=<span class="string">FZTEC-240088 节点名称</span></span><br><span class="line"><span class="attr">RABBITMQ_NODE_IP_ADDRESS</span>=<span class="string">127.0.0.1 监听IP</span></span><br><span class="line"><span class="attr">RABBITMQ_NODE_PORT</span>=<span class="string">5672 监听端口</span></span><br><span class="line"><span class="attr">RABBITMQ_LOG_BASE</span>=<span class="string">/data/rabbitmq/log 日志目录</span></span><br><span class="line"><span class="attr">RABBITMQ_PLUGINS_DIR</span>=<span class="string">/data/rabbitmq/plugins 插件目录</span></span><br><span class="line"><span class="attr">RABBITMQ_MNESIA_BASE</span>=<span class="string">/data/rabbitmq/mnesia 后端存储目录</span></span><br></pre></td></tr></table></figure>
+
+<p>更详细的配置参见： <a href="http://www.rabbitmq.com/configure.html#configuration-file" target="_blank" rel="noopener">http://www.rabbitmq.com/configure.html#configuration-file</a></p>
+<h3 id="配置信息配置"><a href="#配置信息配置" class="headerlink" title="配置信息配置"></a>配置信息配置</h3><p>这里说几个关键配置</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#设置rabbimq的监听端口，默认为[5672]。</span><br><span class="line">tcp_listerners: 5672 </span><br><span class="line"># 磁盘低水位线，若磁盘容量低于指定值则停止接收数据，默认值为&#123;mem_relative, 1.0&#125;,即与内存相关联1：1，也可定制为多少byte.</span><br><span class="line">disk_free_limit: &#123;mem_relative, 1.0&#125;</span><br><span class="line"># 设置内存低水位线，若低于该水位线，则开启流控机制，默认值是0.4，即内存总量的40%。</span><br><span class="line">vm_memory_high_watermark: 0.4</span><br><span class="line"># 将部分rabbimq代码用High Performance Erlang compiler编译，可提升性能，该参数是实验性，若出现erlang vm segfaults，应关掉。</span><br><span class="line">hipe_compile: true</span><br><span class="line"># 该参数属于rabbimq_management，若为true则进行精细化的统计，但会影响性能</span><br><span class="line">force_fine_statistics: true</span><br></pre></td></tr></table></figure>
+
+<p>更详细的配置参见：<a href="http://www.rabbitmq.com/configure.html" target="_blank" rel="noopener">http://www.rabbitmq.com/configure.html</a></p>
+<h2 id="集群恢复与故障转移"><a href="#集群恢复与故障转移" class="headerlink" title="集群恢复与故障转移"></a>集群恢复与故障转移</h2><p>这里通过情景与解决方案进行研究</p>
+<p>这里有两个节点，A和B，A为Master，AB为镜像队列</p>
+<p>情景1：B先停，A后停</p>
+<p>方案：先启动A后启动B，这是正常的情景</p>
+<p>情景2：AB同时停</p>
+<p>方案：可能是因为断电导致，一样先启动A再启动B</p>
+<p>情景3：B先停，A后停，并且B无法恢复</p>
+<p>方案：情景1的加强版，因为A是主节点，所以只需将B剔除，换一个新的备用节点即可，<code>rabbitmqctl forget_cluster_node B</code>，新节点会自动恢复镜像队列</p>
+<p>情景4：B先停，A后停，并且A无法恢复</p>
+<p>方案：情景3的加强版，这次是主节点无法恢复，这样从节点因为主节点没有启动，也无法启动，便无法使用上一次的命令剔除A节点。这时需要使用<code>--ofline</code>参数，即<code>rabbitmqctl forget_cluster_node --ofline A</code>，RabbitMQ会mock一个B节点，将A节点剔除，这样就可以启动了</p>
+<p>情景5：B先停，A后停，并且A，B都无法恢复，能获得A或B的磁盘文件</p>
+<p>方案：这种更复杂了，只能通过恢复数据的方式去恢复，将A或B的磁盘文件，数据库文件（存放在<code>$RABBIT_HOME/var/lib/</code>目录），拷贝到新的节点上，再将新节点hostname改为A或B的，然后如果是A（Master）文件，则使用情景4进行处理，如果是B（Slave）文件，则使用情景5处理</p>
+<p>情景6：AB都无法恢复，且没有磁盘文件</p>
+<p>方案：GG，没有任何办法</p>
+<h2 id="延迟队列"><a href="#延迟队列" class="headerlink" title="延迟队列"></a>延迟队列</h2><p>使用延迟队列，需要在RabbitMQ中安装一个延迟队列插件。</p>
+<p>延迟队列的作用我们之前已经学习过，在100%可靠性投递的时候，最后一种方法，使用延迟队列保证100%投递，就是同时发两条消息，第一条先去投递消费处理，第二条五分钟后延迟投递，用来判断是否成功投递，如果没有再进行一次投递。</p>
+<h3 id="延迟队列的安装"><a href="#延迟队列的安装" class="headerlink" title="延迟队列的安装"></a>延迟队列的安装</h3><p><strong>1.到官网下载插件</strong></p>
+<blockquote>
+<p>rabbitmq_delayed_message_exchange-0.0.1.ez</p>
+</blockquote>
+<p><a href="https://github.com/rabbitmq/rabbitmq-delayed-message-exchange" target="_blank" rel="noopener">https://github.com/rabbitmq/rabbitmq-delayed-message-exchange</a></p>
+<p><a href="http://www.rabbitmq.com/community-plugins.html" target="_blank" rel="noopener">http://www.rabbitmq.com/community-plugins.html</a></p>
+<p><a href="https://bintray.com/rabbitmq/community-plugins/rabbitmq_delayed_message_exchange/v3.6.x#files/" target="_blank" rel="noopener">https://bintray.com/rabbitmq/community-plugins/rabbitmq_delayed_message_exchange/v3.6.x#files/</a></p>
+<p><strong>2.将插件存放到RabbitMQ安装目录的plugins目录中</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cd &#x2F;usr&#x2F;lib&#x2F;rabbitmq&#x2F;lib&#x2F;rabbitmq_server-3.6.5&#x2F;plugins</span><br></pre></td></tr></table></figure>
+
+<p><strong>3.启动延迟插件</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rabbitmq-plugins enable rabbitmq_delayed_message_exchange</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1577944639166.png" alt="1577944639166"></p>
+<p>在控制台可以看到<code>x-delayed-message</code>即启用成功</p>
+<h3 id="延迟队列演示"><a href="#延迟队列演示" class="headerlink" title="延迟队列演示"></a>延迟队列演示</h3><p><strong>1.创建队列</strong></p>
+<p><img src="/image/1577944716750.png" alt="1577944716750"></p>
+<p>需要添加参数，设置为哪种类型的Exchange</p>
+<p><img src="/image/1577944834923.png" alt="1577944834923"></p>
+<p><strong>2.创建队列</strong></p>
+<p><img src="/image/1577944791964.png" alt="1577944791964"></p>
+<p><img src="/image/1577944801030.png" alt="1577944801030"></p>
+<p><strong>3.创建绑定关系</strong></p>
+<p><img src="/image/1577944875037.png" alt="1577944875037"></p>
+<p><strong>4.发送延迟消息</strong></p>
+<p><img src="/image/1577944921933.png" alt="1577944921933"></p>
+<p>设置了10秒延迟时间，发送完立刻查看队列，没有消息</p>
+<p><img src="/image/1577944936634.png" alt="1577944936634"></p>
+<p>十秒后刷新，有一条消息，即延迟队列成功安装并使用</p>
+<p><img src="/image/1577944960812.png" alt="1577944960812"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/rabbitmq/" rel="tag"># rabbitmq</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/02/rb16-RabbitMQ%E9%9B%86%E7%BE%A4-%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F/" rel="next" title="RabbitMQ集群-集群模式">
+                <i class="fa fa-chevron-left"></i> RabbitMQ集群-集群模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/02/rb18-RabbitMQ%E9%9B%86%E7%BE%A4-SET%E5%8C%96%E6%9E%B6%E6%9E%84/" rel="prev" title="RabbitMQ集群-SET化架构">
+                RabbitMQ集群-SET化架构 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">54</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#RabbitMQ高可用集群搭建"><span class="nav-number">1.</span> <span class="nav-text">RabbitMQ高可用集群搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#集群节点说明"><span class="nav-number">1.1.</span> <span class="nav-text">集群节点说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#环境准备"><span class="nav-number">1.2.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文件同步"><span class="nav-number">1.3.</span> <span class="nav-text">文件同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#组成集群"><span class="nav-number">1.4.</span> <span class="nav-text">组成集群</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置镜像队列"><span class="nav-number">1.5.</span> <span class="nav-text">配置镜像队列</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#整合HaProxy实现负载均衡"><span class="nav-number">2.</span> <span class="nav-text">整合HaProxy实现负载均衡</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#HaProxy简介"><span class="nav-number">2.1.</span> <span class="nav-text">HaProxy简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HaProxy安装"><span class="nav-number">2.2.</span> <span class="nav-text">HaProxy安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Haproxy配置"><span class="nav-number">2.3.</span> <span class="nav-text">Haproxy配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HaProxy启动"><span class="nav-number">2.4.</span> <span class="nav-text">HaProxy启动</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#整合KeepAlived实现HaProxy的高可用"><span class="nav-number">3.</span> <span class="nav-text">整合KeepAlived实现HaProxy的高可用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#KeepAlived简介"><span class="nav-number">3.1.</span> <span class="nav-text">KeepAlived简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KeepAlived重要特性"><span class="nav-number">3.2.</span> <span class="nav-text">KeepAlived重要特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KeepAlived安装"><span class="nav-number">3.3.</span> <span class="nav-text">KeepAlived安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KeepAlived配置"><span class="nav-number">3.4.</span> <span class="nav-text">KeepAlived配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#keepalived启动"><span class="nav-number">3.5.</span> <span class="nav-text">keepalived启动</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RabbitMQ配置文件"><span class="nav-number">4.</span> <span class="nav-text">RabbitMQ配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#环境变量配置"><span class="nav-number">4.1.</span> <span class="nav-text">环境变量配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置信息配置"><span class="nav-number">4.2.</span> <span class="nav-text">配置信息配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集群恢复与故障转移"><span class="nav-number">5.</span> <span class="nav-text">集群恢复与故障转移</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#延迟队列"><span class="nav-number">6.</span> <span class="nav-text">延迟队列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#延迟队列的安装"><span class="nav-number">6.1.</span> <span class="nav-text">延迟队列的安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#延迟队列演示"><span class="nav-number">6.2.</span> <span class="nav-text">延迟队列演示</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
