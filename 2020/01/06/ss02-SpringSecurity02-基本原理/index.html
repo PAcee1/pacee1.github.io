@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springsecurity," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在上一节中，我们发现SpringBoot会自动配置Security，让我们跳转到表单登录页面，输入默认的用户名和随机生成的密码。 其实在springboot1.x版本中，并不是跳转到表单登录页，而是弹出一个对话框，在对话框里输入信息，我们可以修改代码尝试一下。 两种认证方式首先我们在browser模块创建一个BrowserSecurityConfig类 1234567891011121314@Co">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringSecurity02-基本原理">
+<meta property="og:url" content="http://yoursite.com/2020/01/06/ss02-SpringSecurity02-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="在上一节中，我们发现SpringBoot会自动配置Security，让我们跳转到表单登录页面，输入默认的用户名和随机生成的密码。 其实在springboot1.x版本中，并不是跳转到表单登录页，而是弹出一个对话框，在对话框里输入信息，我们可以修改代码尝试一下。 两种认证方式首先我们在browser模块创建一个BrowserSecurityConfig类 1234567891011121314@Co">
+<meta property="og:image" content="http://yoursite.com/image/1578279559426.png">
+<meta property="og:image" content="http://yoursite.com/image/14483918-baacf316904e06b7.webp">
+<meta property="og:image" content="http://yoursite.com/image/1578280446054.png">
+<meta property="og:image" content="http://yoursite.com/image/1578290080591.png">
+<meta property="og:image" content="http://yoursite.com/image/1578290207784.png">
+<meta property="og:image" content="http://yoursite.com/image/1578290449886.png">
+<meta property="og:image" content="http://yoursite.com/image/1578290478199.png">
+<meta property="og:image" content="http://yoursite.com/image/1578290509511.png">
+<meta property="og:image" content="http://yoursite.com/image/1578290621414.png">
+<meta property="og:image" content="http://yoursite.com/image/1578290698974.png">
+<meta property="og:image" content="http://yoursite.com/image/1578290757863.png">
+<meta property="og:image" content="http://yoursite.com/image/1578290855189.png">
+<meta property="og:image" content="http://yoursite.com/image/1578290897243.png">
+<meta property="article:published_time" content="2020-01-06T11:40:29.000Z">
+<meta property="article:modified_time" content="2020-01-06T11:42:44.416Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springsecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1578279559426.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/06/ss02-SpringSecurity02-基本原理/"/>
+
+
+
+
+
+  <title>SpringSecurity02-基本原理 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/06/ss02-SpringSecurity02-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SpringSecurity02-基本原理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-06T19:40:29+08:00">
+                2020-01-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在上一节中，我们发现SpringBoot会自动配置Security，让我们跳转到表单登录页面，输入默认的用户名和随机生成的密码。</p>
+<p>其实在springboot1.x版本中，并不是跳转到表单登录页，而是弹出一个对话框，在对话框里输入信息，我们可以修改代码尝试一下。</p>
+<h2 id="两种认证方式"><a href="#两种认证方式" class="headerlink" title="两种认证方式"></a>两种认证方式</h2><p>首先我们在browser模块创建一个<code>BrowserSecurityConfig</code>类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BrowserSecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 以http方式认证 springboot1.x时默认</span></span><br><span class="line">        <span class="comment">// 以form表单方式认证 springboot2.x默认</span></span><br><span class="line">        http.httpBasic()</span><br><span class="line">                .and()</span><br><span class="line">                .authorizeRequests() <span class="comment">// 下面是认证信息</span></span><br><span class="line">                .anyRequest() <span class="comment">// 所有请求</span></span><br><span class="line">                .authenticated(); <span class="comment">// 都需要认证</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个类继承了<code>WebSecurityConfigurerAdapter</code>，安全配置适配器类，并重写<code>configure</code>方法，这里<code>configure</code>有三种重载方法，我们这里先使用Http形式的。</p>
+<p>通过代码很好理解，即通过一系列配置，使用了<code>httpBasic</code>的方式进行身份认证的拦截。</p>
+<a id="more"></a>
+<p>重启<code>Application</code>，查看认证方式（注意需要把之前关闭自动配置的代码给注释掉）</p>
+<p><img src="/image/1578279559426.png" alt="1578279559426"></p>
+<p>登录方式成为了弹出框的形式</p>
+<h2 id="图解基本原理"><a href="#图解基本原理" class="headerlink" title="图解基本原理"></a>图解基本原理</h2><p>对于SpringSecurity的基本原理，这里先放一张图，根据这张图我们进行简单了解</p>
+<p><img src="/image/14483918-baacf316904e06b7.webp" alt="img"></p>
+<p>这里首先分为Security的过滤器链，由多个过滤器组成，和REST API即我们编写的服务需要被保护的服务。</p>
+<p>再进行API请求时，会先走一遍过滤器链，成功认证后才会调用，返回时会再走一遍</p>
+<h3 id="绿色过滤器"><a href="#绿色过滤器" class="headerlink" title="绿色过滤器"></a>绿色过滤器</h3><p>这里有两个<code>UsernamePasswordAuthenticationFilter</code>和<code>BasicAuthenticationFilter</code>，通过名字我们可以联想到刚刚实现的两种认证方式，第一个就是表单认证过滤器，第二个是弹出登录框的基础Http认证过滤器。</p>
+<p>这里还能看到有第三个绿色框，其实还有很多种认证方式，比如短信验证，第三方登录等等。</p>
+<p>请求通过绿色过滤器之后如果认证成功会加一个标记，然后进入橙色过滤器<code>FilterSecurityInterceptor</code>里，如果没有认证成功也会进去，只不过没有认证成功的标记。</p>
+<h3 id="橙色过滤器"><a href="#橙色过滤器" class="headerlink" title="橙色过滤器"></a>橙色过滤器</h3><p><code>FilterSecurityInterceptor</code>是非常重要的过滤器，会根据我们的配置进行拦截判断，比如我们刚刚的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    http.httpBasic()</span><br><span class="line">        .and()</span><br><span class="line">        .authorizeRequests() <span class="comment">// 下面是认证信息</span></span><br><span class="line">        .anyRequest() <span class="comment">// 所有请求</span></span><br><span class="line">        .authenticated(); <span class="comment">// 都需要认证</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的配置都会被它读取，从绿色过滤器过来之后会判断是否有成功标记，如果没有抛出异常，如果有再判断是否有其他的一些认证配置，比如vip用户认证，判断用户是否为vip用户，不是还是抛出异常，如果全部认证通过会放行请求API接口</p>
+<h3 id="蓝色过滤器"><a href="#蓝色过滤器" class="headerlink" title="蓝色过滤器"></a>蓝色过滤器</h3><p><code>ExceptionTranslationFilter</code>，看名字也知道是异常捕获的过滤器，即当<code>FilterSecurityInterceptor</code>抛出异常后，会被此过滤器拦截。</p>
+<p>比如<code>Interceptor</code>抛出没有身份认证的异常，<code>Exception Translation Filter</code>会看看前面究竟配置的是什么样的Filter，然后做出相应的处理。比如说前面配置的是<code>Username Password Authentication Filter</code>，那么就会跳转到带表单的登录页面。但如果说前面配置的是<code>BasicAuthenticationFilter</code>，那么就会弹出登录框等待用户输入信息。</p>
+<p>再比如用户没有输入用户名密码，<code>Interceptor</code>抛出认证失败异常，此过滤器就会抛出401异常</p>
+<p><img src="/image/1578280446054.png" alt="1578280446054"></p>
+<h2 id="源码查看"><a href="#源码查看" class="headerlink" title="源码查看"></a>源码查看</h2><p><strong>首先是FilterSecurityInterceptor：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">invoke</span><span class="params">(FilterInvocation fi)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">   <span class="keyword">if</span> ((fi.getRequest() != <span class="keyword">null</span>)</span><br><span class="line">         &amp;&amp; (fi.getRequest().getAttribute(FILTER_APPLIED) != <span class="keyword">null</span>)</span><br><span class="line">         &amp;&amp; observeOncePerRequest) &#123;</span><br><span class="line">      <span class="comment">// filter already applied to this request and user wants us to observe</span></span><br><span class="line">      <span class="comment">// once-per-request handling, so don't re-do security checking</span></span><br><span class="line">      fi.getChain().doFilter(fi.getRequest(), fi.getResponse());</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// first time this request being called, so perform security checking</span></span><br><span class="line">      <span class="keyword">if</span> (fi.getRequest() != <span class="keyword">null</span> &amp;&amp; observeOncePerRequest) &#123;</span><br><span class="line">         fi.getRequest().setAttribute(FILTER_APPLIED, Boolean.TRUE);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      InterceptorStatusToken token = <span class="keyword">super</span>.beforeInvocation(fi);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">         fi.getChain().doFilter(fi.getRequest(), fi.getResponse());</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">finally</span> &#123;</span><br><span class="line">         <span class="keyword">super</span>.finallyInvocation(token);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">super</span>.afterInvocation(token, <span class="keyword">null</span>);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里简单的看一下，主要是else里的代码，获取请求信息，然后调用<code>super.beforeInvocation()</code>来判断是否有权限调用API，如果有权限放行，如果没有权限抛出异常，这里代码就不放出来了，可以自己去看，我们主要目的是查看调用链的执行过程。</p>
+<p><strong>然后查看ExceptionTranslationFilter：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest req, ServletResponse res, FilterChain chain)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">   HttpServletRequest request = (HttpServletRequest) req;</span><br><span class="line">   HttpServletResponse response = (HttpServletResponse) res;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">      chain.doFilter(request, response);</span><br><span class="line"></span><br><span class="line">      logger.debug(<span class="string">"Chain processed normally"</span>);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">      <span class="keyword">throw</span> ex;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">      <span class="comment">// Try to extract a SpringSecurityException from the stacktrace</span></span><br><span class="line">      Throwable[] causeChain = throwableAnalyzer.determineCauseChain(ex);</span><br><span class="line">      RuntimeException ase = (AuthenticationException) throwableAnalyzer</span><br><span class="line">            .getFirstThrowableOfType(AuthenticationException<span class="class">.<span class="keyword">class</span>, <span class="title">causeChain</span>)</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (ase == <span class="keyword">null</span>) &#123;</span><br><span class="line">         ase = (AccessDeniedException) throwableAnalyzer.getFirstThrowableOfType(</span><br><span class="line">               AccessDeniedException<span class="class">.<span class="keyword">class</span>, <span class="title">causeChain</span>)</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (ase != <span class="keyword">null</span>) &#123;</span><br><span class="line">         <span class="keyword">if</span> (response.isCommitted()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ServletException(<span class="string">"Unable to handle the Spring Security Exception because the response is already committed."</span>, ex);</span><br><span class="line">         &#125;</span><br><span class="line">         handleSpringSecurityException(request, response, chain, ase);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span> &#123;</span><br><span class="line">         <span class="comment">// Rethrow ServletExceptions and RuntimeExceptions as-is</span></span><br><span class="line">         <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> ServletException) &#123;</span><br><span class="line">            <span class="keyword">throw</span> (ServletException) ex;</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">else</span> <span class="keyword">if</span> (ex <span class="keyword">instanceof</span> RuntimeException) &#123;</span><br><span class="line">            <span class="keyword">throw</span> (RuntimeException) ex;</span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         <span class="comment">// Wrap other Exceptions. This shouldn't actually happen</span></span><br><span class="line">         <span class="comment">// as we've already covered all the possibilities for doFilter</span></span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(ex);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为是捕获异常的过滤器，重要代码都在catch里，对不同异常进行不同处理</p>
+<p><strong>最后查看UsernamePasswordAuthenticationFilter：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Authentication <span class="title">attemptAuthentication</span><span class="params">(HttpServletRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">      HttpServletResponse response)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">   <span class="keyword">if</span> (postOnly &amp;&amp; !request.getMethod().equals(<span class="string">"POST"</span>)) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> AuthenticationServiceException(</span><br><span class="line">            <span class="string">"Authentication method not supported: "</span> + request.getMethod());</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   String username = obtainUsername(request);</span><br><span class="line">   String password = obtainPassword(request);</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (username == <span class="keyword">null</span>) &#123;</span><br><span class="line">      username = <span class="string">""</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (password == <span class="keyword">null</span>) &#123;</span><br><span class="line">      password = <span class="string">""</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   username = username.trim();</span><br><span class="line"></span><br><span class="line">   UsernamePasswordAuthenticationToken authRequest = <span class="keyword">new</span> UsernamePasswordAuthenticationToken(</span><br><span class="line">         username, password);</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Allow subclasses to set the "details" property</span></span><br><span class="line">   setDetails(request, authRequest);</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">this</span>.getAuthenticationManager().authenticate(authRequest);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>提取请求中的用户名密码，进行校验，成功则设置认证成功。</p>
+<h3 id="断点调试"><a href="#断点调试" class="headerlink" title="断点调试"></a>断点调试</h3><p>接着我们对这几个类进行打断点，并DEBUG启动测试，看一下执行流程</p>
+<p><img src="/image/1578290080591.png" alt="1578290080591"></p>
+<p>首先进入Interceptor，这是因为第一次访问需要验证过滤</p>
+<p><img src="/image/1578290207784.png" alt="1578290207784"></p>
+<p>接着进入<code>Exception</code>过滤器，捕获到<code>Interceptor</code>抛出的<code>AccessDeniedException: Access is denied</code>异常，这里可以深入的跟一下</p>
+<p><img src="/image/1578290449886.png" alt="1578290449886"></p>
+<p>首先调用<code>handleSpringSecurityException()</code>方法</p>
+<p><img src="/image/1578290478199.png" alt="1578290478199"></p>
+<p>因为异常是<code>AccessDeniedException</code>，所以调用<code>sendStartAuthentication()</code>方法</p>
+<p><img src="/image/1578290509511.png" alt="1578290509511"></p>
+<p>最后进入<code>authenticationEntryPoint.commence()</code>方法，因为我们使用表单方式，所以进入<code>LoginUrlAuthenticationEntryPoint</code>类</p>
+<p><img src="/image/1578290621414.png" alt="1578290621414"></p>
+<p>调用这个方法，通过注释也可知道是转发到<code>login</code>界面了</p>
+<p><img src="/image/1578290698974.png" alt="1578290698974"></p>
+<p>接着我们输入用户名密码，再次查看调用拦截链路</p>
+<p><img src="/image/1578290757863.png" alt="1578290757863"></p>
+<p>这里就会进入到第一个绿色框了即表单登录拦截器，这里判断用户名密码正确后会在<code>request</code>中添加<code>token</code></p>
+<p><img src="/image/1578290855189.png" alt="1578290855189"></p>
+<p>最后到<code>Interceptor</code>的时候判断请求头具有<code>token</code>认证，即放行，成功请求到API方法</p>
+<p><img src="/image/1578290897243.png" alt="1578290897243"></p>
+<p>总结一下，拦截链路为：</p>
+<p><strong>Interceptor -&gt; ExceptionFilter -&gt; /login页面 -&gt; 表单验证Filter -&gt; Interceptor -&gt; API接口</strong></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springsecurity/" rel="tag"># springsecurity</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/03/ss01-SpringSecurity%E4%B8%8ESpringBoot%E6%95%B4%E5%90%88/" rel="next" title="SpringSecurity01-与SpringBoot整合">
+                <i class="fa fa-chevron-left"></i> SpringSecurity01-与SpringBoot整合
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/06/ss03-SpringSecurity03-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%94%A8%E6%88%B7%E8%AE%A4%E8%AF%81%E9%80%BB%E8%BE%91/" rel="prev" title="SpringSecurity03-自定义用户认证逻辑">
+                SpringSecurity03-自定义用户认证逻辑 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">59</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#两种认证方式"><span class="nav-number">1.</span> <span class="nav-text">两种认证方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#图解基本原理"><span class="nav-number">2.</span> <span class="nav-text">图解基本原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#绿色过滤器"><span class="nav-number">2.1.</span> <span class="nav-text">绿色过滤器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#橙色过滤器"><span class="nav-number">2.2.</span> <span class="nav-text">橙色过滤器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#蓝色过滤器"><span class="nav-number">2.3.</span> <span class="nav-text">蓝色过滤器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码查看"><span class="nav-number">3.</span> <span class="nav-text">源码查看</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#断点调试"><span class="nav-number">3.1.</span> <span class="nav-text">断点调试</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

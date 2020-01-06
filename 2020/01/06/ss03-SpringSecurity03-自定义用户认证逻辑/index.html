@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springsecurity," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在上一节，我们使用的都是默认的用户名密码进行登录，这一节我们将研究如何自定义用户名及密码，进行自定义的用户认证逻辑。 自定义用户认证逻辑涉及三个方面：  处理用户信息获取逻辑 处理用户校验逻辑 处理密码加密解密  用户信息获取逻辑表示我们获取用户时可以从mysql、redis、ldap中获取用户的信息，而不再使用SpringSecurity默认提供的user信息。 实现起来非常简单，因为Sprin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringSecurity03-自定义用户认证逻辑">
+<meta property="og:url" content="http://yoursite.com/2020/01/06/ss03-SpringSecurity03-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%94%A8%E6%88%B7%E8%AE%A4%E8%AF%81%E9%80%BB%E8%BE%91/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="在上一节，我们使用的都是默认的用户名密码进行登录，这一节我们将研究如何自定义用户名及密码，进行自定义的用户认证逻辑。 自定义用户认证逻辑涉及三个方面：  处理用户信息获取逻辑 处理用户校验逻辑 处理密码加密解密  用户信息获取逻辑表示我们获取用户时可以从mysql、redis、ldap中获取用户的信息，而不再使用SpringSecurity默认提供的user信息。 实现起来非常简单，因为Sprin">
+<meta property="og:image" content="http://yoursite.com/image/1578293591355.png">
+<meta property="og:image" content="http://yoursite.com/image/1578294211097.png">
+<meta property="og:image" content="http://yoursite.com/image/1578294261537.png">
+<meta property="og:image" content="http://yoursite.com/image/1578295392343.png">
+<meta property="og:image" content="http://yoursite.com/image/1578296409029.png">
+<meta property="og:image" content="http://yoursite.com/image/1578296551829.png">
+<meta property="og:image" content="http://yoursite.com/image/1578296802844.png">
+<meta property="article:published_time" content="2020-01-06T11:40:47.000Z">
+<meta property="article:modified_time" content="2020-01-06T11:43:04.308Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springsecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1578293591355.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/06/ss03-SpringSecurity03-自定义用户认证逻辑/"/>
+
+
+
+
+
+  <title>SpringSecurity03-自定义用户认证逻辑 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/06/ss03-SpringSecurity03-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%94%A8%E6%88%B7%E8%AE%A4%E8%AF%81%E9%80%BB%E8%BE%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SpringSecurity03-自定义用户认证逻辑</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-06T19:40:47+08:00">
+                2020-01-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在上一节，我们使用的都是默认的用户名密码进行登录，这一节我们将研究如何自定义用户名及密码，进行自定义的用户认证逻辑。</p>
+<p>自定义用户认证逻辑涉及三个方面：</p>
+<ul>
+<li>处理用户信息获取逻辑</li>
+<li>处理用户校验逻辑</li>
+<li>处理密码加密解密</li>
+</ul>
+<h2 id="用户信息获取逻辑"><a href="#用户信息获取逻辑" class="headerlink" title="用户信息获取逻辑"></a>用户信息获取逻辑</h2><p>表示我们获取用户时可以从mysql、redis、ldap中获取用户的信息，而不再使用SpringSecurity默认提供的user信息。</p>
+<p>实现起来非常简单，因为SpringSecurity已经预留了相应的接口，我们只需实现它重新方法即可。</p>
+<h3 id="UserDetailsService"><a href="#UserDetailsService" class="headerlink" title="UserDetailsService"></a>UserDetailsService</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserDetailsService</span> </span>&#123;</span><br><span class="line">   <span class="comment">// ~ Methods</span></span><br><span class="line">   <span class="comment">// ========================================================================================================</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Locates the user based on the username. In the actual implementation, the search</span></span><br><span class="line"><span class="comment">    * may possibly be case sensitive, or case insensitive depending on how the</span></span><br><span class="line"><span class="comment">    * implementation instance is configured. In this case, the &lt;code&gt;UserDetails&lt;/code&gt;</span></span><br><span class="line"><span class="comment">    * object that comes back may have a username that is of a different case than what</span></span><br><span class="line"><span class="comment">    * was actually requested..</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> username the username identifying the user whose data is required.</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> a fully populated user record (never &lt;code&gt;null&lt;/code&gt;)</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> UsernameNotFoundException if the user could not be found or the user has no</span></span><br><span class="line"><span class="comment">    * GrantedAuthority</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function">UserDetails <span class="title">loadUserByUsername</span><span class="params">(String username)</span> <span class="keyword">throws</span> UsernameNotFoundException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>这个接口是我们自定义用户认证的重要接口，它的方法返回<code>UserDetails</code>也是重要的类接口，对于这个接口，SpringSecurity也通过User类实现了此接口，所以我们只需创建SpringSecurity提供的User类即可</p>
+<p><img src="/image/1578293591355.png" alt="1578293591355"></p>
+<h3 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h3><p><strong>1.创建Bean实现UserDetailsService接口</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyUserDetailService</span> <span class="keyword">implements</span> <span class="title">UserDetailsService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> UserDetails <span class="title">loadUserByUsername</span><span class="params">(String username)</span> <span class="keyword">throws</span> UsernameNotFoundException </span>&#123;</span><br><span class="line">        <span class="comment">// 第一个参数，用户名；第二个参数，密码；第三个参数，用户所拥有的权限</span></span><br><span class="line">        <span class="comment">// 这里我们写死了密码和权限，实际开发中需要根据业务需求进行查库动态配置</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> User(username,<span class="string">"123456"</span>,AuthorityUtils.commaSeparatedStringToAuthorityList(<span class="string">"admin"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2.测试报错</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java.lang.IllegalArgumentException: There is no PasswordEncoder mapped for the id &quot;null&quot;</span><br></pre></td></tr></table></figure>
+
+<p>这是因为在SpringSecurity5.x，SpringBoot2.x版本后，对于密码加密方式的改变，因为没有指定加密方式而报错</p>
+<ul>
+<li>在5.x使用<strong><code>DelegatingPasswordEncoder</code></strong>，他必须指定加密方式才可以，并在比较时进行加密解密比较</li>
+<li>在之前版本使用<strong><code>NoOpPasswordEncoder</code></strong>，简单比较密码内容是否相同，并不加密解密</li>
+</ul>
+<p>所以这里我们解决方式是向容器添加<code>NoOpPasswordEncoder</code>，从而禁止<code>DelegatingPasswordEncoder</code>自动配置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> NoOpPasswordEncoder <span class="title">passwordEncoder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>3.启动测试</strong></p>
+<p><img src="/image/1578294211097.png" alt="1578294211097"></p>
+<p>首先输入错误密码，发现显示了SpringSecurity自带的错误信息，接着我们输入正确的密码</p>
+<p><img src="/image/1578294261537.png" alt="1578294261537"></p>
+<p>正确转到期望页面，说明我们自定义用户信息获取逻辑成功</p>
+<h2 id="用户校验逻辑"><a href="#用户校验逻辑" class="headerlink" title="用户校验逻辑"></a>用户校验逻辑</h2><p>用户检验逻辑有多种</p>
+<ul>
+<li>一种就是密码的校验，就像刚刚的代码，我们把密码作为第二个参数传过去，<strong>SpringSecurity就会自己帮我们校验</strong>。</li>
+<li>另一种就是判断用户是否冻结，是否过期，是否可用，这一小节我们主要研究这个</li>
+</ul>
+<p>我们先去看看<code>UserDetails</code>这个接口</p>
+<h3 id="UserDetails"><a href="#UserDetails" class="headerlink" title="UserDetails"></a>UserDetails</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserDetails</span> <span class="keyword">extends</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//返回用户的权限信息</span></span><br><span class="line">    Collection&lt;? extends GrantedAuthority&gt; getAuthorities();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 返回用户的密码</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">String <span class="title">getPassword</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 返回用户的userName</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">String <span class="title">getUsername</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断用户账户是否过期</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isAccountNonExpired</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     *判断用户账户是否被锁定</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isAccountNonLocked</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断用户的密码是否过期</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isCredentialsNonExpired</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断用户是否可用（比如被删除了就不能被用了）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isEnabled</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>后面四个布尔类型的变量，就是我们刚刚说的那些，<strong>这些是我们自己执行校验逻辑，然后将结果赋值给实现类比如刚刚的User返回给SpringSecurity</strong>，SpringSecurity根据true或false进行处理</p>
+<h3 id="修改MyUserDetailService实现"><a href="#修改MyUserDetailService实现" class="headerlink" title="修改MyUserDetailService实现"></a>修改MyUserDetailService实现</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyUserDetailService</span> <span class="keyword">implements</span> <span class="title">UserDetailsService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> UserDetails <span class="title">loadUserByUsername</span><span class="params">(String username)</span> <span class="keyword">throws</span> UsernameNotFoundException </span>&#123;</span><br><span class="line">        <span class="comment">// 第一个参数，用户名；第二个参数，密码；第三个参数，用户所拥有的权限</span></span><br><span class="line">        <span class="comment">// 这里我们写死了密码和权限，实际开发中需要根据业务需求进行查库动态配置</span></span><br><span class="line">        String password = <span class="string">"123456"</span>;</span><br><span class="line">        <span class="comment">//return new User(username,password,AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 这里我们需要自己写一些校验逻辑，比如用户是否被冻结，是否过期，是否可用</span></span><br><span class="line">        Boolean enabled = <span class="keyword">true</span>;</span><br><span class="line">        Boolean accountNonExpired = <span class="keyword">true</span>;</span><br><span class="line">        Boolean credentialsNonExpired = <span class="keyword">true</span>;</span><br><span class="line">        Boolean accountNonLocked = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> User(username,password,</span><br><span class="line">                enabled,accountNonExpired,credentialsNonExpired,accountNonLocked,</span><br><span class="line">                AuthorityUtils.commaSeparatedStringToAuthorityList(<span class="string">"admin"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们一样是写死的，根据业务逻辑自行修改代码，然后进行传递。</p>
+<p>这里我们将<code>accountNonLocked</code>设置为<code>false</code>，这样用户就被锁定了</p>
+<h3 id="启动测试"><a href="#启动测试" class="headerlink" title="启动测试"></a>启动测试</h3><p>我们这里重启后，输入正确的密码</p>
+<p><img src="/image/1578295392343.png" alt="1578295392343"></p>
+<p>发现因为<code>accountNonLocked</code>为<code>false</code>，即被锁定</p>
+<h2 id="密码加密解密"><a href="#密码加密解密" class="headerlink" title="密码加密解密"></a>密码加密解密</h2><p>我们之前密码全是明文显示的，这样肯定会有问题，所以我们需要使用<code>PasswordEncoder</code>进行加密，在之前我们介绍过SpringSecurity5.x使用<code>DelegatingPasswordEncoder</code>作为默认的加密器，但是这个非常不好用，必须再密码前面加上<code>{id}</code>（id是加密器的id，它根据不同加密器定义了多个id）。</p>
+<h3 id="PasswordEncoder"><a href="#PasswordEncoder" class="headerlink" title="PasswordEncoder"></a>PasswordEncoder</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public interface PasswordEncoder &#123;</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * 对用户密码进行加密</span><br><span class="line">     *&#x2F;</span><br><span class="line">    String encode(CharSequence rawPassword);</span><br><span class="line"></span><br><span class="line">    &#x2F;**</span><br><span class="line">     * 判断加密以后的密码是否和前台传递的密码一样</span><br><span class="line">     *&#x2F;</span><br><span class="line">    boolean matches(CharSequence rawPassword, String encodedPassword);</span><br><span class="line"></span><br><span class="line">    default boolean upgradeEncoding(String encodedPassword) &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>encode(CharSequence rawPassword);</code>这个方法应该是我们在注册用户时，应用调用的，将用户的密码加密后存储到数据库中。</p>
+<p>而<code>matches()</code>方法应该是SpringSecurity来调用的，他会把返回的<code>UserDetails</code>的密码和前台加密后的密码作一个比对，相同返回true，否则返回false。</p>
+<h3 id="实战-1"><a href="#实战-1" class="headerlink" title="实战"></a>实战</h3><p><strong>1.指定PasswordEncoder</strong></p>
+<p>这里实现类有非常多，我们使用<code>BCryptPasswordEncoder</code>来实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> PasswordEncoder <span class="title">passwordEncoder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> BCryptPasswordEncoder();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>这里我们需要将之前添加的NoOpPasswordEncoder注释掉，并且上一节中的锁定设为true</strong></p>
+<p><strong>2.启动测试</strong></p>
+<p><img src="/image/1578296409029.png" alt="1578296409029"></p>
+<p>输入正确密码后，发现并不正确，因为我们的处理类上没有对密码进行加密，这时就需要修改处理类</p>
+<p><strong>3.修改MyUserDetailService实现</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyUserDetailService</span> <span class="keyword">implements</span> <span class="title">UserDetailsService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Logger logger = LoggerFactory.getLogger(getClass());</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> PasswordEncoder passwordEncoder;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> UserDetails <span class="title">loadUserByUsername</span><span class="params">(String username)</span> <span class="keyword">throws</span> UsernameNotFoundException </span>&#123;</span><br><span class="line">        <span class="comment">// 第一个参数，用户名；第二个参数，密码；第三个参数，用户所拥有的权限</span></span><br><span class="line">        <span class="comment">// 这里我们写死了密码和权限，实际开发中需要根据业务需求进行查库动态配置</span></span><br><span class="line">        String password = <span class="string">"123456"</span>;</span><br><span class="line">        <span class="comment">//return new User(username,password,AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 这里我们需要自己写一些校验逻辑，比如用户是否被冻结，是否过期，是否可用</span></span><br><span class="line">        Boolean enabled = <span class="keyword">true</span>;</span><br><span class="line">        Boolean accountNonExpired = <span class="keyword">true</span>;</span><br><span class="line">        Boolean credentialsNonExpired = <span class="keyword">true</span>;</span><br><span class="line">        Boolean accountNonLocked = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 对密码进行加密</span></span><br><span class="line">        String encodePassword = passwordEncoder.encode(password);</span><br><span class="line">        logger.info(<span class="string">"密码为："</span> + encodePassword);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> User(username,encodePassword,</span><br><span class="line">                enabled,accountNonExpired,credentialsNonExpired,accountNonLocked,</span><br><span class="line">                AuthorityUtils.commaSeparatedStringToAuthorityList(<span class="string">"admin"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注入<code>PasswordEncoder</code>，并对密码进行加密</p>
+<p><strong>4.再次测试</strong></p>
+<p><img src="/image/1578296551829.png" alt="1578296551829"></p>
+<p>成功访问，多次登录查看控制台</p>
+<p><img src="/image/1578296802844.png" alt="1578296802844"></p>
+<p>可以发现每次密码是不同的，因为为了防止密码被破解，SpringSecurity对密码加了<strong>盐值</strong>，所以才会出现这种情况。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springsecurity/" rel="tag"># springsecurity</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/06/ss02-SpringSecurity02-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/" rel="next" title="SpringSecurity02-基本原理">
+                <i class="fa fa-chevron-left"></i> SpringSecurity02-基本原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/06/ss04-SpringSecurity04-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%94%A8%E6%88%B7%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B/" rel="prev" title="SpringSecurity04-自定义用户认证流程">
+                SpringSecurity04-自定义用户认证流程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">59</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#用户信息获取逻辑"><span class="nav-number">1.</span> <span class="nav-text">用户信息获取逻辑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UserDetailsService"><span class="nav-number">1.1.</span> <span class="nav-text">UserDetailsService</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实战"><span class="nav-number">1.2.</span> <span class="nav-text">实战</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用户校验逻辑"><span class="nav-number">2.</span> <span class="nav-text">用户校验逻辑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UserDetails"><span class="nav-number">2.1.</span> <span class="nav-text">UserDetails</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改MyUserDetailService实现"><span class="nav-number">2.2.</span> <span class="nav-text">修改MyUserDetailService实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动测试"><span class="nav-number">2.3.</span> <span class="nav-text">启动测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#密码加密解密"><span class="nav-number">3.</span> <span class="nav-text">密码加密解密</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PasswordEncoder"><span class="nav-number">3.1.</span> <span class="nav-text">PasswordEncoder</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实战-1"><span class="nav-number">3.2.</span> <span class="nav-text">实战</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
