@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springsecurity," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="通过之前的学习，我们发现不管对于自定义认证逻辑还是流程，都是对SpringSecurity提供的接口进行实现，比如UserDetailsService，UserDetails等等，都是一些碎片化的东西，这里我们就需要研究SpringSecurity的源码，看看它是如何把这些碎片拼接成一个完整的图片的。 认证处理流程还记得之前那张图  为SpringSecurity过滤器链路，这里我们主要分析的是U">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringSecurity05-认证流程源码分析">
+<meta property="og:url" content="http://yoursite.com/2020/01/07/ss05-SpringSecurity05-%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="通过之前的学习，我们发现不管对于自定义认证逻辑还是流程，都是对SpringSecurity提供的接口进行实现，比如UserDetailsService，UserDetails等等，都是一些碎片化的东西，这里我们就需要研究SpringSecurity的源码，看看它是如何把这些碎片拼接成一个完整的图片的。 认证处理流程还记得之前那张图  为SpringSecurity过滤器链路，这里我们主要分析的是U">
+<meta property="og:image" content="http://yoursite.com/image/1578360692713.png">
+<meta property="og:image" content="http://yoursite.com/image/1578364571670.png">
+<meta property="og:image" content="http://yoursite.com/image/14483918-d98d29a13e7d0e3e.webp">
+<meta property="og:image" content="http://yoursite.com/image/1578368075617.png">
+<meta property="og:image" content="http://yoursite.com/image/1578376077607.png">
+<meta property="og:image" content="http://yoursite.com/image/1578376128246.png">
+<meta property="og:image" content="http://yoursite.com/image/1578368202695.png">
+<meta property="article:published_time" content="2020-01-07T09:09:49.000Z">
+<meta property="article:modified_time" content="2020-01-07T09:10:34.470Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springsecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1578360692713.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/07/ss05-SpringSecurity05-认证流程源码分析/"/>
+
+
+
+
+
+  <title>SpringSecurity05-认证流程源码分析 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/07/ss05-SpringSecurity05-%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SpringSecurity05-认证流程源码分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-07T17:09:49+08:00">
+                2020-01-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>通过之前的学习，我们发现不管对于自定义认证逻辑还是流程，都是对SpringSecurity提供的接口进行实现，比如UserDetailsService，UserDetails等等，都是一些碎片化的东西，这里我们就需要研究SpringSecurity的源码，看看它是如何把这些碎片拼接成一个完整的图片的。</p>
+<h2 id="认证处理流程"><a href="#认证处理流程" class="headerlink" title="认证处理流程"></a>认证处理流程</h2><p>还记得之前那张图</p>
+<p><img src="/image/1578360692713.png" alt="1578360692713"></p>
+<p>为SpringSecurity过滤器链路，这里我们主要分析的是<code>UsernamePasswordAuthenticationFilter</code>，在这个过滤器里都做了什么，涉及了哪些类，这个过滤器也是认证处理的主要类。</p>
+<h3 id="UsernamePasswordAuthenticationFilters"><a href="#UsernamePasswordAuthenticationFilters" class="headerlink" title="UsernamePasswordAuthenticationFilters"></a>UsernamePasswordAuthenticationFilters</h3><h4 id="创建一个未认证对象"><a href="#创建一个未认证对象" class="headerlink" title="创建一个未认证对象"></a>创建一个未认证对象</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Authentication <span class="title">attemptAuthentication</span><span class="params">(HttpServletRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">      HttpServletResponse response)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">   <span class="comment">// 创建UsernamePasswordAuthenticationToken对象</span></span><br><span class="line">   UsernamePasswordAuthenticationToken authRequest = <span class="keyword">new</span> UsernamePasswordAuthenticationToken(</span><br><span class="line">         username, password);</span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">    public UsernamePasswordAuthenticationToken(Object principal, Object credentials) &#123;</span></span><br><span class="line"><span class="comment">		super(null);</span></span><br><span class="line"><span class="comment">		this.principal = principal;</span></span><br><span class="line"><span class="comment">		this.credentials = credentials;</span></span><br><span class="line"><span class="comment">		setAuthenticated(false);</span></span><br><span class="line"><span class="comment">	&#125;</span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line">   <span class="comment">// Allow subclasses to set the "details" property</span></span><br><span class="line">   setDetails(request, authRequest);</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">this</span>.getAuthenticationManager().authenticate(authRequest);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>我们从<code>UsernamePasswordAuthenticationFilter</code>类中方法上可以看到</p>
+<p>首先创建一个<code>UsernamePasswordAuthenticationToken</code>对象，通过构造方法可知，<code>setAuthenticated(false)</code>是未认证状态</p>
+<p>然后<code>setDetails()</code>，为对象设置请求信息</p>
+<p>最后<code>getAuthenticationManager().authenticate(authRequest)</code>，调用<code>AuthenticationManager</code>的认证方法进行认证</p>
+<h3 id="AuthenticationManager"><a href="#AuthenticationManager" class="headerlink" title="AuthenticationManager"></a>AuthenticationManager</h3><h4 id="找到正确的AuthenticationProvider"><a href="#找到正确的AuthenticationProvider" class="headerlink" title="找到正确的AuthenticationProvider"></a>找到正确的AuthenticationProvider</h4><p><code>AuthenticationManager</code>是一个接口，实现是由<code>ProviderManager</code>进行实现，<code>ProvideManager</code>负责管理<code>AuthenticationProvider</code>，看一下源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Authentication <span class="title">authenticate</span><span class="params">(Authentication authentication)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">    Class&lt;? extends Authentication&gt; toTest = authentication.getClass();</span><br><span class="line">  	···</span><br><span class="line">   <span class="comment">// 循环获取所有的Provider</span></span><br><span class="line">   <span class="keyword">for</span> (AuthenticationProvider provider : getProviders()) &#123;</span><br><span class="line">       <span class="comment">// 判断这个Provider是否能处理认证对象</span></span><br><span class="line">      <span class="keyword">if</span> (!provider.supports(toTest)) &#123;</span><br><span class="line">         <span class="keyword">continue</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="comment">// 调用Provider的认证方法进行认证</span></span><br><span class="line">         result = provider.authenticate(authentication);</span><br><span class="line"></span><br><span class="line">         <span class="keyword">if</span> (result != <span class="keyword">null</span>) &#123;</span><br><span class="line">            copyDetails(authentication, result);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">    ···</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里为什么要循环所有的Provider呢？，</p>
+<p>因为对于<code>Provider</code>有<code>SocialAuthenticationProvider</code>（第三方接入的时候专用），<code>AbstractUserDetailsAuthenticationProvider</code>（我们配置的时候用到的）等等。</p>
+<p>其实真正执行的只有一个provider，那么究竟会选择哪一个provider，我们看到有一个<code>supports</code>方法。也就是根据上一步中的<code>authentication</code>的类型来做判断。</p>
+<p>找到正确的Provider后，调用Provider的认证方法对未认证对象进行认证</p>
+<h3 id="AuthenticationProvider"><a href="#AuthenticationProvider" class="headerlink" title="AuthenticationProvider"></a>AuthenticationProvider</h3><h4 id="进行认证"><a href="#进行认证" class="headerlink" title="进行认证"></a>进行认证</h4><p>这里因为我们使用用户名密码的表单登录，所以实现类为<code>AbstractUserDetailsAuthenticationProvider</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Authentication <span class="title">authenticate</span><span class="params">(Authentication authentication)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">  ···</span><br><span class="line">   <span class="comment">// 获取缓存中的对象</span></span><br><span class="line">   UserDetails user = <span class="keyword">this</span>.userCache.getUserFromCache(username);</span><br><span class="line">    <span class="comment">// 如果不存在，即需要登录认证</span></span><br><span class="line">   <span class="keyword">if</span> (user == <span class="keyword">null</span>) &#123;</span><br><span class="line">      cacheWasUsed = <span class="keyword">false</span>;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="comment">// 获取UserDetails对象</span></span><br><span class="line">         user = retrieveUser(username,</span><br><span class="line">               (UsernamePasswordAuthenticationToken) authentication);</span><br><span class="line">          <span class="comment">/* 调用UserDetailsService接口，即我们的实现类，获取UserDetails对象</span></span><br><span class="line"><span class="comment">          protected final UserDetails retrieveUser(String username,</span></span><br><span class="line"><span class="comment">			UsernamePasswordAuthenticationToken authentication)</span></span><br><span class="line"><span class="comment">			throws AuthenticationException &#123;</span></span><br><span class="line"><span class="comment">			UserDetails loadedUser = this.getUserDetailsService().loadUserByUsername(username);</span></span><br><span class="line"><span class="comment">			return loadedUser;</span></span><br><span class="line"><span class="comment">          &#125;</span></span><br><span class="line"><span class="comment">          */</span></span><br><span class="line">      &#125;</span><br><span class="line">      ···</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="comment">// 前置判断</span></span><br><span class="line">      preAuthenticationChecks.check(user);</span><br><span class="line">      <span class="comment">// 匹配用户名密码</span></span><br><span class="line">      additionalAuthenticationChecks(user,</span><br><span class="line">            (UsernamePasswordAuthenticationToken) authentication);</span><br><span class="line">   &#125;</span><br><span class="line">   </span><br><span class="line">	···</span><br><span class="line">   <span class="comment">// 后置判断</span></span><br><span class="line">   postAuthenticationChecks.check(user);</span><br><span class="line">	···</span><br><span class="line">   <span class="comment">// 创建认证对象</span></span><br><span class="line">   <span class="keyword">return</span> createSuccessAuthentication(principalToReturn, authentication, user);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我把源码精简了一下，可以清晰看出认证过程</p>
+<p>首先获取<code>UserDetails</code>对象，这就是我们实现<code>UserDetailsService</code>接口编写的那个对象</p>
+<h5 id="调用前置判断"><a href="#调用前置判断" class="headerlink" title="调用前置判断"></a>调用前置判断</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">DefaultPreAuthenticationChecks</span> <span class="keyword">implements</span> <span class="title">UserDetailsChecker</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">check</span><span class="params">(UserDetails user)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (!user.isAccountNonLocked()) &#123;</span><br><span class="line">         logger.debug(<span class="string">"User account is locked"</span>);</span><br><span class="line"></span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> LockedException(messages.getMessage(</span><br><span class="line">               <span class="string">"AbstractUserDetailsAuthenticationProvider.locked"</span>,</span><br><span class="line">               <span class="string">"User account is locked"</span>));</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!user.isEnabled()) &#123;</span><br><span class="line">         logger.debug(<span class="string">"User account is disabled"</span>);</span><br><span class="line"></span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> DisabledException(messages.getMessage(</span><br><span class="line">               <span class="string">"AbstractUserDetailsAuthenticationProvider.disabled"</span>,</span><br><span class="line">               <span class="string">"User is disabled"</span>));</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!user.isAccountNonExpired()) &#123;</span><br><span class="line">         logger.debug(<span class="string">"User account is expired"</span>);</span><br><span class="line"></span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> AccountExpiredException(messages.getMessage(</span><br><span class="line">               <span class="string">"AbstractUserDetailsAuthenticationProvider.expired"</span>,</span><br><span class="line">               <span class="string">"User account has expired"</span>));</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里就是判断我们之前说的那几个布尔属性，是否被锁，是否可用，账户是否过期</p>
+<h5 id="匹配用户名密码"><a href="#匹配用户名密码" class="headerlink" title="匹配用户名密码"></a>匹配用户名密码</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">additionalAuthenticationChecks</span><span class="params">(UserDetails userDetails,</span></span></span><br><span class="line"><span class="function"><span class="params">      UsernamePasswordAuthenticationToken authentication)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">   <span class="comment">// 使用passwordEncoder的matches方法进行匹配验证</span></span><br><span class="line">   <span class="keyword">if</span> (!passwordEncoder.matches(presentedPassword, userDetails.getPassword())) &#123;</span><br><span class="line">      logger.debug(<span class="string">"Authentication failed: password does not match stored value"</span>);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> BadCredentialsException(messages.getMessage(</span><br><span class="line">            <span class="string">"AbstractUserDetailsAuthenticationProvider.badCredentials"</span>,</span><br><span class="line">            <span class="string">"Bad credentials"</span>));</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="后置判断"><a href="#后置判断" class="headerlink" title="后置判断"></a>后置判断</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">DefaultPostAuthenticationChecks</span> <span class="keyword">implements</span> <span class="title">UserDetailsChecker</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">check</span><span class="params">(UserDetails user)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (!user.isCredentialsNonExpired()) &#123;</span><br><span class="line">         logger.debug(<span class="string">"User account credentials have expired"</span>);</span><br><span class="line"></span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> CredentialsExpiredException(messages.getMessage(</span><br><span class="line">               <span class="string">"AbstractUserDetailsAuthenticationProvider.credentialsExpired"</span>,</span><br><span class="line">               <span class="string">"User credentials have expired"</span>));</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>判断用户是否过期</p>
+<h5 id="创建认证对象"><a href="#创建认证对象" class="headerlink" title="创建认证对象"></a>创建认证对象</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> Authentication <span class="title">createSuccessAuthentication</span><span class="params">(Object principal,</span></span></span><br><span class="line"><span class="function"><span class="params">      Authentication authentication, UserDetails user)</span> </span>&#123;</span><br><span class="line">   UsernamePasswordAuthenticationToken result = <span class="keyword">new</span> UsernamePasswordAuthenticationToken(</span><br><span class="line">         principal, authentication.getCredentials(),</span><br><span class="line">         authoritiesMapper.mapAuthorities(user.getAuthorities()));</span><br><span class="line">   result.setDetails(authentication.getDetails());</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里调用构造函数时传了三个参数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">UsernamePasswordAuthenticationToken</span><span class="params">(Object principal, Object credentials,</span></span></span><br><span class="line"><span class="function"><span class="params">      Collection&lt;? extends GrantedAuthority&gt; authorities)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">super</span>(authorities);</span><br><span class="line">   <span class="keyword">this</span>.principal = principal;</span><br><span class="line">   <span class="keyword">this</span>.credentials = credentials;</span><br><span class="line">   <span class="keyword">super</span>.setAuthenticated(<span class="keyword">true</span>); <span class="comment">// must use super, as we override</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在代码中可以清楚的看到，<code>super.setAuthenticated(true);</code>说明为认证用户</p>
+<h3 id="AbstractAuthenticationProcessingFilter"><a href="#AbstractAuthenticationProcessingFilter" class="headerlink" title="AbstractAuthenticationProcessingFilter"></a>AbstractAuthenticationProcessingFilter</h3><h4 id="失败或成功处理类调用"><a href="#失败或成功处理类调用" class="headerlink" title="失败或成功处理类调用"></a>失败或成功处理类调用</h4><p>这个类是<code>UsernamePasswordAuthenticationFilter</code>的父类，<code>doFilter()</code>方法是由他实现的，所以创建完认证用户返回后，会执行此类的doFilter方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest req, ServletResponse res, FilterChain chain)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">    <span class="keyword">catch</span> (AuthenticationException failed) &#123;</span><br><span class="line">        <span class="comment">// Authentication failed</span></span><br><span class="line">        unsuccessfulAuthentication(request, response, failed);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Authentication success</span></span><br><span class="line">    <span class="keyword">if</span> (continueChainBeforeSuccessfulAuthentication) &#123;</span><br><span class="line">        chain.doFilter(request, response);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    successfulAuthentication(request, response, chain, authResult);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码很简单，就是判断用户是否认证，如果没有调用<code>unsuccessfulAuthentication()</code>方法，如果认证成功调用<code>successfulAuthentication()</code>方法</p>
+<h5 id="unsuccessfulAuthentication"><a href="#unsuccessfulAuthentication" class="headerlink" title="unsuccessfulAuthentication()"></a>unsuccessfulAuthentication()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">unsuccessfulAuthentication</span><span class="params">(HttpServletRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">      HttpServletResponse response, AuthenticationException failed)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">   ···</span><br><span class="line">   failureHandler.onAuthenticationFailure(request, response, failed);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里就是我们自定义的认证失败处理类<code>failureHandler</code>的调用</p>
+<h5 id="successfulAuthentication"><a href="#successfulAuthentication" class="headerlink" title="successfulAuthentication()"></a>successfulAuthentication()</h5><p>由上面可以推断出，这个类其实就是调用我们自定义的认证成功处理类<code>successHandler</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">successfulAuthentication</span><span class="params">(HttpServletRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">      HttpServletResponse response, FilterChain chain, Authentication authResult)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line"></span><br><span class="line">   ···</span><br><span class="line">   successHandler.onAuthenticationSuccess(request, response, authResult);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><img src="/image/1578364571670.png" alt="1578364571670"></p>
+<p>如图，走了这些方法，主要步骤为：</p>
+<ol>
+<li><code>UsernamePasswordAuthenticationFilters</code>创建一个未认证对象，将对象信息进行初始化</li>
+<li><code>AuthenticationManager</code>循环查找对应的<code>Provider</code>，调用<code>Provider</code>的<code>authenticate</code>对未认证对象认证</li>
+<li><code>AuthenticationProvider</code>对未认证对象进行校验，通过调用<code>UserDetailsService</code>方法，获取<code>UserDetails</code>对象，进行判断，如果成功，创建一个已认证对象，返回<code>UsernamePasswordAuthenticationFilters</code></li>
+<li><code>AbstractAuthenticationProcessingFilter</code>进行<code>doFilter()</code>释放请求，对认证成功<code>Handler</code>或认证失败<code>Handler</code>进行调用</li>
+</ol>
+<p>由此，我们上两节研究的几个接口就串起来了，主要有：<code>UserDetailsService</code>，<code>UserDetails</code>，<code>successHandler</code>，<code>failureHandler</code></p>
+<h2 id="认证结果在多个请求间共享"><a href="#认证结果在多个请求间共享" class="headerlink" title="认证结果在多个请求间共享"></a>认证结果在多个请求间共享</h2><p>将认证结果在多个请求间共享，第一想到的就是放到上下文中，其实就是这样，我们可以看一下认证成功后调用的方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">successfulAuthentication</span><span class="params">(HttpServletRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">      HttpServletResponse response, FilterChain chain, Authentication authResult)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">      logger.debug(<span class="string">"Authentication success. Updating SecurityContextHolder to contain: "</span></span><br><span class="line">            + authResult);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   SecurityContextHolder.getContext().setAuthentication(authResult);</span><br><span class="line"></span><br><span class="line">   rememberMeServices.loginSuccess(request, response, authResult);</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Fire event</span></span><br><span class="line">   <span class="keyword">if</span> (<span class="keyword">this</span>.eventPublisher != <span class="keyword">null</span>) &#123;</span><br><span class="line">      eventPublisher.publishEvent(<span class="keyword">new</span> InteractiveAuthenticationSuccessEvent(</span><br><span class="line">            authResult, <span class="keyword">this</span>.getClass()));</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   successHandler.onAuthenticationSuccess(request, response, authResult);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这里可以看到<code>SecurityContextHolder.getContext().setAuthentication(authResult);</code>，将结果放到了<code>SecurityContext</code>上下文中，并且最后给<code>SecurityContextHolder</code></p>
+<p><code>SecurityContextHolder</code>是一个<code>ThreadLocal</code>的包装类，即对多线程进行处理的类。</p>
+<p>这样下次请求过来的时候，直接从context中取就可以，那么，是谁把认证信息放到context中的呢？</p>
+<h3 id="SecurityContextPersistenceFilter"><a href="#SecurityContextPersistenceFilter" class="headerlink" title="SecurityContextPersistenceFilter"></a>SecurityContextPersistenceFilter</h3><p><img src="/image/14483918-d98d29a13e7d0e3e.webp" alt="img"></p>
+<p>就是<code>SecurityContextPersistenceFilter</code>这个过滤器</p>
+<p><img src="/image/1578368075617.png" alt="1578368075617"></p>
+<p>在Filter的最后，如果存在认证后用户信息，就一定会把context存入到session中，这样如果用户已经登录过一次，session中可以拿到Context，context中就可以拿到<code>UsernamePasswordAuthenticationToken</code></p>
+<p>当然如果没有用户信息，就直接跳过</p>
+<h2 id="获取认证用户信息"><a href="#获取认证用户信息" class="headerlink" title="获取认证用户信息"></a>获取认证用户信息</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/user"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/me"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getCurrentUser</span><span class="params">(Authentication authentication)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> authentication;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/me2"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getCurrentUser2</span><span class="params">(@AuthenticationPrincipal UserDetails userDetails)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> userDetails;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里有两种方法，一种直接从容器中获取Authentication，得到的是：</p>
+<p><img src="/image/1578376077607.png" alt="1578376077607"></p>
+<p>详细信息以及请求的一些信息，如果不想给别人这么详细的信息就可以使用第二种方式</p>
+<p>只获取用户的信息，即Principal中的信息</p>
+<p><img src="/image/1578376128246.png" alt="1578376128246"></p>
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>用一张图来总结：</p>
+<p><img src="/image/1578368202695.png" alt="1578368202695"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springsecurity/" rel="tag"># springsecurity</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/06/ss04-SpringSecurity04-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%94%A8%E6%88%B7%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B/" rel="next" title="SpringSecurity04-自定义用户认证流程">
+                <i class="fa fa-chevron-left"></i> SpringSecurity04-自定义用户认证流程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">60</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#认证处理流程"><span class="nav-number">1.</span> <span class="nav-text">认证处理流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UsernamePasswordAuthenticationFilters"><span class="nav-number">1.1.</span> <span class="nav-text">UsernamePasswordAuthenticationFilters</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建一个未认证对象"><span class="nav-number">1.1.1.</span> <span class="nav-text">创建一个未认证对象</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AuthenticationManager"><span class="nav-number">1.2.</span> <span class="nav-text">AuthenticationManager</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#找到正确的AuthenticationProvider"><span class="nav-number">1.2.1.</span> <span class="nav-text">找到正确的AuthenticationProvider</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AuthenticationProvider"><span class="nav-number">1.3.</span> <span class="nav-text">AuthenticationProvider</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#进行认证"><span class="nav-number">1.3.1.</span> <span class="nav-text">进行认证</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#调用前置判断"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">调用前置判断</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#匹配用户名密码"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">匹配用户名密码</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#后置判断"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">后置判断</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建认证对象"><span class="nav-number">1.3.1.4.</span> <span class="nav-text">创建认证对象</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AbstractAuthenticationProcessingFilter"><span class="nav-number">1.4.</span> <span class="nav-text">AbstractAuthenticationProcessingFilter</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#失败或成功处理类调用"><span class="nav-number">1.4.1.</span> <span class="nav-text">失败或成功处理类调用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#unsuccessfulAuthentication"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">unsuccessfulAuthentication()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#successfulAuthentication"><span class="nav-number">1.4.1.2.</span> <span class="nav-text">successfulAuthentication()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.5.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#认证结果在多个请求间共享"><span class="nav-number">2.</span> <span class="nav-text">认证结果在多个请求间共享</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SecurityContextPersistenceFilter"><span class="nav-number">2.1.</span> <span class="nav-text">SecurityContextPersistenceFilter</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取认证用户信息"><span class="nav-number">3.</span> <span class="nav-text">获取认证用户信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结-1"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
