@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springsecurity," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本篇文章我们研究Spring Security开发基于表单的登录的最后一块内容，基于短信验证码的接口开发。 前面的文章我们讲解了基于图片验证码的校验，有兴趣的同学可以翻看一下。 这篇文章除了讲解短信验证码的开发之外，我们还会对之前的代码做一次重构，我们希望短信验证码和图片验证码的逻辑的公共部分可以抽离出来。 开发短信验证码接口实现思路我们的代码类似于图片验证校验，进行实现 首先肯定要写一个生成短信">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringSecurity08-短信验证码">
+<meta property="og:url" content="http://yoursite.com/2020/01/08/ss08-SpringSecurity08-%E7%9F%AD%E4%BF%A1%E9%AA%8C%E8%AF%81%E7%A0%81/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="本篇文章我们研究Spring Security开发基于表单的登录的最后一块内容，基于短信验证码的接口开发。 前面的文章我们讲解了基于图片验证码的校验，有兴趣的同学可以翻看一下。 这篇文章除了讲解短信验证码的开发之外，我们还会对之前的代码做一次重构，我们希望短信验证码和图片验证码的逻辑的公共部分可以抽离出来。 开发短信验证码接口实现思路我们的代码类似于图片验证校验，进行实现 首先肯定要写一个生成短信">
+<meta property="og:image" content="http://yoursite.com/image/1578473940258.png">
+<meta property="og:image" content="http://yoursite.com/image/1578473957559.png">
+<meta property="og:image" content="http://yoursite.com/image/1578476115495.png">
+<meta property="og:image" content="http://yoursite.com/image/1578485404723.png">
+<meta property="og:image" content="http://yoursite.com/image/1578485426586.png">
+<meta property="og:image" content="http://yoursite.com/image/1578485388273.png">
+<meta property="article:published_time" content="2020-01-08T12:17:08.000Z">
+<meta property="article:modified_time" content="2020-01-08T12:29:00.863Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springsecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1578473940258.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/08/ss08-SpringSecurity08-短信验证码/"/>
+
+
+
+
+
+  <title>SpringSecurity08-短信验证码 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/08/ss08-SpringSecurity08-%E7%9F%AD%E4%BF%A1%E9%AA%8C%E8%AF%81%E7%A0%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SpringSecurity08-短信验证码</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-08T20:17:08+08:00">
+                2020-01-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本篇文章我们研究Spring Security开发基于表单的登录的最后一块内容，基于短信验证码的接口开发。 <a href="https://pacee1.github.io/2020/01/08/ss06-SpringSecurity06-%E5%9B%BE%E7%89%87%E9%AA%8C%E8%AF%81%E7%A0%81/" target="_blank" rel="noopener">前面的文章我们讲解了基于图片验证码的校验</a>，有兴趣的同学可以翻看一下。</p>
+<p>这篇文章除了讲解短信验证码的开发之外，我们还会对之前的代码做一次重构，我们希望短信验证码和图片验证码的逻辑的公共部分可以抽离出来。</p>
+<h2 id="开发短信验证码接口"><a href="#开发短信验证码接口" class="headerlink" title="开发短信验证码接口"></a>开发短信验证码接口</h2><h3 id="实现思路"><a href="#实现思路" class="headerlink" title="实现思路"></a>实现思路</h3><p>我们的代码类似于图片验证校验，进行实现</p>
+<p>首先肯定要写一个生成短信的类，然后将这个短信通过接口发送出去（这个接口可以有很多实现，因为有不同的短信服务提供商）。</p>
+<p>既然有短信，肯定有一个短信的封装类，还需要配置类，配置短信验证码长度，过期时间等。</p>
+<h3 id="创建短信验证码信息封装类"><a href="#创建短信验证码信息封装类" class="headerlink" title="创建短信验证码信息封装类"></a>创建短信验证码信息封装类</h3><p>因为短信和图片成员变量类似，所以集体抽象出来为ValidateCode，并使两个封装类继承此类</p>
+<p>短信验证码直接调用父类构造方法</p>
+<p>图片验证码新增一个图片变量</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SmsCode</span> <span class="keyword">extends</span> <span class="title">ValidateCode</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SmsCode</span><span class="params">(String code, <span class="keyword">int</span> expireTime)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(code, expireTime);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SmsCode</span><span class="params">(String code, LocalDateTime expireTime)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(code, expireTime);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="创建短信验证码配置类"><a href="#创建短信验证码配置类" class="headerlink" title="创建短信验证码配置类"></a>创建短信验证码配置类</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SmsCodeProperties</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> length = <span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> expireIn = <span class="number">60</span>;</span><br><span class="line"></span><br><span class="line">    ···</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>和之前短信的类似，只不过少了长和宽，然后将此配置类放到上层ValidateCodeProperties中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ValidateCodeProperties</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> ImageCodeProperties image = <span class="keyword">new</span> ImageCodeProperties();</span><br><span class="line">    <span class="keyword">private</span> SmsCodeProperties sms = <span class="keyword">new</span> SmsCodeProperties();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ImageCodeProperties <span class="title">getImage</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> image;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setImage</span><span class="params">(ImageCodeProperties image)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.image = image;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> SmsCodeProperties <span class="title">getSms</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> sms;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSms</span><span class="params">(SmsCodeProperties sms)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.sms = sms;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建短信验证码生成类"><a href="#创建短信验证码生成类" class="headerlink" title="创建短信验证码生成类"></a>创建短信验证码生成类</h3><p>这里还是使用之前的接口，但是需要改一下返回值，改为刚刚抽象出来的封装类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ValidateCodeGenerator</span> </span>&#123;</span><br><span class="line">    <span class="function">ValidateCode <span class="title">generate</span><span class="params">(ServletWebRequest request)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>短信生成类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SmsCodeGenerator</span> <span class="keyword">implements</span> <span class="title">ValidateCodeGenerator</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SecurityProperties securityProperties;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> SmsCode <span class="title">generate</span><span class="params">(ServletWebRequest request)</span> </span>&#123;</span><br><span class="line">        String code = RandomStringUtils.randomNumeric(securityProperties.getCode().getSms().getLength());</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SmsCode(code, securityProperties.getCode().getSms().getExpireIn());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>短信生成方式很简单，就是生成配置长度的随机数，这里默认4位</p>
+<h3 id="创建短信验证码发送类"><a href="#创建短信验证码发送类" class="headerlink" title="创建短信验证码发送类"></a>创建短信验证码发送类</h3><p>这里我们还是以可重用可替代原则，接口+实现类形式开发</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">SmsCodeSender</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">send</span><span class="params">(String mobile,String msg)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DefaultSmsCodeSender</span> <span class="keyword">implements</span> <span class="title">SmsCodeSender</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">(String mobile, String msg)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"向手机发送验证码，手机号："</span>+</span><br><span class="line">                mobile +<span class="string">"，短信验证码："</span> + msg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：因为各个短信商的接口不同，这里只需重新这个Sender方法即可，根据不同的接口调用规则进行重写</strong></p>
+<h3 id="将相关类注入到容器中"><a href="#将相关类注入到容器中" class="headerlink" title="将相关类注入到容器中"></a>将相关类注入到容器中</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ValidateBeanConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span>(name = <span class="string">"imageCodeGenerator"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ValidateCodeGenerator <span class="title">imageCodeGenerator</span><span class="params">()</span></span>&#123;</span><br><span class="line">        ImageCodeGenerator codeGenerator = <span class="keyword">new</span> ImageCodeGenerator();</span><br><span class="line">        <span class="keyword">return</span> codeGenerator;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span>(name = <span class="string">"smsCodeGenerator"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> ValidateCodeGenerator <span class="title">smsCodeGenerator</span><span class="params">()</span></span>&#123;</span><br><span class="line">        SmsCodeGenerator codeGenerator = <span class="keyword">new</span> SmsCodeGenerator();</span><br><span class="line">        <span class="keyword">return</span> codeGenerator;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span>(name = <span class="string">"smsCodeSender"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> SmsCodeSender <span class="title">smsCodeSender</span><span class="params">()</span></span>&#123;</span><br><span class="line">        SmsCodeSender smsCodeSender = <span class="keyword">new</span> DefaultSmsCodeSender();</span><br><span class="line">        <span class="keyword">return</span> smsCodeSender;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里还是和之前一样，只需向容器中添加对应组件即可替代默认实现类</p>
+<h3 id="实现短信验证码发送接口"><a href="#实现短信验证码发送接口" class="headerlink" title="实现短信验证码发送接口"></a>实现短信验证码发送接口</h3><p>重用之前Controller类，再写一个发送的接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ValidateCodeController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String SESSION_KEY = <span class="string">"SESSION_KEY_IMAGE_CODE"</span>;</span><br><span class="line">    <span class="keyword">private</span> SessionStrategy sessionStrategy = <span class="keyword">new</span> HttpSessionSessionStrategy();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ValidateCodeGenerator imageCodeGenerator;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ValidateCodeGenerator smsCodeGenerator;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SmsCodeSender smsCodeSender;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/code/image"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">createCode</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> IOException</span>&#123;</span><br><span class="line">        ServletWebRequest servletWebRequest = <span class="keyword">new</span> ServletWebRequest(request);</span><br><span class="line">        <span class="comment">// 调用图片验证码生成接口</span></span><br><span class="line">        ImageCode imageCode = (ImageCode) imageCodeGenerator.generate(servletWebRequest);</span><br><span class="line">        sessionStrategy.setAttribute(servletWebRequest,SESSION_KEY,imageCode);</span><br><span class="line">        ImageIO.write(imageCode.getImage(),<span class="string">"JPEG"</span>,response.getOutputStream());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/code/sms"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">createSmsCode</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> IOException, ServletRequestBindingException </span>&#123;</span><br><span class="line">        ServletWebRequest servletWebRequest = <span class="keyword">new</span> ServletWebRequest(request);</span><br><span class="line">        <span class="comment">// 调用图片验证码生成接口</span></span><br><span class="line">        SmsCode smsCode = (SmsCode) smsCodeGenerator.generate(servletWebRequest);</span><br><span class="line">        sessionStrategy.setAttribute(servletWebRequest,SESSION_KEY,smsCode);</span><br><span class="line">        String mobile = ServletRequestUtils.getRequiredStringParameter(request,<span class="string">"mobile"</span>);</span><br><span class="line">        smsCodeSender.send(mobile,smsCode.getCode());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改登录页面"><a href="#修改登录页面" class="headerlink" title="修改登录页面"></a>修改登录页面</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    ···</span><br><span class="line">    <span class="tag">&lt;<span class="name">h3</span>&gt;</span>短信登录<span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">"/authentication/mobile"</span> <span class="attr">method</span>=<span class="string">"post"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">table</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">td</span>&gt;</span>手机号:<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">name</span>=<span class="string">"mobile"</span> <span class="attr">value</span>=<span class="string">"13012345678"</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">td</span>&gt;</span>短信验证码:<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">td</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">name</span>=<span class="string">"smsCode"</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/code/sms?mobile=13012345678"</span>&gt;</span>发送验证码<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">"2"</span>&gt;</span><span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">"submit"</span>&gt;</span>登录<span class="tag">&lt;/<span class="name">button</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在原来的基础上添加一个短信登录的表单，这里手机号是写死的，方便测试</p>
+<h3 id="启动测试"><a href="#启动测试" class="headerlink" title="启动测试"></a>启动测试</h3><p><img src="/image/1578473940258.png" alt="1578473940258"></p>
+<p>登录页面显示没问题，点击发送验证码</p>
+<p><img src="/image/1578473957559.png" alt="1578473957559"></p>
+<p>控制台成功打印信息，说明发送成功，即我们短信验证码接口开发完毕</p>
+<h2 id="短信验证码校验认证"><a href="#短信验证码校验认证" class="headerlink" title="短信验证码校验认证"></a>短信验证码校验认证</h2><p>其实不管短信验证码还是图片验证码，我们学习SpringSecurity更重要的是对其校验认证的实现。所以重心更应该放在认证上面。</p>
+<h3 id="认证思路"><a href="#认证思路" class="headerlink" title="认证思路"></a>认证思路</h3><p><img src="/image/1578476115495.png" alt="1578476115495"></p>
+<p>对于短信的校验和图片校验不同，因为他需要登录，而图片校验只需要校验然后再执行自带的密码拦截即可。</p>
+<p>我们可以仿照密码认证方式，写一个短信认证，如图：</p>
+<ul>
+<li>首先和图片校验一样，写一个短信校验拦截器，这里没有直接放在短信认证Provider中，是为了可重用，比如支付的时候也需要短信校验，那么就得再写一个拦截器才可以，放在外面可以直接使用</li>
+<li>然后仿照<code>UsernamePassword</code>认证拦截器，实现一个短信认证拦截器，并编写一个短信认证Token</li>
+<li>调用<code>AuthenticationManager</code>，这个是公用的，不需我们实现，因为这个只是Provider的管理器，会根据我们实现的<code>SMSAuthenticationToken</code>找到我们实现的<code>SmsAuthenticationProvider</code></li>
+<li>然后实现短信认证Provider，为的是通过获取匹配我自己生成的短信Token，来获取UserDetails，将其认证状态改为已认证</li>
+</ul>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><h4 id="创建短信校验过滤器"><a href="#创建短信校验过滤器" class="headerlink" title="创建短信校验过滤器"></a>创建短信校验过滤器</h4><p>功能：拦截表单提交，验证短信验证码是否匹配</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SmsCodeFilter</span> <span class="keyword">extends</span> <span class="title">OncePerRequestFilter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> SecurityProperties securityProperties;</span><br><span class="line">    <span class="keyword">private</span> AuthenticationFailureHandler authenticationFailureHandler;</span><br><span class="line">    <span class="keyword">private</span> SessionStrategy sessionStrategy = <span class="keyword">new</span> HttpSessionSessionStrategy();</span><br><span class="line">    <span class="keyword">private</span> AntPathMatcher pathMatcher = <span class="keyword">new</span> AntPathMatcher();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 过滤调用方法</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> request</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> response</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> filterChain</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> ServletException</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doFilterInternal</span><span class="params">(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">        <span class="comment">// 将拦截路径切割处理</span></span><br><span class="line">        String url = securityProperties.getCode().getSms().getUrl();</span><br><span class="line">        String[] strings = url.split(<span class="string">","</span>);</span><br><span class="line">        <span class="keyword">boolean</span> action = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">for</span>(String s :strings)&#123;</span><br><span class="line">            <span class="keyword">if</span> (pathMatcher.match(s, request.getRequestURI())) &#123;</span><br><span class="line">                action = <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//判断请求路径与请求方式</span></span><br><span class="line">        <span class="keyword">if</span>(action)&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                validate(<span class="keyword">new</span> ServletWebRequest(request));</span><br><span class="line">            &#125;<span class="keyword">catch</span> (ValidateCodeException e)&#123;</span><br><span class="line">                authenticationFailureHandler.onAuthenticationFailure(request,response,e);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        doFilter(request,response,filterChain);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 校验验证码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> request</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">validate</span><span class="params">(ServletWebRequest request)</span> <span class="keyword">throws</span> ServletRequestBindingException </span>&#123;</span><br><span class="line">        SmsCode codeInSession = (SmsCode) sessionStrategy.getAttribute(request, ValidateCodeController.SESSION_SMS_KEY);</span><br><span class="line"></span><br><span class="line">        String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), <span class="string">"smsCode"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isBlank(codeInRequest)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ValidateCodeException(<span class="string">"验证码的值不能为空"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (codeInSession == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ValidateCodeException(<span class="string">"验证码不存在"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (codeInSession.isExpired()) &#123;</span><br><span class="line">            sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_SMS_KEY);</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ValidateCodeException(<span class="string">"验证码已过期"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!StringUtils.equals(codeInSession.getCode(), codeInRequest)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ValidateCodeException(<span class="string">"验证码不匹配"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_SMS_KEY);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AuthenticationFailureHandler <span class="title">getAuthenticationFailureHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> authenticationFailureHandler;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAuthenticationFailureHandler</span><span class="params">(AuthenticationFailureHandler authenticationFailureHandler)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.authenticationFailureHandler = authenticationFailureHandler;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> SecurityProperties <span class="title">getSecurityProperties</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> securityProperties;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSecurityProperties</span><span class="params">(SecurityProperties securityProperties)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.securityProperties = securityProperties;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里实现方式和图片验证码一样，只是改了<code>SessionKey</code>和匹配获取的路径</p>
+<h4 id="创建短信认证Token"><a href="#创建短信认证Token" class="headerlink" title="创建短信认证Token"></a>创建短信认证Token</h4><p>我们只需仿照<code>UsernamePasswordAuthenticationToken</code>来编写即可，这里我们不需要密码参数，因为我们的匹配校验是在前面<code>SMSCodeFilter</code>做的，所以关于密码的都删除。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SmsAuthenticationToken</span> <span class="keyword">extends</span> <span class="title">AbstractAuthenticationToken</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 未认证时存放验证码，认证时存放UserDetails，需保留</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Object principal;</span><br><span class="line">    <span class="comment">// 删除密码参数，用不到，我们在之前进行校验，就不需要在Provider中校验了</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 未认证构造方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SmsAuthenticationToken</span><span class="params">(Object principal)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(<span class="keyword">null</span>);</span><br><span class="line">        <span class="keyword">this</span>.principal = principal;</span><br><span class="line">        setAuthenticated(<span class="keyword">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 认证通过构造方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SmsAuthenticationToken</span><span class="params">(Object principal,</span></span></span><br><span class="line"><span class="function"><span class="params">                                               Collection&lt;? extends GrantedAuthority&gt; authorities)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(authorities);</span><br><span class="line">        <span class="keyword">this</span>.principal = principal;</span><br><span class="line">        <span class="keyword">super</span>.setAuthenticated(<span class="keyword">true</span>); <span class="comment">// must use super, as we override</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getCredentials</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取认证信息</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getPrincipal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.principal;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAuthenticated</span><span class="params">(<span class="keyword">boolean</span> isAuthenticated)</span> <span class="keyword">throws</span> IllegalArgumentException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (isAuthenticated) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(</span><br><span class="line">                    <span class="string">"Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">super</span>.setAuthenticated(<span class="keyword">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">eraseCredentials</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.eraseCredentials();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="创建短信认证过滤器"><a href="#创建短信认证过滤器" class="headerlink" title="创建短信认证过滤器"></a>创建短信认证过滤器</h4><p>这里实现可以仿照<code>UsernamePasswordAuthenticationFilter</code>，一样把密码相关的删除，并且使用刚刚创建的<code>SmsAuthenticationToken</code>做Token实现类，需要设置拦截路径为<code>/authentication/mobile</code>，即表单提交路径</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SmsAuthenticationFilter</span> <span class="keyword">extends</span> <span class="title">AbstractAuthenticationProcessingFilter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置请求中获取mobile参数的值</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String SPRING_SECURITY_FORM_MOBILE_KEY = <span class="string">"mobile"</span>;</span><br><span class="line">    <span class="comment">// 不需要密码</span></span><br><span class="line">    <span class="comment">//public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String mobileParameter = SPRING_SECURITY_FORM_MOBILE_KEY;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> postOnly = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SmsAuthenticationFilter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(<span class="keyword">new</span> AntPathRequestMatcher(<span class="string">"/authentication/mobile"</span>, <span class="string">"POST"</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 过滤</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Authentication <span class="title">attemptAuthentication</span><span class="params">(HttpServletRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                HttpServletResponse response)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">        <span class="comment">// 判断是否POST请求</span></span><br><span class="line">        <span class="keyword">if</span> (postOnly &amp;&amp; !request.getMethod().equals(<span class="string">"POST"</span>)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> AuthenticationServiceException(</span><br><span class="line">                    <span class="string">"Authentication method not supported: "</span> + request.getMethod());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        String mobile = obtainMobile(request);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (mobile == <span class="keyword">null</span>) &#123;</span><br><span class="line">            mobile = <span class="string">""</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        mobile = mobile.trim();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 这里使用我们自己的短信Token</span></span><br><span class="line">        SmsAuthenticationToken authRequest = <span class="keyword">new</span> SmsAuthenticationToken(mobile);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Allow subclasses to set the "details" property</span></span><br><span class="line">        setDetails(request, authRequest);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.getAuthenticationManager().authenticate(authRequest);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 从请求中获取mobile参数的值</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> String <span class="title">obtainMobile</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> request.getParameter(mobileParameter);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 为Token中添加请求的一些属性</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">setDetails</span><span class="params">(HttpServletRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">                              SmsAuthenticationToken authRequest)</span> </span>&#123;</span><br><span class="line">        authRequest.setDetails(authenticationDetailsSource.buildDetails(request));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setMobileParameter</span><span class="params">(String mobileParameter)</span> </span>&#123;</span><br><span class="line">        Assert.hasText(mobileParameter, <span class="string">"Username parameter must not be empty or null"</span>);</span><br><span class="line">        <span class="keyword">this</span>.mobileParameter = mobileParameter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setPostOnly</span><span class="params">(<span class="keyword">boolean</span> postOnly)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.postOnly = postOnly;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> String <span class="title">getMobileParameter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mobileParameter;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="创建短信认证Provider"><a href="#创建短信认证Provider" class="headerlink" title="创建短信认证Provider"></a>创建短信认证Provider</h4><p>Provider只需实现<code>AuthenticationProvider</code>两个方法即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SmsAuthenticationProvider</span> <span class="keyword">implements</span> <span class="title">AuthenticationProvider</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> UserDetailsService userDetailsService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据principal获取UserDetails，然后创建一个已认证的Token返回</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> authentication</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> AuthenticationException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Authentication <span class="title">authenticate</span><span class="params">(Authentication authentication)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">        <span class="comment">// 获取principal</span></span><br><span class="line">        String principal = (String) authentication.getPrincipal();</span><br><span class="line">        <span class="comment">// 根据principal 获取UserDetails</span></span><br><span class="line">        UserDetails userDetails = userDetailsService.loadUserByUsername(principal);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (userDetails == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> InternalAuthenticationServiceException(<span class="string">"无法获取用户信息"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 根据UserDetails创建认证后的短信Token</span></span><br><span class="line">        SmsAuthenticationToken authenticationToken = <span class="keyword">new</span> SmsAuthenticationToken(principal,userDetails.getAuthorities());</span><br><span class="line">        authenticationToken.setDetails(authentication.getDetails());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> authenticationToken;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 需要返回SmsAuthenticationToken，即与短信Token绑定</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> authentication</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">supports</span><span class="params">(Class&lt;?&gt; authentication)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SmsAuthenticationToken<span class="class">.<span class="keyword">class</span>.<span class="title">isAssignableFrom</span>(<span class="title">authentication</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> UserDetailsService <span class="title">getUserDetailsService</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> userDetailsService;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUserDetailsService</span><span class="params">(UserDetailsService userDetailsService)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.userDetailsService = userDetailsService;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置短信认证"><a href="#配置短信认证" class="headerlink" title="配置短信认证"></a>配置短信认证</h4><p>这里需要先将我们自定义的短信认证相关类装配到Security组件中，这里我们在Core模块下新加一个<code>SecurityConfig</code>类，而不是使用原来的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SmsAuthenticationSecurityConfig</span> <span class="keyword">extends</span></span></span><br><span class="line"><span class="class">        <span class="title">SecurityConfigurerAdapter</span>&lt;<span class="title">DefaultSecurityFilterChain</span>, <span class="title">HttpSecurity</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> AuthenticationSuccessHandler authenticationSuccessHandler;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> AuthenticationFailureHandler failureHandler;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserDetailsService myUserDetailService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        SmsAuthenticationFilter smsAuthenticationFilter = <span class="keyword">new</span> SmsAuthenticationFilter();</span><br><span class="line">        smsAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager<span class="class">.<span class="keyword">class</span>))</span>;</span><br><span class="line">        smsAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);</span><br><span class="line">        smsAuthenticationFilter.setAuthenticationFailureHandler(failureHandler);</span><br><span class="line"></span><br><span class="line">        SmsAuthenticationProvider smsAuthenticationProvider = <span class="keyword">new</span> SmsAuthenticationProvider();</span><br><span class="line">        smsAuthenticationProvider.setUserDetailsService(myUserDetailService);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 为Security配置Provider和Filter</span></span><br><span class="line">        http.authenticationProvider(smsAuthenticationProvider)</span><br><span class="line">            .addFilterBefore(smsAuthenticationFilter, UsernamePasswordAuthenticationFilter<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里独立出来的原因是，我们不止浏览器可以使用，APP也可以使用相同的短信认证方式，所以抽离了出来，在其他安全配置中想要引入此配置，只需编写以下代码即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> SmsAuthenticationSecurityConfig smsAuthenticationSecurityConfig;</span><br><span class="line"></span><br><span class="line">http.apply(smsAuthenticationSecurityConfig) <span class="comment">// 追加短信安全配置</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="配置短信校验"><a href="#配置短信校验" class="headerlink" title="配置短信校验"></a>配置短信校验</h4><p>接着还需要将SmsCodeFilter对密码校验的类和之前图片验证码一样添加到<code>BrowserSecurityConfig</code>中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BrowserSecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SmsAuthenticationSecurityConfig smsAuthenticationSecurityConfig;</span><br><span class="line"></span><br><span class="line">    ···</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ValidateCodeFilter validateCodeFilter = <span class="keyword">new</span> ValidateCodeFilter();</span><br><span class="line">        validateCodeFilter.setAuthenticationFailureHandler(failHandler);</span><br><span class="line">        validateCodeFilter.setSecurityProperties(properties);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 添加短信校验过滤器</span></span><br><span class="line">        SmsCodeFilter smsCodeFilter = <span class="keyword">new</span> SmsCodeFilter();</span><br><span class="line">        smsCodeFilter.setAuthenticationFailureHandler(failHandler);</span><br><span class="line">        smsCodeFilter.setSecurityProperties(properties);</span><br><span class="line"></span><br><span class="line">        http.addFilterBefore(validateCodeFilter,UsernamePasswordAuthenticationFilter<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">            .<span class="title">addFilterBefore</span>(<span class="title">smsCodeFilter</span>,<span class="title">UsernamePasswordAuthenticationFilter</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class">            .<span class="title">formLogin</span>() // 表单配置</span></span><br><span class="line">                .loginPage("/authentication/require") // 自定义登录页</span><br><span class="line">                .loginProcessingUrl(<span class="string">"/authentication/form"</span>) <span class="comment">// url映射，post表单的url交给表单拦截器处理</span></span><br><span class="line">                .successHandler(successHandler)</span><br><span class="line">                .failureHandler(failHandler)</span><br><span class="line">                .and()</span><br><span class="line">            .rememberMe() <span class="comment">// 记住我配置</span></span><br><span class="line">                .tokenRepository(tokenRepository())</span><br><span class="line">                .tokenValiditySeconds(properties.getBrowser().getRememberMeSeconds())</span><br><span class="line">                .userDetailsService(myUserDetailService)</span><br><span class="line">                .and()</span><br><span class="line">            .authorizeRequests() <span class="comment">// 下面是认证信息</span></span><br><span class="line">                .antMatchers(<span class="string">"/authentication/require"</span>,<span class="string">"/authentication/mobile"</span>,</span><br><span class="line">                        <span class="string">"/code/*"</span>, properties.getBrowser().getLoginPage())</span><br><span class="line">                .permitAll() <span class="comment">// 匹配请求过滤</span></span><br><span class="line">                .anyRequest() <span class="comment">// 所有请求</span></span><br><span class="line">                .authenticated() <span class="comment">// 都需要认证</span></span><br><span class="line">                .and()</span><br><span class="line">            .csrf().disable()<span class="comment">// 取消csrf安全防护机制</span></span><br><span class="line">            .apply(smsAuthenticationSecurityConfig) <span class="comment">// 追加短信安全配置</span></span><br><span class="line">        ;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里最后需要追加短信安全的配置，<strong>才能和这个表单进行关联</strong></p>
+<p>注意！这里还需要将表单提交配置在<code>application.propeties</code>中，不然无法被<code>SmsCodeFilter</code>拦截进行校验</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">enbuys.security.code.sms.url</span>=<span class="string">/authentication/mobile</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="启动测试-1"><a href="#启动测试-1" class="headerlink" title="启动测试"></a>启动测试</h3><p>首先我们在短信登录表单直接登录，不输入验证码</p>
+<p><img src="/image/1578485404723.png" alt="1578485404723"></p>
+<p>出现错误提示，说明我们已经成功了一般，接着查看控制台输入正确验证码</p>
+<p><img src="/image/1578485426586.png" alt="1578485426586"></p>
+<p>返回用户信息，说明我们短信校验认证已经成功，最后访问helloworld</p>
+<p><img src="/image/1578485388273.png" alt="1578485388273"></p>
+<p>成功访问，说明成功保存登录状态</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springsecurity/" rel="tag"># springsecurity</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/08/ss07-SpringSecurity07-%E8%AE%B0%E4%BD%8F%E6%88%91/" rel="next" title="SpringSecurity07-记住我">
+                <i class="fa fa-chevron-left"></i> SpringSecurity07-记住我
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">63</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#开发短信验证码接口"><span class="nav-number">1.</span> <span class="nav-text">开发短信验证码接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实现思路"><span class="nav-number">1.1.</span> <span class="nav-text">实现思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建短信验证码信息封装类"><span class="nav-number">1.2.</span> <span class="nav-text">创建短信验证码信息封装类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建短信验证码配置类"><span class="nav-number">1.3.</span> <span class="nav-text">创建短信验证码配置类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建短信验证码生成类"><span class="nav-number">1.4.</span> <span class="nav-text">创建短信验证码生成类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建短信验证码发送类"><span class="nav-number">1.5.</span> <span class="nav-text">创建短信验证码发送类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#将相关类注入到容器中"><span class="nav-number">1.6.</span> <span class="nav-text">将相关类注入到容器中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现短信验证码发送接口"><span class="nav-number">1.7.</span> <span class="nav-text">实现短信验证码发送接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改登录页面"><span class="nav-number">1.8.</span> <span class="nav-text">修改登录页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动测试"><span class="nav-number">1.9.</span> <span class="nav-text">启动测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#短信验证码校验认证"><span class="nav-number">2.</span> <span class="nav-text">短信验证码校验认证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#认证思路"><span class="nav-number">2.1.</span> <span class="nav-text">认证思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码实现"><span class="nav-number">2.2.</span> <span class="nav-text">代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建短信校验过滤器"><span class="nav-number">2.2.1.</span> <span class="nav-text">创建短信校验过滤器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建短信认证Token"><span class="nav-number">2.2.2.</span> <span class="nav-text">创建短信认证Token</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建短信认证过滤器"><span class="nav-number">2.2.3.</span> <span class="nav-text">创建短信认证过滤器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建短信认证Provider"><span class="nav-number">2.2.4.</span> <span class="nav-text">创建短信认证Provider</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置短信认证"><span class="nav-number">2.2.5.</span> <span class="nav-text">配置短信认证</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置短信校验"><span class="nav-number">2.2.6.</span> <span class="nav-text">配置短信校验</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动测试-1"><span class="nav-number">2.3.</span> <span class="nav-text">启动测试</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

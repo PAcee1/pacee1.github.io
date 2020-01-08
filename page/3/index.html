@@ -240,6 +240,160 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/26/rb09-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AFACK%E4%B8%8E%E9%87%8D%E5%9B%9E%E9%98%9F%E5%88%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/26/rb09-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AFACK%E4%B8%8E%E9%87%8D%E5%9B%9E%E9%98%9F%E5%88%97/" itemprop="url">RabbitMQ高级-消费端ACK与重回队列</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-26T09:09:11+08:00">
+                2019-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rabbitmq/" itemprop="url" rel="index">
+                    <span itemprop="name">rabbitmq</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="ACK与NACK"><a href="#ACK与NACK" class="headerlink" title="ACK与NACK"></a>ACK与NACK</h2><p>在上一节中，我们研究了消费端的限流，了解到手动发送<code>ACK</code>的<code>API</code>，对于消费端来说，不止能发<code>ACK</code>还能发<code>NACK</code>，因为总会有消息接收出问题的情况。</p>
+<p>当发送<code>ACK</code>后，告知Broker成功被消费，就结束了一条消息流程。</p>
+<p>当发送<code>NACK</code>，消息未被成功消费，那么有两种情况，对于<code>requeue</code>的设置</p>
+<ul>
+<li>如果为<code>true</code>，即重回队列，将未被成功消费的信息放到队列最末端，等等重新被消费</li>
+<li>如果为<code>false</code>，即不做任何操作</li>
+</ul>
+<h3 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h3><p>NACK：<code>void basicNack(long deliveryTag, boolean multiple, boolean requeue)</code></p>
+<p>ACK：<code>void basicAck(long deliveryTag, boolean multiple)</code></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/26/rb09-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AFACK%E4%B8%8E%E9%87%8D%E5%9B%9E%E9%98%9F%E5%88%97/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/26/rb08-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AF%E9%99%90%E6%B5%81%E7%AD%96%E7%95%A5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1741,157 +1895,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/25/es07-ElasticSearch%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="PAcee">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/photo.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PAcee Hub">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/25/es07-ElasticSearch%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/" itemprop="url">ElasticSearch集群配置</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-25T09:39:50+08:00">
-                2019-12-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">elasticsearch</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="一、背景知识"><a href="#一、背景知识" class="headerlink" title="一、背景知识"></a>一、背景知识</h2><p>当我们想要搭建集群时，要先了解下ES的集群发现机制<code>zen discovery</code></p>
-<p>在默认情况下，es进程会绑定在自己的回环地址上，会去寻找9300-9305端口是否有es node，如果有并且启动，会主动与其通信，组成集群。这样的话如果本地启动多个节点，其搭建集群是非常方便的。但是生产环境不是这样，因为是在不同服务器上进行集群的搭建，需要绑定到非回环的ip地址上，并使用<strong>集群发现机制</strong>进行通信。</p>
-<p>集群发现机制常用的有两种：</p>
-<ul>
-<li>unicast：es默认的集群发现机制，通过特殊节点的配置，使之组成一个集群，主要使用网络通信协议，而不是随便什么节点就可以进入集群。</li>
-<li>multicast：这个机制非常简单，所有在启动的节点接收到multicast ping后就自动加入集群，但是非常脆弱，如果有点网络波动，可能会导致集群的不稳定，一般不使用。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/12/25/es07-ElasticSearch%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1946,7 +1949,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">62</span>
+                  <span class="site-state-item-count">63</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
