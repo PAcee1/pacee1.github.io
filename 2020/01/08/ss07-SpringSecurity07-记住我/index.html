@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springsecurity," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="记住我基本原理记住我这个功能应该都不陌生，就是保存用户登录信息  在SpringSecurity中实现原理是：  第一次，浏览器发出认证请求，由UsernamePassword拦截器认证后，会走到RememberMeService类 RememberMeService使用TokenRepository做了两件事 将用户信息以Token对象保存到数据库中（Mysql，Redis等等） 将Token放">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringSecurity07-记住我">
+<meta property="og:url" content="http://yoursite.com/2020/01/08/ss07-SpringSecurity07-%E8%AE%B0%E4%BD%8F%E6%88%91/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="记住我基本原理记住我这个功能应该都不陌生，就是保存用户登录信息  在SpringSecurity中实现原理是：  第一次，浏览器发出认证请求，由UsernamePassword拦截器认证后，会走到RememberMeService类 RememberMeService使用TokenRepository做了两件事 将用户信息以Token对象保存到数据库中（Mysql，Redis等等） 将Token放">
+<meta property="og:image" content="http://yoursite.com/image/1578468221183.png">
+<meta property="og:image" content="http://yoursite.com/image/1578465225204.png">
+<meta property="og:image" content="http://yoursite.com/image/1578465440053.png">
+<meta property="og:image" content="http://yoursite.com/image/1578466238456.png">
+<meta property="og:image" content="http://yoursite.com/image/1578465986901.png">
+<meta property="og:image" content="http://yoursite.com/image/1578466324603.png">
+<meta property="og:image" content="http://yoursite.com/image/1578467370116.png">
+<meta property="og:image" content="http://yoursite.com/image/1578467473084.png">
+<meta property="og:image" content="http://yoursite.com/image/1578467589354.png">
+<meta property="og:image" content="http://yoursite.com/image/1578467873418.png">
+<meta property="og:image" content="http://yoursite.com/image/1578467942476.png">
+<meta property="og:image" content="http://yoursite.com/image/1578468225633.png">
+<meta property="article:published_time" content="2020-01-08T07:41:35.000Z">
+<meta property="article:modified_time" content="2020-01-08T07:42:58.589Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springsecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1578468221183.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/08/ss07-SpringSecurity07-记住我/"/>
+
+
+
+
+
+  <title>SpringSecurity07-记住我 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/08/ss07-SpringSecurity07-%E8%AE%B0%E4%BD%8F%E6%88%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SpringSecurity07-记住我</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-08T15:41:35+08:00">
+                2020-01-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="记住我基本原理"><a href="#记住我基本原理" class="headerlink" title="记住我基本原理"></a>记住我基本原理</h2><p>记住我这个功能应该都不陌生，就是保存用户登录信息</p>
+<p><img src="/image/1578468221183.png" alt="img"></p>
+<p>在SpringSecurity中实现原理是：</p>
+<ul>
+<li>第一次，浏览器发出认证请求，由<code>UsernamePassword</code>拦截器认证后，会走到<code>RememberMeService</code>类</li>
+<li><code>RememberMeService</code>使用<code>TokenRepository</code>做了两件事<ul>
+<li>将用户信息以Token对象保存到数据库中（Mysql，Redis等等）</li>
+<li>将Token放到Cookie中返回给浏览器</li>
+</ul>
+</li>
+<li>第二次浏览器请求后，会被<code>RememberMeAuthenticationFilter</code>拦截，这个拦截器会当前面一系列绿色拦截器拦截过后才会拦截</li>
+<li><code>RememberMeAuthenticationFilter</code>请求<code>RemenberMeService</code>，将请求信息传递给他</li>
+<li><code>RememberMeService</code>先读取Cookie中的Token然后使用<code>TokenRepository</code>向DB查找Token<ul>
+<li>如果查到了调用<code>UserDetailsService</code>获取用户信息</li>
+<li>没查到则抛出异常，让用户去登录页<a id="more"></a>
+<h2 id="记住我代码实现"><a href="#记住我代码实现" class="headerlink" title="记住我代码实现"></a>记住我代码实现</h2></li>
+</ul>
+</li>
+</ul>
+<p>对于SpringSecurity来说，实现记住我非常简单</p>
+<h3 id="修改登录页面"><a href="#修改登录页面" class="headerlink" title="修改登录页面"></a>修改登录页面</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">"2"</span>&gt;</span><span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"remember-me"</span> <span class="attr">type</span>=<span class="string">"checkbox"</span> <span class="attr">value</span>=<span class="string">"true"</span>&gt;</span>记住我<span class="tag">&lt;/<span class="name">input</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>注意，这里name必须写<code>remember-me</code>，才能被SpringSecurity获取</strong></p>
+<h3 id="配置类添加存活时间"><a href="#配置类添加存活时间" class="headerlink" title="配置类添加存活时间"></a>配置类添加存活时间</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BrowserProperties</span> </span>&#123;</span><br><span class="line">	···</span><br><span class="line">    <span class="keyword">private</span> Integer rememberMeSeconds = <span class="number">60</span> * <span class="number">60</span>;</span><br><span class="line">    ···</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="向容器中注入TokenRepository"><a href="#向容器中注入TokenRepository" class="headerlink" title="向容器中注入TokenRepository"></a>向容器中注入TokenRepository</h3><p>在BrowserSecurityConfig中进行注入</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BrowserSecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> DataSource dataSource; <span class="comment">// 数据源，从配置文件中取</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> PersistentTokenRepository <span class="title">tokenRepository</span><span class="params">()</span></span>&#123;</span><br><span class="line">        JdbcTokenRepositoryImpl tokenRepository = <span class="keyword">new</span> JdbcTokenRepositoryImpl();</span><br><span class="line">        tokenRepository.setDataSource(dataSource); <span class="comment">// 设置数据源</span></span><br><span class="line">        tokenRepository.setCreateTableOnStartup(<span class="keyword">true</span>); <span class="comment">// 第一次需要建表</span></span><br><span class="line">        <span class="keyword">return</span> tokenRepository;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们使用<code>PersistentTokenRepository</code>来进行Token的控制，并使用Jdbc即关系型数据库进行Token的持久化</p>
+<p>数据源就是<code>application.properties</code>配置文件中配置的</p>
+<p>因为对于这个实现类需要单独的表进行操作，对此可以启动时自动建表，<strong>当然第二次启动需要将其设为false或注释掉</strong>。也可以复制SQL自行建表</p>
+<p><img src="/image/1578465225204.png" alt="1578465225204"></p>
+<h3 id="配置Security"><a href="#配置Security" class="headerlink" title="配置Security"></a>配置Security</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BrowserSecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserDetailsService myUserDetailService;</span><br><span class="line">    </span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ValidateCodeFilter validateCodeFilter = <span class="keyword">new</span> ValidateCodeFilter();</span><br><span class="line">        validateCodeFilter.setAuthenticationFailureHandler(failHandler);</span><br><span class="line">        validateCodeFilter.setSecurityProperties(properties);</span><br><span class="line">        http.addFilterBefore(validateCodeFilter,UsernamePasswordAuthenticationFilter<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">            .<span class="title">formLogin</span>() // 表单配置</span></span><br><span class="line">                .loginPage("/authentication/require") // 自定义登录页</span><br><span class="line">                .loginProcessingUrl(<span class="string">"/authentication/form"</span>) <span class="comment">// url映射，post表单的url交给表单拦截器处理</span></span><br><span class="line">                .successHandler(successHandler)</span><br><span class="line">                .failureHandler(failHandler)</span><br><span class="line">                .and()</span><br><span class="line">            .rememberMe() <span class="comment">// 记住我配置</span></span><br><span class="line">                .tokenRepository(tokenRepository())</span><br><span class="line">                .tokenValiditySeconds(properties.getBrowser().getRememberMeSeconds())</span><br><span class="line">            	.userDetailsService(myUserDetailService)</span><br><span class="line">                .and()</span><br><span class="line">            .authorizeRequests() <span class="comment">// 下面是认证信息</span></span><br><span class="line">                .antMatchers(<span class="string">"/authentication/require"</span>,<span class="string">"/code/image"</span>,</span><br><span class="line">                        properties.getBrowser().getLoginPage()).permitAll() <span class="comment">// 匹配请求过滤</span></span><br><span class="line">                .anyRequest() <span class="comment">// 所有请求</span></span><br><span class="line">                .authenticated() <span class="comment">// 都需要认证</span></span><br><span class="line">                .and()</span><br><span class="line">            .csrf().disable(); <span class="comment">// 取消csrf安全防护机制</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要代码就是以下三行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.rememberMe() <span class="comment">// 记住我配置</span></span><br><span class="line">    .tokenRepository(tokenRepository())</span><br><span class="line">    .tokenValiditySeconds(properties.getBrowser().getRememberMeSeconds())</span><br><span class="line">    .userDetailsService(myUserDetailService)</span><br></pre></td></tr></table></figure>
+
+<p>设置<code>TokenRepository</code>实现类以及存活时间</p>
+<h3 id="启动测试"><a href="#启动测试" class="headerlink" title="启动测试"></a>启动测试</h3><p>首先看数据库</p>
+<p><img src="/image/1578465440053.png" alt="1578465440053"><br>可以发现，自动创建了一张<code>persistent_logins</code>表，然后进行登录</p>
+<p><img src="/image/1578466238456.png" alt="1578465887636"></p>
+<p>登录成功后可以发现表里多了一条数据，这时我们重启项目，清除Session，看看是否可以实现保存登录状态，</p>
+<p>直接访问<a href="http://localhost:8080/user/me2" target="_blank" rel="noopener">http://localhost:8080/user/me2</a></p>
+<p><img src="/image/1578465986901.png" alt="1578465986901"></p>
+<p><img src="/image/1578466324603.png" alt="1578466324603"></p>
+<p>成功访问，并且最后使用时间修改了</p>
+<h2 id="记住我源码解析"><a href="#记住我源码解析" class="headerlink" title="记住我源码解析"></a>记住我源码解析</h2><h3 id="第一次登录"><a href="#第一次登录" class="headerlink" title="第一次登录"></a>第一次登录</h3><p>源码解析前，我们先分析下从哪里下手，第一次登录，那么一定时全部认证过会，才会调用之前说的<code>RememberMeService</code>进行Token保存，所以先去看看认证成功后处理器方法</p>
+<p><img src="/image/1578467370116.png" alt="1578467370116"></p>
+<p>果然有一个<code>loginSuccess()</code>方法，那我们就从这里入手，Debug解析源码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rememberMeServices.loginSuccess(request, response, authResult);</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1578467473084.png" alt="1578467473084"></p>
+<p>首先进入到<code>AbstractRememberMeServices</code>实现类的方法里，这里可以看到显示判断请求参数是否相同，我们看看这个参数默认是什么：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> String parameter = DEFAULT_PARAMETER;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String DEFAULT_PARAMETER = <span class="string">"remember-me"</span>;</span><br></pre></td></tr></table></figure>
+
+<p>就是我们知情权修改登录页面时，说的那个name值，必须固定为这个才可以，匹配上后，接着跟进<code>onLoginSuccess(request, response, successfulAuthentication);</code>方法</p>
+<p><img src="/image/1578467589354.png" alt="1578467589354"></p>
+<p>接着进入了<code>PersistentTokenBasedRememberMeServices</code>实现类，看到了两个重要方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建一个新Token，保存到数据库中</span></span><br><span class="line">tokenRepository.createNewToken(persistentToken);</span><br><span class="line"><span class="comment">// 在Cookie中添加Token</span></span><br><span class="line">addCookie(persistentToken, request, response);</span><br></pre></td></tr></table></figure>
+
+<p>就是我们之前放原理图时做的两件事，这样第一次登录就基本走完了。</p>
+<h3 id="第二次登录"><a href="#第二次登录" class="headerlink" title="第二次登录"></a>第二次登录</h3><p>第二次登录就需要查看之前说的那个拦截器了<code>RememberMeAuthenticationFilter</code>，从他入手</p>
+<p><img src="/image/1578467873418.png" alt="1578467873418"></p>
+<p>进入到拦截器中，首先判断上下文中并没有认证用户，然后去调用<code>RememberMeService</code>的<code>autoLogin()</code>方法</p>
+<p><img src="/image/1578467942476.png" alt="1578467942476"></p>
+<p>进入此方法，通过观察，最重要的方法应该就是这个<code>processAutoLoginCookie()</code>，处理自动登录Cookie，猜测应该是将Cookie中Token信息取出查库的，我们进入看看</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> UserDetails <span class="title">processAutoLoginCookie</span><span class="params">(String[] cookieTokens,</span></span></span><br><span class="line"><span class="function"><span class="params">      HttpServletRequest request, HttpServletResponse response)</span> </span>&#123;</span><br><span class="line">   ···</span><br><span class="line">   <span class="comment">// 使用tokenRepository向数据库查找Token</span></span><br><span class="line">   PersistentRememberMeToken token = tokenRepository</span><br><span class="line">         .getTokenForSeries(presentedSeries);</span><br><span class="line">   <span class="comment">// 如果不存在，直接抛出异常</span></span><br><span class="line">   <span class="keyword">if</span> (token == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="comment">// No series match, so we can't authenticate using this cookie</span></span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RememberMeAuthenticationException(</span><br><span class="line">            <span class="string">"No persistent token found for series id: "</span> + presentedSeries);</span><br><span class="line">   &#125;</span><br><span class="line">	<span class="comment">// 如果存在，判断时间是否过期</span></span><br><span class="line">   <span class="keyword">if</span> (token.getDate().getTime() + getTokenValiditySeconds() * <span class="number">1000L</span> &lt; System</span><br><span class="line">         .currentTimeMillis()) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RememberMeAuthenticationException(<span class="string">"Remember-me login has expired"</span>);</span><br><span class="line">   &#125;</span><br><span class="line">	<span class="comment">// 创建一个新Token并更新</span></span><br><span class="line">   PersistentRememberMeToken newToken = <span class="keyword">new</span> PersistentRememberMeToken(</span><br><span class="line">         token.getUsername(), token.getSeries(), generateTokenData(), <span class="keyword">new</span> Date());</span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">      tokenRepository.updateToken(newToken.getSeries(), newToken.getTokenValue(),</span><br><span class="line">            newToken.getDate());</span><br><span class="line">      addCookie(newToken, request, response);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">      logger.error(<span class="string">"Failed to update token: "</span>, e);</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RememberMeAuthenticationException(</span><br><span class="line">            <span class="string">"Autologin failed due to data access problem"</span>);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">// 最后通过UserDetailsService查询用户信息返回</span></span><br><span class="line">   <span class="keyword">return</span> getUserDetailsService().loadUserByUsername(token.getUsername());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我直接将源码简化，更方便观察，代码很简单也很清晰。这样最终通过<code>UserDetailsService</code>获取用户信息。</p>
+<p>最后我们再把之前的流程图放出来，应该会有更深的理解</p>
+<p><img src="/image/1578468225633.png" alt="1578468225633"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springsecurity/" rel="tag"># springsecurity</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/08/ss06-SpringSecurity06-%E5%9B%BE%E7%89%87%E9%AA%8C%E8%AF%81%E7%A0%81/" rel="next" title="SpringSecurity06-图片验证码">
+                <i class="fa fa-chevron-left"></i> SpringSecurity06-图片验证码
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">62</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#记住我基本原理"><span class="nav-number">1.</span> <span class="nav-text">记住我基本原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#记住我代码实现"><span class="nav-number">2.</span> <span class="nav-text">记住我代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#修改登录页面"><span class="nav-number">2.1.</span> <span class="nav-text">修改登录页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置类添加存活时间"><span class="nav-number">2.2.</span> <span class="nav-text">配置类添加存活时间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#向容器中注入TokenRepository"><span class="nav-number">2.3.</span> <span class="nav-text">向容器中注入TokenRepository</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置Security"><span class="nav-number">2.4.</span> <span class="nav-text">配置Security</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动测试"><span class="nav-number">2.5.</span> <span class="nav-text">启动测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#记住我源码解析"><span class="nav-number">3.</span> <span class="nav-text">记住我源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一次登录"><span class="nav-number">3.1.</span> <span class="nav-text">第一次登录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二次登录"><span class="nav-number">3.2.</span> <span class="nav-text">第二次登录</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
