@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springsecurity," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在上一节，我们的SpringSocialQQ登录成功跑起来了，跳到QQ登录的网站上，但是报错了，我们来一点一点解决问题，直到成功登录 Redirect Url IllegalRedirect Url是什么 上一节我们开发完，来到这个页面，首先我们配合之前的流程图分析一下完整的QQ登录流程：  用户点击QQ登录 ——》用户扫码或者账号密码登录 ——》登录成功后QQ调用应用回调地址，将授权码给我们应用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringSecurity11-Social-QQ登录（二）">
+<meta property="og:url" content="http://yoursite.com/2020/01/14/ss11-SpringSecurity11-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="在上一节，我们的SpringSocialQQ登录成功跑起来了，跳到QQ登录的网站上，但是报错了，我们来一点一点解决问题，直到成功登录 Redirect Url IllegalRedirect Url是什么 上一节我们开发完，来到这个页面，首先我们配合之前的流程图分析一下完整的QQ登录流程：  用户点击QQ登录 ——》用户扫码或者账号密码登录 ——》登录成功后QQ调用应用回调地址，将授权码给我们应用">
+<meta property="og:image" content="http://yoursite.com/image/1578906244303.png">
+<meta property="og:image" content="http://yoursite.com/image/1578555140255.png">
+<meta property="og:image" content="http://yoursite.com/image/20190820092959636.png">
+<meta property="og:image" content="http://yoursite.com/image/1578966901754.png">
+<meta property="og:image" content="http://yoursite.com/image/1578969057371.png">
+<meta property="og:image" content="http://yoursite.com/image/1578969075719.png">
+<meta property="og:image" content="http://yoursite.com/image/1578982332922.png">
+<meta property="og:image" content="http://yoursite.com/image/2019090309101943.png">
+<meta property="og:image" content="http://yoursite.com/image/1578985991714.png">
+<meta property="og:image" content="http://yoursite.com/image/1578986599269.png">
+<meta property="og:image" content="http://yoursite.com/image/1578986835838.png">
+<meta property="og:image" content="http://yoursite.com/image/1578986863094.png">
+<meta property="og:image" content="http://yoursite.com/image/1578990422171.png">
+<meta property="og:image" content="http://yoursite.com/image/1578990449281.png">
+<meta property="og:image" content="http://yoursite.com/image/1578992183319.png">
+<meta property="article:published_time" content="2020-01-14T09:15:02.000Z">
+<meta property="article:modified_time" content="2020-01-14T09:18:06.454Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springsecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1578906244303.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/14/ss11-SpringSecurity11-Social-QQ登录（二）/"/>
+
+
+
+
+
+  <title>SpringSecurity11-Social-QQ登录（二） | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/14/ss11-SpringSecurity11-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SpringSecurity11-Social-QQ登录（二）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-14T17:15:02+08:00">
+                2020-01-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在上一节，我们的SpringSocialQQ登录成功跑起来了，跳到QQ登录的网站上，但是报错了，我们来一点一点解决问题，直到成功登录</p>
+<h2 id="Redirect-Url-Illegal"><a href="#Redirect-Url-Illegal" class="headerlink" title="Redirect Url Illegal"></a>Redirect Url Illegal</h2><h3 id="Redirect-Url是什么"><a href="#Redirect-Url是什么" class="headerlink" title="Redirect Url是什么"></a>Redirect Url是什么</h3><p><img src="/image/1578906244303.png" alt="1578906244303"></p>
+<p>上一节我们开发完，来到这个页面，首先我们配合之前的流程图分析一下完整的QQ登录流程：</p>
+<p><img src="/image/1578555140255.png" alt="1578555140255"></p>
+<p>用户点击QQ登录 ——》用户扫码或者账号密码登录 ——》登录成功后QQ调用应用<code>回调地址</code>，将授权码给我们应用 ——》应用拿着授权码请求QQ获取<code>accesstoken</code>——》换到<code>accesstoken</code>后再根据它获取<code>openId</code>——》然后通过openId获取用户信息</p>
+<p><strong>这里<code>Redirect Url</code>就是回调地址</strong></p>
+<a id="more"></a>
+<p>同时我们还要明确<code>redirect uri</code>不是随意生成的，而是在我们的系统在QQ上进行注册时需要填写的必填信息之一，它的填写有一定的规则，可参考<a href="https://wiki.connect.qq.com/%E5%9B%9E%E8%B0%83%E5%9C%B0%E5%9D%80%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E4%BF%AE%E6%94%B9%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">QQ互联官网</a>。<strong>这里要注意，官网上明确说明了域名要包含<code>http://</code>部分</strong>。<br><img src="/image/20190820092959636.png" alt="在这里插入图片描述"></p>
+<h3 id="Redirect-Url-Illegal的原因"><a href="#Redirect-Url-Illegal的原因" class="headerlink" title="Redirect Url Illegal的原因"></a>Redirect Url Illegal的原因</h3><p>为什么我们会出现这个问题呢？我们先看看请求路径</p>
+<p><code>https://graph.qq.com/oauth2.0/show?which=error&amp;display=pc&amp;error=100010&amp;client_id=100550231&amp;response_type=code&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Fqq&amp;state=8f3b0533-e5a7-4dfe-a2b8-94f0119b0ad2</code></p>
+<p>这里重要的参数就是：<code>redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Fqq</code></p>
+<p>其实可以很容易地猜出来就是<code>localhost:8080/auth/qq,</code>这肯定不可能是我们在QQ互联上配置的<code>redirect_uri</code>，因此当我们的项目拿着这个<code>redirect_uri</code>去请求QQ的接口时就报出了<code>redirect uri is illegal(100010)</code>的错误。</p>
+<p>同时我们也可以看出<code>redirect_uri</code>在我们项目中的生成规则是:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IP+端口号（或者域名+端口）+&#x2F;auth&#x2F;qq</span><br></pre></td></tr></table></figure>
+
+<p>其中/auth和/qq我们在上篇文章中讲过它俩分别由<code>SocialAuthenticationFilter</code>和<code>providerId</code>控制。</p>
+<h3 id="Redirect-Url-Illegal的解决方式"><a href="#Redirect-Url-Illegal的解决方式" class="headerlink" title="Redirect Url Illegal的解决方式"></a>Redirect Url Illegal的解决方式</h3><p><img src="/image/1578966901754.png" alt="1578966901754"></p>
+<p>这里我在QQ互联上配置的地址和回调域如上图，所以我们就要把项目中的配置对应的进行修改</p>
+<h4 id="修改访问域名和端口"><a href="#修改访问域名和端口" class="headerlink" title="修改访问域名和端口"></a>修改访问域名和端口</h4><p>因为我们是本机测试，所以只需修改host即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1 www.pinzhi365.com</span><br></pre></td></tr></table></figure>
+
+<p>端口修改：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">server.port</span>=<span class="string">80</span></span><br></pre></td></tr></table></figure>
+
+<p>这里为什么改<code>80</code>就不解释了</p>
+<h4 id="修改SocialFilter拦截的路径为qqLogin"><a href="#修改SocialFilter拦截的路径为qqLogin" class="headerlink" title="修改SocialFilter拦截的路径为qqLogin"></a>修改SocialFilter拦截的路径为qqLogin</h4><p>我们上一节的最后了解到，<code>SocialAuthenticationFilter</code>的默认拦截路径为<code>/auth</code>，如果我们想修改他，应该怎么办呢？<code>SocialAuthenticationFilter</code>是由<code>SpringSocialConfigurer</code>构建的，所以我们进源码看看</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">   ···</span><br><span class="line">   SocialAuthenticationFilter filter = <span class="keyword">new</span> SocialAuthenticationFilter(</span><br><span class="line">         http.getSharedObject(AuthenticationManager<span class="class">.<span class="keyword">class</span>), </span></span><br><span class="line"><span class="class">         <span class="title">userIdSource</span> !</span>= <span class="keyword">null</span> ? userIdSource : <span class="keyword">new</span> AuthenticationNameUserIdSource(), </span><br><span class="line">         usersConnectionRepository, </span><br><span class="line">         authServiceLocator);</span><br><span class="line">   ···</span><br><span class="line">   </span><br><span class="line">   http.authenticationProvider(</span><br><span class="line">         <span class="keyword">new</span> SocialAuthenticationProvider(usersConnectionRepository, socialUsersDetailsService))</span><br><span class="line">      .addFilterBefore(postProcess(filter), AbstractPreAuthenticatedProcessingFilter<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们可以看到<code>SpringSocialConfigurer</code>将<code>SpringSocialConfigurer</code>添加到Security拦截器链上之前，做了一件事<code>postProcess()</code>，所以我们重新这个方法即可，后置处理，将Filter的拦截路径修改一下</p>
+<h5 id="创建MySpringSocialConfigurer"><a href="#创建MySpringSocialConfigurer" class="headerlink" title="创建MySpringSocialConfigurer"></a>创建MySpringSocialConfigurer</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MySpringSocialConfigurer</span> <span class="keyword">extends</span> <span class="title">SpringSocialConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String filterProcessesUrl;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MySpringSocialConfigurer</span><span class="params">(String filterProcessesUrl)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.filterProcessesUrl = filterProcessesUrl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对Filter进行后置处理，将它拦截的url变成我们想要的url，而不是默认的/auth</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> object</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> &lt;T&gt;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> &lt;T&gt; <span class="function">T <span class="title">postProcess</span><span class="params">(T object)</span> </span>&#123;</span><br><span class="line">        SocialAuthenticationFilter filter = (SocialAuthenticationFilter) <span class="keyword">super</span>.postProcess(object);</span><br><span class="line">        <span class="comment">// 设置拦截路径</span></span><br><span class="line">        filter.setFilterProcessesUrl(filterProcessesUrl);</span><br><span class="line">        <span class="keyword">return</span> (T) filter;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="修改SocialConfig"><a href="#修改SocialConfig" class="headerlink" title="修改SocialConfig"></a>修改SocialConfig</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> SpringSocialConfigurer <span class="title">springSocialConfigurer</span><span class="params">()</span></span>&#123;</span><br><span class="line">    String filterProcessesUrl = qqProperties.getFilterProcessesUrl();</span><br><span class="line">    SpringSocialConfigurer configurer = <span class="keyword">new</span> MySpringSocialConfigurer(filterProcessesUrl);</span><br><span class="line">    <span class="keyword">return</span> configurer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我是把拦截路径设置成可配置的，这里要在<code>application.properties</code>中配置一下</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">enbuys.qq.security.filterProcessesUrl</span>=<span class="string">/qqLogin</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="修改providerId"><a href="#修改providerId" class="headerlink" title="修改providerId"></a>修改providerId</h4><p>因为<code>ProviderId</code>之前写在<code>QQProperties</code>中，所以只需在<code>application.properties</code>中配置一下</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">enbuys.qq.security.provider-id</span>=<span class="string">callback.do</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="修改QQ登录按钮请求路径"><a href="#修改QQ登录按钮请求路径" class="headerlink" title="修改QQ登录按钮请求路径"></a>修改QQ登录按钮请求路径</h4><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/qqLogin/callback.do"</span>&gt;</span>QQ登录<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="启动测试"><a href="#启动测试" class="headerlink" title="启动测试"></a>启动测试</h4><p><img src="/image/1578969057371.png" alt="1578969057371"></p>
+<p>成功访问</p>
+<h2 id="SignIn错误"><a href="#SignIn错误" class="headerlink" title="SignIn错误"></a>SignIn错误</h2><p>这里我们点击登录后，会发现跳转到了认证页面</p>
+<p><img src="/image/1578969075719.png" alt="1578969075719"></p>
+<p><img src="/image/1578982332922.png" alt="1578982332922"></p>
+<p>服务费输出跳转路径为<code>http://www.pinzhi365.com/signin</code>，又因为我们没有<code>signin</code>这个页面，并且没有对请求授权，所以会被之前写的Security认证拦截，因为没有登录，如果登录了或者授权放行了，应该会报出404错误</p>
+<h3 id="SignIn错误原因源码分析"><a href="#SignIn错误原因源码分析" class="headerlink" title="SignIn错误原因源码分析"></a>SignIn错误原因源码分析</h3><h4 id="SpringSocial认证流程"><a href="#SpringSocial认证流程" class="headerlink" title="SpringSocial认证流程"></a>SpringSocial认证流程</h4><p><img src="/image/2019090309101943.png" alt="在这里插入图片描述"></p>
+<p>首先我们先看一下<code>SpringSocial</code>的拦截器执行流程图，这里相较前面学习的<a href="https://pacee1.github.io/2020/01/07/ss05-SpringSecurity05-%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" target="_blank" rel="noopener">认证流程原理</a>其实就多了三个组件：</p>
+<ul>
+<li><code>ConnectionFactory</code>：需要我们自己实现，在流程里的作用就是通过授权码换取令牌（<code>Connection</code>）</li>
+<li><code>Connection</code>：需要我们自己实现，令牌，被封装到<code>SocialAuthorizationToken</code>中保存</li>
+<li><code>SocialUserDetailsService</code>：需要我们自己实现，根据<code>userId</code>去数据库获取用户信息</li>
+</ul>
+<p>通过这个流程，我们可以发现最重要的就是<code>ConnectionFactory</code>前面的那个组件<code>SocialAuthorizationService</code>，他是请求第三方服务，获取授权码并使用授权码获取令牌的重要步骤~</p>
+<p>我们进入源码一点点断点查看，为何会出现这个错误</p>
+<h4 id="AbstractAuthenticationProcessingFilter"><a href="#AbstractAuthenticationProcessingFilter" class="headerlink" title="AbstractAuthenticationProcessingFilter"></a>AbstractAuthenticationProcessingFilter</h4><p>首先查看<code>AbstractAuthenticationProcessingFilter</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest req, ServletResponse res, FilterChain chain)</span></span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">        <span class="comment">//尝试进行登陆认证---抽象方法具体实现交给交给继承的子类,</span></span><br><span class="line">        <span class="comment">//在springsocial的流程里就是SocialAuthenticationFilter</span></span><br><span class="line">        <span class="comment">//用户名+密码登陆的流程里为UsernamePasswordAuthenticationFilter</span></span><br><span class="line">        Authentication authResult = attemptAuthentication(request, response);</span><br><span class="line">    &#125;<span class="keyword">catch</span>(认证失败)&#123;</span><br><span class="line">        <span class="comment">//这里会讲两个认证失败相关的逻辑</span></span><br><span class="line">        <span class="comment">// 	  (1)点击QQ登陆,将用户引导到QQ授权页面时</span></span><br><span class="line">        <span class="comment">//    (2)用户在QQ授权页面进行扫码,最终未成功登陆而是访问XXX/signin路径的逻辑</span></span><br><span class="line">        unsuccessfulAuthentication(request, response, failed);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//认证成功</span></span><br><span class="line">    <span class="comment">//	--&gt;将认证成功的Authentication对象放到线程的SecurityContext对象中</span></span><br><span class="line">    <span class="comment">//  --&gt;走记住我相关的逻辑等</span></span><br><span class="line">    successfulAuthentication(request, response, chain, authResult);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实这个代码我们之前都看过，最重要的就是<code>attemptAuthentication()</code>方法，调用实现类的认证方法进行认证。</p>
+<h4 id="SocialAuthenticationFilter"><a href="#SocialAuthenticationFilter" class="headerlink" title="SocialAuthenticationFilter"></a>SocialAuthenticationFilter</h4><p>进入到<code>SocialAuthenticationFilter</code>的<code>attemptAuthentication()</code>方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Authentication <span class="title">attemptAuthentication</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">	···</span><br><span class="line">	Authentication auth = <span class="keyword">null</span>;</span><br><span class="line">	Set&lt;String&gt; authProviders = authServiceLocator.registeredAuthenticationProviderIds();</span><br><span class="line">	<span class="comment">//获取到ProviderId，就是我们在yml配置文件里指定的ProviderId</span></span><br><span class="line">	String authProviderId = getRequestedProviderId(request);</span><br><span class="line">	<span class="keyword">if</span> (!authProviders.isEmpty() &amp;&amp; authProviderId != <span class="keyword">null</span> &amp;&amp; authProviders.contains(authProviderId)) &#123;</span><br><span class="line">	<span class="comment">//根据ProviderId获取相应的SocialAuthenticationService</span></span><br><span class="line">		SocialAuthenticationService&lt;?&gt; authService = authServiceLocator.getAuthenticationService(authProviderId);</span><br><span class="line">		<span class="comment">//真正进行认证校验的方法</span></span><br><span class="line">		auth = attemptAuthService(authService, request, response);</span><br><span class="line">		<span class="keyword">if</span> (auth == <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> AuthenticationServiceException(<span class="string">"authentication failed"</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> auth;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Authentication <span class="title">attemptAuthService</span><span class="params">(<span class="keyword">final</span> SocialAuthenticationService&lt;?&gt; authService, <span class="keyword">final</span> HttpServletRequest request, HttpServletResponse response)</span> </span></span><br><span class="line"><span class="function">      <span class="keyword">throws</span> SocialAuthenticationRedirectException, AuthenticationException </span>&#123;</span><br><span class="line">   <span class="comment">// 实际调用authService.getAuthToken(）方法</span></span><br><span class="line">   <span class="keyword">final</span> SocialAuthenticationToken token = authService.getAuthToken(request, response);</span><br><span class="line">   ···    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1578985991714.png" alt="1578985991714"></p>
+<p>断点进去看，可以发现就是我们之前实现的QQ登录的<code>Connection</code>以及<code>ServiceProvider</code></p>
+<h4 id="OAuth2AuthenticationService"><a href="#OAuth2AuthenticationService" class="headerlink" title="OAuth2AuthenticationService"></a>OAuth2AuthenticationService</h4><p>接着我们进入到<code>getAuthToken()</code>方法中，实现类为<code>OAuth2AuthenticationService</code>，<strong>这段代码非常关键了！！！</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> SocialAuthenticationToken <span class="title">getAuthToken</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> SocialAuthenticationRedirectException </span>&#123;</span><br><span class="line">   <span class="comment">// 获取授权码</span></span><br><span class="line">   String code = request.getParameter(<span class="string">"code"</span>);</span><br><span class="line">   <span class="comment">// 判断是否第一次请求，如果是，重定向到第三方认证页</span></span><br><span class="line">   <span class="keyword">if</span> (!StringUtils.hasText(code)) &#123;</span><br><span class="line">      OAuth2Parameters params =  <span class="keyword">new</span> OAuth2Parameters();</span><br><span class="line">      params.setRedirectUri(buildReturnToUrl(request));</span><br><span class="line">      setScope(request, params);</span><br><span class="line">      params.add(<span class="string">"state"</span>, generateState(connectionFactory, request));</span><br><span class="line">      addCustomParameters(params);</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> SocialAuthenticationRedirectException(getConnectionFactory().getOAuthOperations().buildAuthenticateUrl(params));</span><br><span class="line">   &#125; <span class="keyword">else</span> <span class="keyword">if</span> (StringUtils.hasText(code)) &#123;</span><br><span class="line">       <span class="comment">// 如果不是第一次请求，使用授权码获取令牌</span></span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">         String returnToUrl = buildReturnToUrl(request);</span><br><span class="line">         AccessGrant accessGrant = getConnectionFactory().getOAuthOperations().exchangeForAccess(code, returnToUrl, <span class="keyword">null</span>);</span><br><span class="line">         <span class="comment">// TODO avoid API call if possible (auth using token would be fine)</span></span><br><span class="line">         Connection&lt;S&gt; connection = getConnectionFactory().createConnection(accessGrant);</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">new</span> SocialAuthenticationToken(connection, <span class="keyword">null</span>);</span><br><span class="line">      &#125; <span class="keyword">catch</span> (RestClientException e) &#123;</span><br><span class="line">         logger.debug(<span class="string">"failed to exchange for access"</span>, e);</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里因为我们的请求路径和第三方回调路径都是一样的，所以会使用授权码来判断：</p>
+<ul>
+<li>第一次请求，抛出重定向异常，错误处理类就会重定向到第三方认证页面</li>
+<li>回调请求，使用授权码获取令牌</li>
+</ul>
+<p><img src="/image/1578986599269.png" alt="1578986599269"></p>
+<p>往下走的时候，走到<code>exchangeForAccess()</code>即使用授权码获取令牌的时候报错，报了<code>RestClientException</code>异常</p>
+<p>然后<code>return null；</code> 我们知道，如果返回<code>null</code>，那么肯定是认证失败，会进入失败处理类，这里Social失败处理类是<code>SocialAuthenticationFailureHandler</code></p>
+<p><img src="/image/1578986835838.png" alt="1578986835838"></p>
+<p>实现类是<code>SimpleUrlAuthenticationFailureHandler</code></p>
+<p><img src="/image/1578986863094.png" alt="1578986863094"></p>
+<p>这里就看到默认重定向<code>URL/signin</code>的地址了，这也是为什么转跳<code>/signin</code>的原因</p>
+<h4 id="RestClientException异常"><a href="#RestClientException异常" class="headerlink" title="RestClientException异常"></a>RestClientException异常</h4><p>找到了转跳<code>/signin</code>的原因了，接着要看为啥抛出<code>RestClientException</code>异常了</p>
+<p>这里我们直接查看报错方法<code>exchangeForAccess()</code>，我们使用的是默认的实现类即<code>OAuth2Template</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> AccessGrant <span class="title">exchangeForAccess</span><span class="params">(String authorizationCode, String redirectUri, MultiValueMap&lt;String, String&gt; additionalParameters)</span> </span>&#123;</span><br><span class="line">   ···</span><br><span class="line">   <span class="comment">// 最后调用RestTemplate进行post请求，获取令牌</span></span><br><span class="line">   <span class="keyword">return</span> postForAccessGrant(accessTokenUrl, params);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里在代码中可以看到，使用<code>RestTemplate</code>进行请求获取令牌，然后我们再看看报错信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Could not extract response: no suitable HttpMessageConverter found for response type [interface java.util.Map] and content type [text&#x2F;html]</span><br></pre></td></tr></table></figure>
+
+<p>意思是响应无法进行数据处理，我们看看<code>RestTemplate</code>的创建方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> RestTemplate <span class="title">createRestTemplate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ClientHttpRequestFactory requestFactory = ClientHttpRequestFactorySelector.getRequestFactory();</span><br><span class="line">    RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate(requestFactory);</span><br><span class="line">    List&lt;HttpMessageConverter&lt;?&gt;&gt; converters = <span class="keyword">new</span> ArrayList&lt;HttpMessageConverter&lt;?&gt;&gt;(<span class="number">2</span>);</span><br><span class="line">    converters.add(<span class="keyword">new</span> FormHttpMessageConverter());</span><br><span class="line">    converters.add(<span class="keyword">new</span> FormMapHttpMessageConverter());</span><br><span class="line">    converters.add(<span class="keyword">new</span> MappingJackson2HttpMessageConverter());</span><br><span class="line">    restTemplate.setMessageConverters(converters);</span><br><span class="line">    restTemplate.setErrorHandler(<span class="keyword">new</span> LoggingErrorHandler());</span><br><span class="line">    <span class="keyword">if</span> (!useParametersForClientAuthentication) &#123;</span><br><span class="line">        List&lt;ClientHttpRequestInterceptor&gt; interceptors = restTemplate.getInterceptors();</span><br><span class="line">        <span class="keyword">if</span> (interceptors == <span class="keyword">null</span>) &#123;   <span class="comment">// defensively initialize list if it is null. (See SOCIAL-430)</span></span><br><span class="line">            interceptors = <span class="keyword">new</span> ArrayList&lt;ClientHttpRequestInterceptor&gt;();</span><br><span class="line">            restTemplate.setInterceptors(interceptors);</span><br><span class="line">        &#125;</span><br><span class="line">        interceptors.add(<span class="keyword">new</span> PreemptiveBasicAuthClientHttpRequestInterceptor(clientId, clientSecret));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> restTemplate;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>它只加了如下三个<code>HttpMessageConverter</code>，这三个<code>HttpMessageConverter</code>并不能处理<code>contentType</code>为 <code>[text/html]</code>的返回信息，<strong>因此走到上面的<code>postForAccessGrant</code>方法会抛出<code>RestClientException</code>异常。</strong></p>
+<h3 id="SiginIn错误的解决方式"><a href="#SiginIn错误的解决方式" class="headerlink" title="SiginIn错误的解决方式"></a>SiginIn错误的解决方式</h3><p>既然默认的<code>OAuth2Template</code>使用有问题，那么我们就继承它重新他的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">QQOAuth2Template</span> <span class="keyword">extends</span> <span class="title">OAuth2Template</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Logger logger = LoggerFactory.getLogger(getClass());</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">QQOAuth2Template</span><span class="params">(String clientId, String clientSecret, String authorizeUrl, String accessTokenUrl)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(clientId, clientSecret, authorizeUrl, accessTokenUrl);</span><br><span class="line">        <span class="comment">// 设置了true 在请求时才会拼接钟 client_id 和 client_secret</span></span><br><span class="line">        setUseParametersForClientAuthentication(<span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 重新返回数据封装的处理</span></span><br><span class="line"><span class="comment">     * 父类方法是使用Map封装，因为返回的是Json</span></span><br><span class="line"><span class="comment">     * 这里我们返回的是字符串，所以需要自己重新封装方法</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> accessTokenUrl</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> parameters</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> AccessGrant <span class="title">postForAccessGrant</span><span class="params">(String accessTokenUrl, MultiValueMap&lt;String, String&gt; parameters)</span> </span>&#123;</span><br><span class="line">        String responseStr = getRestTemplate().postForObject(accessTokenUrl, parameters, String<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line"></span><br><span class="line">        logger.info(<span class="string">"获取accessToke的响应："</span> + responseStr);</span><br><span class="line"></span><br><span class="line">        String[] items = StringUtils.splitByWholeSeparatorPreserveAllTokens(responseStr, <span class="string">"&amp;"</span>);</span><br><span class="line"></span><br><span class="line">        String accessToken = StringUtils.substringAfterLast(items[<span class="number">0</span>], <span class="string">"="</span>);</span><br><span class="line">        Long expiresIn = <span class="keyword">new</span> Long(StringUtils.substringAfterLast(items[<span class="number">1</span>], <span class="string">"="</span>));</span><br><span class="line">        String refreshToken = StringUtils.substringAfterLast(items[<span class="number">2</span>], <span class="string">"="</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> AccessGrant(accessToken, <span class="keyword">null</span>, refreshToken, expiresIn);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 添加一个处理 text/html的处理器</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> RestTemplate <span class="title">createRestTemplate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        RestTemplate restTemplate = <span class="keyword">super</span>.createRestTemplate();</span><br><span class="line">        restTemplate.getMessageConverters().add(<span class="keyword">new</span> StringHttpMessageConverter(Charset.forName(<span class="string">"UTF-8"</span>)));</span><br><span class="line">        <span class="keyword">return</span> restTemplate;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里实现好之后，我们还需要将<code>ServiceProvider</code>中<code>OAuth2Operation</code>的实现方式改为我们自己的<code>QQOAuth2Template</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">QQServiceProvider</span><span class="params">(String appId, String appSecret)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(<span class="keyword">new</span> QQOAuth2Template(appId,appSecret,URL_AUTHORIZE,URL_ACCESS_TOKEN));</span><br><span class="line">    <span class="keyword">this</span>.appId = appId;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>只需这两步，就完成了<code>SignIn</code>错误的修改</p>
+<h3 id="重启测试"><a href="#重启测试" class="headerlink" title="重启测试"></a>重启测试</h3><p><img src="/image/1578990422171.png" alt="1578990422171"></p>
+<p>控制台正确打印信息，说明获取用户信息成功</p>
+<p><img src="/image/1578990449281.png" alt="1578990449281"></p>
+<p>然后发现页面又又又返回401需要认证了，查看控制台</p>
+<p><img src="/image/1578992183319.png" alt="1578992183319"></p>
+<p>成功获取用户信息后，请求<code>signup</code>这个路径了，但是我们并没有配置过这个请求，所以返回401需要认证</p>
+<p>搞完这些，都五点了，而且篇幅已经比较长了，所以这个问题我们下一章在研究</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springsecurity/" rel="tag"># springsecurity</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/13/ss10-SpringSecurity10-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/" rel="next" title="SpringSecurity10-Social-QQ登录（一）">
+                <i class="fa fa-chevron-left"></i> SpringSecurity10-Social-QQ登录（一）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">66</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Redirect-Url-Illegal"><span class="nav-number">1.</span> <span class="nav-text">Redirect Url Illegal</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redirect-Url是什么"><span class="nav-number">1.1.</span> <span class="nav-text">Redirect Url是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redirect-Url-Illegal的原因"><span class="nav-number">1.2.</span> <span class="nav-text">Redirect Url Illegal的原因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redirect-Url-Illegal的解决方式"><span class="nav-number">1.3.</span> <span class="nav-text">Redirect Url Illegal的解决方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#修改访问域名和端口"><span class="nav-number">1.3.1.</span> <span class="nav-text">修改访问域名和端口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改SocialFilter拦截的路径为qqLogin"><span class="nav-number">1.3.2.</span> <span class="nav-text">修改SocialFilter拦截的路径为qqLogin</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#创建MySpringSocialConfigurer"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">创建MySpringSocialConfigurer</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#修改SocialConfig"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">修改SocialConfig</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改providerId"><span class="nav-number">1.3.3.</span> <span class="nav-text">修改providerId</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改QQ登录按钮请求路径"><span class="nav-number">1.3.4.</span> <span class="nav-text">修改QQ登录按钮请求路径</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动测试"><span class="nav-number">1.3.5.</span> <span class="nav-text">启动测试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SignIn错误"><span class="nav-number">2.</span> <span class="nav-text">SignIn错误</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SignIn错误原因源码分析"><span class="nav-number">2.1.</span> <span class="nav-text">SignIn错误原因源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#SpringSocial认证流程"><span class="nav-number">2.1.1.</span> <span class="nav-text">SpringSocial认证流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AbstractAuthenticationProcessingFilter"><span class="nav-number">2.1.2.</span> <span class="nav-text">AbstractAuthenticationProcessingFilter</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SocialAuthenticationFilter"><span class="nav-number">2.1.3.</span> <span class="nav-text">SocialAuthenticationFilter</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#OAuth2AuthenticationService"><span class="nav-number">2.1.4.</span> <span class="nav-text">OAuth2AuthenticationService</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RestClientException异常"><span class="nav-number">2.1.5.</span> <span class="nav-text">RestClientException异常</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SiginIn错误的解决方式"><span class="nav-number">2.2.</span> <span class="nav-text">SiginIn错误的解决方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重启测试"><span class="nav-number">2.3.</span> <span class="nav-text">重启测试</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
