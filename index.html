@@ -240,6 +240,319 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/15/ss13-SpringSecurity13-Social-%E5%BE%AE%E4%BF%A1%E7%99%BB%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/15/ss13-SpringSecurity13-Social-%E5%BE%AE%E4%BF%A1%E7%99%BB%E5%BD%95/" itemprop="url">SpringSecurity13-Social-微信登录</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-15T17:13:26+08:00">
+                2020-01-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>微信登录实际流程和QQ差不多，就是其获取接口入参和出差不同，所以需要进行一些修改</p>
+<p>主要的配置有：</p>
+<ul>
+<li>Properties</li>
+<li>API</li>
+<li>OAuth2Operation</li>
+<li>ServiceProvider</li>
+<li>ConnectionFactory</li>
+<li>AutoConfiguration</li>
+</ul>
+<p>这里不光针对微信，对于其他的第三方登录也是一样</p>
+<h2 id="微信Properties"><a href="#微信Properties" class="headerlink" title="微信Properties"></a>微信Properties</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties</span>(<span class="string">"enbuys.weixin.security"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WeixinProperties</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String providerId = <span class="string">"weixin"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String appId;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String appSecret;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String filterProcessesUrl;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getFilterProcessesUrl</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> filterProcessesUrl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFilterProcessesUrl</span><span class="params">(String filterProcessesUrl)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.filterProcessesUrl = filterProcessesUrl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getProviderId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> providerId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setProviderId</span><span class="params">(String providerId)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.providerId = providerId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getAppId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> appId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAppId</span><span class="params">(String appId)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.appId = appId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getAppSecret</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> appSecret;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAppSecret</span><span class="params">(String appSecret)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.appSecret = appSecret;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>和QQ一模一样</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/01/15/ss13-SpringSecurity13-Social-%E5%BE%AE%E4%BF%A1%E7%99%BB%E5%BD%95/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/15/ss12-SpringSecurity12-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%B8%8B%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/15/ss12-SpringSecurity12-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%B8%8B%EF%BC%89/" itemprop="url">springSecurity12-Social-QQ登录（下）</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-15T15:47:29+08:00">
+                2020-01-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="本篇内容概述"><a href="#本篇内容概述" class="headerlink" title="本篇内容概述"></a>本篇内容概述</h2><p>上一章末尾说过，由于这里的注册其实是从第三方登陆过程中重定向而来的注册，因此这种情况下的注册肯定与普通的用户注册有一定的区别。都要有哪些区别呢？其实主要在两块：</p>
+<p>一块是上篇文章说的当用户注册完，肯定要与该第三方（即QQ、微信等）建立起关系，也就是说下次用户直接用QQ或微信等进行登陆，那肯定直接就可以登陆了。落实到代码上，就是用户注册完，需要同时往<code>userconnection</code>表里插入一条数据。</p>
+<p>第二块在于注册页面的展示与逻辑。下面是我直接在当当网进行QQ登陆时导向的注册页面，我们可以看到人家在这种情况下的注册页面里就不光有注册功能，还同时把从QQ获取到的你的头像和昵称信息给显示了出来，让你有种亲切感。</p>
+<p><img src="/image/2019091123550481.png" alt="在这里插入图片描述"></p>
+<p>其实大家除了见过像当当这种直接点击QQ登陆进行登陆，由于没有进行注册或绑定过，而被导向一个用户注册页面的网站，肯定也见过那种从来就没上过的网站直接点击QQ登陆或者微信登陆，但是却<strong>可以直接登陆成功而不需要注册的网站</strong>，而且很多。那这种又是怎么弄得呢？这一块也是本文需要讲解的内容。<br>因此，本文将主要讲解如下三块内容：</p>
+<ul>
+<li>第三方登陆时用户注册页面如何拿到QQ头像和昵称等信息</li>
+<li>用户注册时如何将QQ与用户信息建立关联，插入<code>userconnection</code>表</li>
+<li>第三方登陆时，如何跳过注册逻辑
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/01/15/ss12-SpringSecurity12-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%B8%8B%EF%BC%89/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/14/ss11-SpringSecurity11-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%BA%8C%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -259,7 +572,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2020/01/14/ss11-SpringSecurity11-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%BA%8C%EF%BC%89/" itemprop="url">SpringSecurity11-Social-QQ登录（二）</a></h1>
+                <a class="post-title-link" href="/2020/01/14/ss11-SpringSecurity11-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%BA%8C%EF%BC%89/" itemprop="url">SpringSecurity11-Social-QQ登录（中）</a></h1>
         
 
         <div class="post-meta">
@@ -338,6 +651,7 @@
 <p><img src="/image/1578555140255.png" alt="1578555140255"></p>
 <p>用户点击QQ登录 ——》用户扫码或者账号密码登录 ——》登录成功后QQ调用应用<code>回调地址</code>，将授权码给我们应用 ——》应用拿着授权码请求QQ获取<code>accesstoken</code>——》换到<code>accesstoken</code>后再根据它获取<code>openId</code>——》然后通过openId获取用户信息</p>
 <p><strong>这里<code>Redirect Url</code>就是回调地址</strong></p>
+<p>同时我们还要明确<code>redirect uri</code>不是随意生成的，而是在我们的系统在QQ上进行注册时需要填写的必填信息之一，它的填写有一定的规则，可参考<a href="https://wiki.connect.qq.com/%E5%9B%9E%E8%B0%83%E5%9C%B0%E5%9D%80%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E4%BF%AE%E6%94%B9%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">QQ互联官网</a>。<strong>这里要注意，官网上明确说明了域名要包含<code>http://</code>部分</strong>。<br><img src="/image/20190820092959636.png" alt="在这里插入图片描述"></p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2020/01/14/ss11-SpringSecurity11-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%BA%8C%EF%BC%89/#more" rel="contents">
@@ -410,7 +724,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2020/01/13/ss10-SpringSecurity10-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/" itemprop="url">SpringSecurity10-Social-QQ登录（一）</a></h1>
+                <a class="post-title-link" href="/2020/01/13/ss10-SpringSecurity10-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/" itemprop="url">SpringSecurity10-Social-QQ登录（上）</a></h1>
         
 
         <div class="post-meta">
@@ -493,7 +807,13 @@
 <li>使用默认的<code>OAuth2Operations</code>，从而实现<code>ServiceProvider</code></li>
 <li>实现<code>ApiAdapter</code>，从而实现<code>ConnectionFactory</code></li>
 <li>在<code>DB</code>建表，使用默认的<code>UsersConnectionRepository</code></li>
-<li>这样就可以在容器中通过<code>ConnectionFactory</code>注入<code>Connection</code>使用了
+<li>这样就可以在容器中通过<code>ConnectionFactory</code>注入<code>Connection</code>使用了</li>
+</ol>
+<h2 id="实现QQ登录"><a href="#实现QQ登录" class="headerlink" title="实现QQ登录"></a>实现QQ登录</h2><h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p><a href="https://wiki.connect.qq.com/" target="_blank" rel="noopener">https://wiki.connect.qq.com/</a>，到QQ互联官网查看文档，了解QQ登录需要哪些信息，如何获取这些信息，调用哪些接口，传入什么参数，返回什么结果，比较重要的有：</p>
+<ul>
+<li><a href="https://wiki.connect.qq.com/get_user_info" target="_blank" rel="noopener">获取用户信息</a></li>
+<li><a href="https://wiki.connect.qq.com/%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7openid_oauth2-0" target="_blank" rel="noopener">获取OpenID</a></li>
+<li><a href="https://wiki.connect.qq.com/%E4%BD%BF%E7%94%A8authorization_code%E8%8E%B7%E5%8F%96access_token" target="_blank" rel="noopener">获取Access_Token</a>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2020/01/13/ss10-SpringSecurity10-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
@@ -1461,313 +1781,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/06/ss03-SpringSecurity03-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%94%A8%E6%88%B7%E8%AE%A4%E8%AF%81%E9%80%BB%E8%BE%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="PAcee">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/photo.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PAcee Hub">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/06/ss03-SpringSecurity03-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%94%A8%E6%88%B7%E8%AE%A4%E8%AF%81%E9%80%BB%E8%BE%91/" itemprop="url">SpringSecurity03-自定义用户认证逻辑</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-06T19:40:47+08:00">
-                2020-01-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
-                    <span itemprop="name">springsecurity</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>在上一节，我们使用的都是默认的用户名密码进行登录，这一节我们将研究如何自定义用户名及密码，进行自定义的用户认证逻辑。</p>
-<p>自定义用户认证逻辑涉及三个方面：</p>
-<ul>
-<li>处理用户信息获取逻辑</li>
-<li>处理用户校验逻辑</li>
-<li>处理密码加密解密</li>
-</ul>
-<h2 id="用户信息获取逻辑"><a href="#用户信息获取逻辑" class="headerlink" title="用户信息获取逻辑"></a>用户信息获取逻辑</h2><p>表示我们获取用户时可以从mysql、redis、ldap中获取用户的信息，而不再使用SpringSecurity默认提供的user信息。</p>
-<p>实现起来非常简单，因为SpringSecurity已经预留了相应的接口，我们只需实现它重新方法即可。</p>
-<h3 id="UserDetailsService"><a href="#UserDetailsService" class="headerlink" title="UserDetailsService"></a>UserDetailsService</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserDetailsService</span> </span>&#123;</span><br><span class="line">   <span class="comment">// ~ Methods</span></span><br><span class="line">   <span class="comment">// ========================================================================================================</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Locates the user based on the username. In the actual implementation, the search</span></span><br><span class="line"><span class="comment">    * may possibly be case sensitive, or case insensitive depending on how the</span></span><br><span class="line"><span class="comment">    * implementation instance is configured. In this case, the &lt;code&gt;UserDetails&lt;/code&gt;</span></span><br><span class="line"><span class="comment">    * object that comes back may have a username that is of a different case than what</span></span><br><span class="line"><span class="comment">    * was actually requested..</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> username the username identifying the user whose data is required.</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> a fully populated user record (never &lt;code&gt;null&lt;/code&gt;)</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@throws</span> UsernameNotFoundException if the user could not be found or the user has no</span></span><br><span class="line"><span class="comment">    * GrantedAuthority</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function">UserDetails <span class="title">loadUserByUsername</span><span class="params">(String username)</span> <span class="keyword">throws</span> UsernameNotFoundException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/01/06/ss03-SpringSecurity03-%E8%87%AA%E5%AE%9A%E4%B9%89%E7%94%A8%E6%88%B7%E8%AE%A4%E8%AF%81%E9%80%BB%E8%BE%91/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/06/ss02-SpringSecurity02-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="PAcee">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/photo.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PAcee Hub">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/06/ss02-SpringSecurity02-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/" itemprop="url">SpringSecurity02-基本原理</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-06T19:40:29+08:00">
-                2020-01-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
-                    <span itemprop="name">springsecurity</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>在上一节中，我们发现SpringBoot会自动配置Security，让我们跳转到表单登录页面，输入默认的用户名和随机生成的密码。</p>
-<p>其实在springboot1.x版本中，并不是跳转到表单登录页，而是弹出一个对话框，在对话框里输入信息，我们可以修改代码尝试一下。</p>
-<h2 id="两种认证方式"><a href="#两种认证方式" class="headerlink" title="两种认证方式"></a>两种认证方式</h2><p>首先我们在browser模块创建一个<code>BrowserSecurityConfig</code>类</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BrowserSecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 以http方式认证 springboot1.x时默认</span></span><br><span class="line">        <span class="comment">// 以form表单方式认证 springboot2.x默认</span></span><br><span class="line">        http.httpBasic()</span><br><span class="line">                .and()</span><br><span class="line">                .authorizeRequests() <span class="comment">// 下面是认证信息</span></span><br><span class="line">                .anyRequest() <span class="comment">// 所有请求</span></span><br><span class="line">                .authenticated(); <span class="comment">// 都需要认证</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这个类继承了<code>WebSecurityConfigurerAdapter</code>，安全配置适配器类，并重写<code>configure</code>方法，这里<code>configure</code>有三种重载方法，我们这里先使用Http形式的。</p>
-<p>通过代码很好理解，即通过一系列配置，使用了<code>httpBasic</code>的方式进行身份认证的拦截。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/01/06/ss02-SpringSecurity02-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1822,7 +1835,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">66</span>
+                  <span class="site-state-item-count">68</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
