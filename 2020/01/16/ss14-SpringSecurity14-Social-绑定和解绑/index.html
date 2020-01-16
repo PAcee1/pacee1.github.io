@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springsecurity," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本篇内容概述在很多网站，你注册了他们的用户后，在个人信息页面具有第三方登录的绑定和解绑功能，这和我们之前学习的第三方直接登录大同小异，不同点就是绑定与解绑需要先注册登录再操作，而之前是直接使用第三方登录再注册。  我们这一章要学习的就是使用SpringSocial实现第三方登录的绑定与解绑，实现功能有以下三个  获取用户绑定信息，获取了信息，前端页面才能展示绑定按钮还是解绑按钮 绑定第三方账号 解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringSecurity14-Social-绑定和解绑">
+<meta property="og:url" content="http://yoursite.com/2020/01/16/ss14-SpringSecurity14-Social-%E7%BB%91%E5%AE%9A%E5%92%8C%E8%A7%A3%E7%BB%91/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="本篇内容概述在很多网站，你注册了他们的用户后，在个人信息页面具有第三方登录的绑定和解绑功能，这和我们之前学习的第三方直接登录大同小异，不同点就是绑定与解绑需要先注册登录再操作，而之前是直接使用第三方登录再注册。  我们这一章要学习的就是使用SpringSocial实现第三方登录的绑定与解绑，实现功能有以下三个  获取用户绑定信息，获取了信息，前端页面才能展示绑定按钮还是解绑按钮 绑定第三方账号 解">
+<meta property="og:image" content="http://yoursite.com/image/1579139392085.png">
+<meta property="og:image" content="http://yoursite.com/image/1579141511126.png">
+<meta property="og:image" content="http://yoursite.com/image/1579142520533.png">
+<meta property="og:image" content="http://yoursite.com/image/1579142433351.png">
+<meta property="og:image" content="http://yoursite.com/image/1579142459461.png">
+<meta property="og:image" content="http://yoursite.com/image/1579142565438.png">
+<meta property="og:image" content="http://yoursite.com/image/1579142930893.png">
+<meta property="og:image" content="http://yoursite.com/image/1579142937573.png">
+<meta property="og:image" content="http://yoursite.com/image/1579142949588.png">
+<meta property="article:published_time" content="2020-01-16T09:47:10.000Z">
+<meta property="article:modified_time" content="2020-01-16T09:48:35.179Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springsecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1579139392085.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/16/ss14-SpringSecurity14-Social-绑定和解绑/"/>
+
+
+
+
+
+  <title>SpringSecurity14-Social-绑定和解绑 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/16/ss14-SpringSecurity14-Social-%E7%BB%91%E5%AE%9A%E5%92%8C%E8%A7%A3%E7%BB%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SpringSecurity14-Social-绑定和解绑</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-16T17:47:10+08:00">
+                2020-01-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="本篇内容概述"><a href="#本篇内容概述" class="headerlink" title="本篇内容概述"></a>本篇内容概述</h2><p>在很多网站，你注册了他们的用户后，在个人信息页面具有第三方登录的绑定和解绑功能，这和我们之前学习的第三方直接登录大同小异，不同点就是绑定与解绑需要先注册登录再操作，而之前是直接使用第三方登录再注册。</p>
+<p><img src="/image/1579139392085.png" alt="1579139392085"></p>
+<p>我们这一章要学习的就是使用SpringSocial实现第三方登录的绑定与解绑，实现功能有以下三个</p>
+<ul>
+<li>获取用户绑定信息，获取了信息，前端页面才能展示绑定按钮还是解绑按钮</li>
+<li>绑定第三方账号</li>
+<li>解绑第三方账号</li>
+</ul>
+<p>注意：因为对于QQ的绑定，需要到QQ互联中设置回调地址，比较麻烦，这里我们就使用微信进行绑定解绑操作</p>
+<h2 id="ConnectController"><a href="#ConnectController" class="headerlink" title="ConnectController"></a>ConnectController</h2><p>实现功能之前，我们要先学习这个类，也是SpringSocial提供关于绑定的最重要的一个类，它提供了我们上面所需实现功能，如下</p>
+<h3 id="获取用户信息接口"><a href="#获取用户信息接口" class="headerlink" title="获取用户信息接口"></a>获取用户信息接口</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/connect"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConnectController</span> <span class="keyword">implements</span> <span class="title">InitializingBean</span> </span>&#123;</span><br><span class="line">    <span class="meta">@RequestMapping</span>(method=RequestMethod.GET)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">connectionStatus</span><span class="params">(NativeWebRequest request, Model model)</span> </span>&#123;</span><br><span class="line">       setNoCache(request);</span><br><span class="line">       processFlash(request, model);</span><br><span class="line">       Map&lt;String, List&lt;Connection&lt;?&gt;&gt;&gt; connections = connectionRepository.findAllConnections();</span><br><span class="line">       model.addAttribute(<span class="string">"providerIds"</span>, connectionFactoryLocator.registeredProviderIds());      </span><br><span class="line">       model.addAttribute(<span class="string">"connectionMap"</span>, connections);</span><br><span class="line">       <span class="keyword">return</span> connectView();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">protected</span> String <span class="title">connectView</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> getViewPath() + <span class="string">"status"</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过源码可知，我们只需发送GET请求到<code>/connect</code>上，即可获取当前登录用户的绑定信息</p>
+<p>注意这里会返回connectView()方法，即返回视图，所以我们需要创建一个名字叫<code>/connect/status</code>的视图对象，注入到容器中，不然会抛出405错误</p>
+<p>实现原理也很简单，先通过<code>UsersConnectionRepository</code>根据<code>userId</code>查<code>userconnection</code>表，然后获取容器中所有<code>ConnectFactory</code>，然后根据<code>ProviderId</code>与查出来的结果进行判断，就可以知道是否绑定了</p>
+<a id="more"></a>
+<h3 id="绑定接口"><a href="#绑定接口" class="headerlink" title="绑定接口"></a>绑定接口</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(value=<span class="string">"/&#123;providerId&#125;"</span>, method=RequestMethod.POST)</span><br><span class="line"><span class="function"><span class="keyword">public</span> RedirectView <span class="title">connect</span><span class="params">(@PathVariable String providerId, NativeWebRequest request)</span> </span>&#123;</span><br><span class="line">   ConnectionFactory&lt;?&gt; connectionFactory = connectionFactoryLocator.getConnectionFactory(providerId);</span><br><span class="line">   MultiValueMap&lt;String, String&gt; parameters = <span class="keyword">new</span> LinkedMultiValueMap&lt;String, String&gt;(); </span><br><span class="line">   preConnect(connectionFactory, parameters, request);</span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> RedirectView(connectSupport.buildOAuthUrl(connectionFactory, request, parameters));</span><br><span class="line">   &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">      sessionStrategy.setAttribute(request, PROVIDER_ERROR_ATTRIBUTE, e);</span><br><span class="line">      <span class="keyword">return</span> connectionStatusRedirect(providerId, request);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>发送<code>POST</code>请求到<code>/connect/{providerId}</code>上即可</p>
+<p>这里绑定成功也会返回视图，我们也需要创建一个名字叫<code>/connect/{providerId}connected</code></p>
+<p>它的实现逻辑就是获取连接工厂然后执行<code>OAuth</code>协议的步骤，获取授权码获取令牌，就和我们当时第三方注册的逻辑一样，帮我们再跑了一遍</p>
+<h3 id="解绑接口"><a href="#解绑接口" class="headerlink" title="解绑接口"></a>解绑接口</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(value=<span class="string">"/&#123;providerId&#125;"</span>, method=RequestMethod.DELETE)</span><br><span class="line"><span class="function"><span class="keyword">public</span> RedirectView <span class="title">removeConnections</span><span class="params">(@PathVariable String providerId, NativeWebRequest request)</span> </span>&#123;</span><br><span class="line">   ConnectionFactory&lt;?&gt; connectionFactory = connectionFactoryLocator.getConnectionFactory(providerId);</span><br><span class="line">   preDisconnect(connectionFactory, request);</span><br><span class="line">   connectionRepository.removeConnections(providerId);</span><br><span class="line">   postDisconnect(connectionFactory, request);</span><br><span class="line">   <span class="keyword">return</span> connectionStatusRedirect(providerId, request);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>解绑也很简单，我们自己就可以实现其实，就是删除<code>userconnection</code>中记录即可</p>
+<p>发送<code>DELETE</code>请求到<code>/connect/{providerId}</code></p>
+<p>这里解绑成功也会返回视图，我们也需要创建一个名字叫<code>/connect/{providerId}connect</code></p>
+<p>这个<code>ConnectController</code>类了解完，我们就可以动手实现功能了，当然，还有一个前提是之前已经实现了微信登录注册，即上一篇文章</p>
+<h2 id="获取用户绑定数据"><a href="#获取用户绑定数据" class="headerlink" title="获取用户绑定数据"></a>获取用户绑定数据</h2><p>通过上面的了解，我们需要先创建一个视图</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(<span class="string">"connect/status"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyConnectionStatusView</span> <span class="keyword">extends</span> <span class="title">AbstractView</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">renderMergedOutputModel</span><span class="params">(Map&lt;String, Object&gt; model, HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 返回Json数据</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="comment">// 取Connection</span></span><br><span class="line">        Map&lt;String, List&lt;Connection&lt;?&gt;&gt;&gt; connections = (Map&lt;String, List&lt;Connection&lt;?&gt;&gt;&gt;)model.get(<span class="string">"connectionMap"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//封装当前用户的第三方账号绑定状态 key为providerId ， value为true或false</span></span><br><span class="line">        Map&lt;String, Boolean&gt; result = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (String key : connections.keySet()) &#123;</span><br><span class="line">            result.put(key, CollectionUtils.isNotEmpty(connections.get(key)));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//将当前用户的第三方账号绑定状态返回给浏览器</span></span><br><span class="line">        response.setContentType(<span class="string">"application/json;charset=UTF-8"</span>);</span><br><span class="line">        response.getWriter().write(JSON.toJSONString(result));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后启动登录后直接访问<a href="http://www.pinzhi365.com/connect" target="_blank" rel="noopener">http://www.pinzhi365.com/connect</a></p>
+<p><img src="/image/1579141511126.png" alt="1579141511126"></p>
+<p>成功返回绑定信息，这里我登录的是<code>weixin-pace</code>，数据库里只绑定了微信，所以结果正常</p>
+<h2 id="绑定第三方账号"><a href="#绑定第三方账号" class="headerlink" title="绑定第三方账号"></a>绑定第三方账号</h2><p>首先还是需要创建视图，因为视图名称不固定，QQ，微信都不同，所以这次我们不直接在类上加<code>@Component</code>注解，而是一会加在各自的<code>AutoConfig</code>类上</p>
+<h3 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span>: Pace</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Data</span>: 2020/1/16 10:30</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Version</span>: v1.0</span></span><br><span class="line"><span class="comment"> * 这里因为QQ，微信都需要使用这个视图，所以不能直接写死，一会配在对应的Config类中</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyConnectView</span> <span class="keyword">extends</span> <span class="title">AbstractView</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">renderMergedOutputModel</span><span class="params">(Map&lt;String, Object&gt; model, HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 直接返回绑定成功json</span></span><br><span class="line">        response.setContentType(<span class="string">"application/json;charset=UTF-8"</span>);</span><br><span class="line">        <span class="comment">// 这里可以将返回包装，方便起见直接返回字符串了</span></span><br><span class="line">        response.getWriter().write(JSON.toJSONString(<span class="string">"绑定成功"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="在AutoConfig类上注入视图"><a href="#在AutoConfig类上注入视图" class="headerlink" title="在AutoConfig类上注入视图"></a>在AutoConfig类上注入视图</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span>(<span class="string">"connect/weixinConnected"</span>)</span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span>(name = <span class="string">"weixinConnectedView"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> View <span class="title">weixinConnectView</span><span class="params">()</span></span>&#123;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">new</span> MyConnectView();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="添加绑定页面"><a href="#添加绑定页面" class="headerlink" title="添加绑定页面"></a>添加绑定页面</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>绑定页面<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">"/connect/weixin"</span> <span class="attr">method</span>=<span class="string">"post"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">"submit"</span>&gt;</span>绑定微信<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="启动测试"><a href="#启动测试" class="headerlink" title="启动测试"></a>启动测试</h3><p><img src="/image/1579142520533.png" alt="1579142520533"></p>
+<p>点击绑定按钮，跳转微信登录页面</p>
+<p><img src="/image/1579142433351.png" alt="1579142433351"></p>
+<p>扫码登录后页面显示绑定成功，数据库里新增一条数据</p>
+<p><img src="/image/1579142459461.png" alt="1579142459461"></p>
+<p><img src="/image/1579142565438.png" alt="1579142565438"></p>
+<h2 id="解绑第三方账号"><a href="#解绑第三方账号" class="headerlink" title="解绑第三方账号"></a>解绑第三方账号</h2><p>解绑的话也需要视图，这里我们直接使用绑定的视图然后改一下逻辑，也在配置类上注入，原因和绑定的相同</p>
+<h3 id="改造视图"><a href="#改造视图" class="headerlink" title="改造视图"></a>改造视图</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyConnectView</span> <span class="keyword">extends</span> <span class="title">AbstractView</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">renderMergedOutputModel</span><span class="params">(Map&lt;String, Object&gt; model, HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 直接返回绑定成功json</span></span><br><span class="line">        response.setContentType(<span class="string">"application/json;charset=UTF-8"</span>);</span><br><span class="line">        <span class="comment">// 判断model中是否有connection，有说明是绑定，没有说明是解绑</span></span><br><span class="line">        <span class="keyword">if</span>(model.get(<span class="string">"connections"</span>) == <span class="keyword">null</span>)&#123;</span><br><span class="line">            response.getWriter().write(JSON.toJSONString(<span class="string">"解绑成功"</span>));</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 这里可以将返回包装，方便起见直接返回字符串了</span></span><br><span class="line">            response.getWriter().write(JSON.toJSONString(<span class="string">"绑定成功"</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="在AutoConfig上注入"><a href="#在AutoConfig上注入" class="headerlink" title="在AutoConfig上注入"></a>在AutoConfig上注入</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span>(&#123;<span class="string">"connect/weixinConnect"</span>,<span class="string">"connect/weixinConnected"</span>&#125;)</span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span>(name = <span class="string">"weixinConnectedView"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> View <span class="title">weixinConnectView</span><span class="params">()</span></span>&#123;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">new</span> MyConnectView();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="添加解绑按钮"><a href="#添加解绑按钮" class="headerlink" title="添加解绑按钮"></a>添加解绑按钮</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>绑定页面<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">"/connect/weixin"</span> <span class="attr">method</span>=<span class="string">"post"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">"submit"</span>&gt;</span>绑定微信<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">hr</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">"/connect/weixin"</span> <span class="attr">method</span>=<span class="string">"post"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">id</span>=<span class="string">"method"</span> <span class="attr">type</span>=<span class="string">"hidden"</span> <span class="attr">name</span>=<span class="string">"_method"</span> <span class="attr">value</span>=<span class="string">"delete"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">"submit"</span>&gt;</span>解绑微信<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="启动测试-1"><a href="#启动测试-1" class="headerlink" title="启动测试"></a>启动测试</h3><p>先登录pp这个用户，然后进入绑定页面，点击解绑按钮</p>
+<p><img src="/image/1579142930893.png" alt="1579142930893"></p>
+<p>跳转解绑成功信息，查看数据库，映射已经被删除</p>
+<p><img src="/image/1579142937573.png" alt="1579142937573"></p>
+<p><img src="/image/1579142949588.png" alt="1579142949588"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springsecurity/" rel="tag"># springsecurity</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/15/ss13-SpringSecurity13-Social-%E5%BE%AE%E4%BF%A1%E7%99%BB%E5%BD%95/" rel="next" title="SpringSecurity13-Social-微信登录">
+                <i class="fa fa-chevron-left"></i> SpringSecurity13-Social-微信登录
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/16/ss15-SpringSecurity15-Session%E7%AE%A1%E7%90%86/" rel="prev" title="SpringSecurity15-Session管理">
+                SpringSecurity15-Session管理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">70</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#本篇内容概述"><span class="nav-number">1.</span> <span class="nav-text">本篇内容概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ConnectController"><span class="nav-number">2.</span> <span class="nav-text">ConnectController</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#获取用户信息接口"><span class="nav-number">2.1.</span> <span class="nav-text">获取用户信息接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#绑定接口"><span class="nav-number">2.2.</span> <span class="nav-text">绑定接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解绑接口"><span class="nav-number">2.3.</span> <span class="nav-text">解绑接口</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取用户绑定数据"><span class="nav-number">3.</span> <span class="nav-text">获取用户绑定数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#绑定第三方账号"><span class="nav-number">4.</span> <span class="nav-text">绑定第三方账号</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建视图"><span class="nav-number">4.1.</span> <span class="nav-text">创建视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在AutoConfig类上注入视图"><span class="nav-number">4.2.</span> <span class="nav-text">在AutoConfig类上注入视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加绑定页面"><span class="nav-number">4.3.</span> <span class="nav-text">添加绑定页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动测试"><span class="nav-number">4.4.</span> <span class="nav-text">启动测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解绑第三方账号"><span class="nav-number">5.</span> <span class="nav-text">解绑第三方账号</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#改造视图"><span class="nav-number">5.1.</span> <span class="nav-text">改造视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在AutoConfig上注入"><span class="nav-number">5.2.</span> <span class="nav-text">在AutoConfig上注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加解绑按钮"><span class="nav-number">5.3.</span> <span class="nav-text">添加解绑按钮</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动测试-1"><span class="nav-number">5.4.</span> <span class="nav-text">启动测试</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
