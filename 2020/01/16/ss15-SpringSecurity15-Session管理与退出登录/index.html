@@ -81,8 +81,8 @@
 
 <meta name="description" content="本篇内容概述在前面的笔记中，我们学习了表单登录，短信验证码，图片验证码，以及Social实现的第三方QQ，微信登录，而这些的实现都依靠SpringSecurity 但是我们以前没有使用SpringSecurity，是如何实现登录的呢？是放在Session中保存用户信息的。其实SpringSecurity也是一样，底层也是依靠Session来保存它定义的用户信息。 这一章我们就要讲讲SpringSe">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SpringSecurity15-Session管理">
-<meta property="og:url" content="http://yoursite.com/2020/01/16/ss15-SpringSecurity15-Session%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:title" content="SpringSecurity15-Session管理与退出登录">
+<meta property="og:url" content="http://yoursite.com/2020/01/16/ss15-SpringSecurity15-Session%E7%AE%A1%E7%90%86%E4%B8%8E%E9%80%80%E5%87%BA%E7%99%BB%E5%BD%95/index.html">
 <meta property="og:site_name" content="PAcee Hub">
 <meta property="og:description" content="本篇内容概述在前面的笔记中，我们学习了表单登录，短信验证码，图片验证码，以及Social实现的第三方QQ，微信登录，而这些的实现都依靠SpringSecurity 但是我们以前没有使用SpringSecurity，是如何实现登录的呢？是放在Session中保存用户信息的。其实SpringSecurity也是一样，底层也是依靠Session来保存它定义的用户信息。 这一章我们就要讲讲SpringSe">
 <meta property="og:image" content="http://yoursite.com/image/1579154212693.png">
@@ -97,8 +97,11 @@
 <meta property="og:image" content="http://yoursite.com/image/1579167896416.png">
 <meta property="og:image" content="http://yoursite.com/image/1579167885632.png">
 <meta property="og:image" content="http://yoursite.com/image/1579167925072.png">
+<meta property="og:image" content="http://yoursite.com/image/1579245134453.png">
+<meta property="og:image" content="http://yoursite.com/image/1579245492387.png">
+<meta property="og:image" content="http://yoursite.com/image/1579245775553.png">
 <meta property="article:published_time" content="2020-01-16T09:48:58.000Z">
-<meta property="article:modified_time" content="2020-01-16T09:49:24.082Z">
+<meta property="article:modified_time" content="2020-01-17T09:32:15.826Z">
 <meta property="article:author" content="PAcee">
 <meta property="article:tag" content="springsecurity">
 <meta name="twitter:card" content="summary">
@@ -132,13 +135,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2020/01/16/ss15-SpringSecurity15-Session管理/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/01/16/ss15-SpringSecurity15-Session管理与退出登录/"/>
 
 
 
 
 
-  <title>SpringSecurity15-Session管理 | PAcee Hub</title>
+  <title>SpringSecurity15-Session管理与退出登录 | PAcee Hub</title>
   
 
 
@@ -255,7 +258,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/16/ss15-SpringSecurity15-Session%E7%AE%A1%E7%90%86/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/16/ss15-SpringSecurity15-Session%E7%AE%A1%E7%90%86%E4%B8%8E%E9%80%80%E5%87%BA%E7%99%BB%E5%BD%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="PAcee">
@@ -272,7 +275,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">SpringSecurity15-Session管理</h1>
+          <h1 class="post-title" itemprop="name headline">SpringSecurity15-Session管理与退出登录</h1>
         
 
         <div class="post-meta">
@@ -352,13 +355,18 @@
 <li>Session并发控制</li>
 <li>集群Session的管理</li>
 </ul>
+<p>除了Session管理，我们还要讲一下退出登录，SpringSecurity会自动帮我们做很多退出后需要做的事</p>
+<ul>
+<li>如何退出登录</li>
+<li>SpringSecurity默认的退出逻辑</li>
+<li>退出登录的相关配置</li>
+</ul>
 <h2 id="Session超时处理"><a href="#Session超时处理" class="headerlink" title="Session超时处理"></a>Session超时处理</h2><h3 id="超时时间处理"><a href="#超时时间处理" class="headerlink" title="超时时间处理"></a>超时时间处理</h3><p>首先是设置Session超时时间，这个很常用了，因为是SpringBoot项目，所以直接在配置文件中设置</p>
 <figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置Session失效时间</span></span><br><span class="line"><span class="comment">#spring.session.timeout=60s # springboot1.x</span></span><br><span class="line"><span class="meta">server.servlet.session.timeout</span>=<span class="string">60s</span></span><br></pre></td></tr></table></figure>
-
+<a id="more"></a>
 <p>这里设置60秒的原因如果少于1分钟，SpringBoot也会默认给你设置为1分钟，即不能小于1分钟，可以在源码中看到：</p>
 <p><img src="/image/1579154212693.png" alt="1579154212693"></p>
 <p>然后我们启动项目，登录后等待一分钟，重新访问</p>
-<a id="more"></a>
 <p><img src="/image/1579155716572.png" alt="1579155716572"></p>
 <p>Session已过期</p>
 <h3 id="设置过期提醒"><a href="#设置过期提醒" class="headerlink" title="设置过期提醒"></a>设置过期提醒</h3><p>这里可以发现，当Session过期后，转跳页面还是之前未认证页面，所以这里我们要对Session超时的情况，做出特殊处理，提示他们是因为Session超时而需要重新登录</p>
@@ -416,6 +424,35 @@
 <p>再看一下存到redis里的数据内容：</p>
 <p><img src="/image/1579167925072.png" alt="1579167925072"></p>
 <p>同时之前学习的session超时时间设置和并发控制功能都仍然有效。</p>
+<h2 id="退出登录"><a href="#退出登录" class="headerlink" title="退出登录"></a>退出登录</h2><h3 id="退出登录逻辑"><a href="#退出登录逻辑" class="headerlink" title="退出登录逻辑"></a>退出登录逻辑</h3><p>Spring Security的退出登陆功能由<code>LogoutFilter</code>过滤器拦截处理，默认的退出登陆url为<code>/logout</code>。</p>
+<p>在退出登陆时会做如下几件事：</p>
+<ul>
+<li>使当前<code>session</code>失效</li>
+<li>清除当前用户的<code>remember-me</code>记录</li>
+<li>清空当前的<code>SecurityContext</code></li>
+<li>重定向到登录界面</li>
+</ul>
+<p>这里默认重定向到<code>/authorization/require?logout</code></p>
+<h3 id="实现退出登录"><a href="#实现退出登录" class="headerlink" title="实现退出登录"></a>实现退出登录</h3><p>实现起来也非常简单，写一个<code>index</code>页面</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    index</span><br><span class="line"><span class="tag">&lt;<span class="name">br</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/logout"</span>&gt;</span>退出<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>配置好后，便可以启动测试，这里我们先登录，登陆后进入<code>index</code>页面，然后点击退出按钮</p>
+<p><img src="/image/1579245134453.png" alt="1579245134453"></p>
+<p>这里我们就需要配置退出成功后的操作了，不使用它默认的跳转路径</p>
+<h3 id="退出配置"><a href="#退出配置" class="headerlink" title="退出配置"></a>退出配置</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">http</span><br><span class="line">	.logout() <span class="comment">// 退出设置</span></span><br><span class="line">		.logoutUrl(<span class="string">"/myLogout"</span>) <span class="comment">// 退出登录的URL，默认为logout</span></span><br><span class="line">         .logoutSuccessUrl(<span class="string">"/my-login.html"</span>) <span class="comment">// 退出成功后转跳Url 与Handler互斥</span></span><br><span class="line">		<span class="comment">// .logoutSuccessHandler() // 退出成功后Handler，与Url互斥</span></span><br><span class="line">		<span class="comment">//.deleteCookies("JSESSIONID") // 退出成功后删除指定cookie</span></span><br></pre></td></tr></table></figure>
+
+<p>配置很简单，也易懂，这里就不过多说明了，Success后有两种实现方式，一是直接跳转Url，一是配置一个<code>Handler</code>进行处理，我们先使用Url跳转测试</p>
+<p><img src="/image/1579245492387.png" alt="1579245492387"></p>
+<p>退出成功后回到了登录页面</p>
+<p>然后我们写一个<code>LogoutSuccessHandler</code>实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyLogoutSuccessHandler</span> <span class="keyword">implements</span> <span class="title">LogoutSuccessHandler</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onLogoutSuccess</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Authentication authentication)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">        response.setContentType(<span class="string">"application/json;charset=UTF-8"</span>);</span><br><span class="line">        response.getWriter().write(JSON.toJSONString(<span class="keyword">new</span> SimpleResponse(<span class="string">"退出成功"</span>,<span class="number">200</span>)));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//response.sendRedirect(signOutSuccessUrl);</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我只是简单的实现，也可以将退出成功跳转页面配置在配置文件中进行动态设置</p>
+<p>修改Security配置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">http.logout() <span class="comment">// 退出设置</span></span><br><span class="line">    .logoutUrl(<span class="string">"/myLogout"</span>) <span class="comment">// 退出登录的URL，默认为logout</span></span><br><span class="line">    <span class="comment">//.logoutSuccessUrl("/my-login.html") // 退出成功后转跳Url 与Handler互斥</span></span><br><span class="line">    .logoutSuccessHandler(<span class="keyword">new</span> MyLogoutSuccessHandler()  ) <span class="comment">// 退出成功后Handler，与Url互斥</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1579245775553.png" alt="1579245775553"></p>
+<p>成功实现</p>
 
       
     </div>
@@ -455,6 +492,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/17/ss16-SpringSecurity16-OAuth-%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D/" rel="prev" title="SpringSecurity16-OAuth-基本介绍">
+                SpringSecurity16-OAuth-基本介绍 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -535,7 +576,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">70</span>
+                  <span class="site-state-item-count">71</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -590,7 +631,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#本篇内容概述"><span class="nav-number">1.</span> <span class="nav-text">本篇内容概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Session超时处理"><span class="nav-number">2.</span> <span class="nav-text">Session超时处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#超时时间处理"><span class="nav-number">2.1.</span> <span class="nav-text">超时时间处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置过期提醒"><span class="nav-number">2.2.</span> <span class="nav-text">设置过期提醒</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Session并发控制"><span class="nav-number">3.</span> <span class="nav-text">Session并发控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Security配置"><span class="nav-number">3.1.</span> <span class="nav-text">Security配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现SessionInformationExpiredStrategy"><span class="nav-number">3.2.</span> <span class="nav-text">实现SessionInformationExpiredStrategy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动测试"><span class="nav-number">3.3.</span> <span class="nav-text">启动测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集群Session的管理"><span class="nav-number">4.</span> <span class="nav-text">集群Session的管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#集群Session简单介绍"><span class="nav-number">4.1.</span> <span class="nav-text">集群Session简单介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集群Session管理实现"><span class="nav-number">4.2.</span> <span class="nav-text">集群Session管理实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#序列化问题"><span class="nav-number">4.2.1.</span> <span class="nav-text">序列化问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解决方式"><span class="nav-number">4.2.2.</span> <span class="nav-text">解决方式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动测试-1"><span class="nav-number">4.3.</span> <span class="nav-text">启动测试</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#本篇内容概述"><span class="nav-number">1.</span> <span class="nav-text">本篇内容概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Session超时处理"><span class="nav-number">2.</span> <span class="nav-text">Session超时处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#超时时间处理"><span class="nav-number">2.1.</span> <span class="nav-text">超时时间处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置过期提醒"><span class="nav-number">2.2.</span> <span class="nav-text">设置过期提醒</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Session并发控制"><span class="nav-number">3.</span> <span class="nav-text">Session并发控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Security配置"><span class="nav-number">3.1.</span> <span class="nav-text">Security配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现SessionInformationExpiredStrategy"><span class="nav-number">3.2.</span> <span class="nav-text">实现SessionInformationExpiredStrategy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动测试"><span class="nav-number">3.3.</span> <span class="nav-text">启动测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集群Session的管理"><span class="nav-number">4.</span> <span class="nav-text">集群Session的管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#集群Session简单介绍"><span class="nav-number">4.1.</span> <span class="nav-text">集群Session简单介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集群Session管理实现"><span class="nav-number">4.2.</span> <span class="nav-text">集群Session管理实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#序列化问题"><span class="nav-number">4.2.1.</span> <span class="nav-text">序列化问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解决方式"><span class="nav-number">4.2.2.</span> <span class="nav-text">解决方式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动测试-1"><span class="nav-number">4.3.</span> <span class="nav-text">启动测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#退出登录"><span class="nav-number">5.</span> <span class="nav-text">退出登录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#退出登录逻辑"><span class="nav-number">5.1.</span> <span class="nav-text">退出登录逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现退出登录"><span class="nav-number">5.2.</span> <span class="nav-text">实现退出登录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#退出配置"><span class="nav-number">5.3.</span> <span class="nav-text">退出配置</span></a></li></ol></li></ol></div>
             
 
           </div>
