@@ -240,6 +240,484 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/19/ss19-SpringSecurity19-OAuth-%E9%87%8D%E6%9E%84%E4%B8%89%E7%A7%8D%E7%99%BB%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/19/ss19-SpringSecurity19-OAuth-%E9%87%8D%E6%9E%84%E4%B8%89%E7%A7%8D%E7%99%BB%E5%BD%95/" itemprop="url">SpringSecurity19-OAuth-重构三种登录</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-19T17:18:45+08:00">
+                2020-01-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="为何-如何重构表单登录"><a href="#为何-如何重构表单登录" class="headerlink" title="为何/如何重构表单登录"></a>为何/如何重构表单登录</h2><p>首先，我们需要明确一点，为什么我们要重构之前的表单登录？</p>
+<p>因为对于App来说，没有Cookie，所以不能使用Cookie+Session的方式对登录用户信息存储，就必须使用Token，然后SpringSecurityOAuth就是封装了一系列操作，最后返回Token，但是它只有四种授权模式，并没有直接表单登录，或者短信登录的方式，所以我们需要进行一些改变，来通过SpringSecurityOAuth帮我们实现Token的生成发放，最后实现App的登录以及登录状态保存。</p>
+<p>通过上一节的学习，我们大致了解了SpringSecurityOAuth生成Token的流程，如下图</p>
+<p><img src="/image/1579419496431.png" alt="1579419496431"></p>
+<p>那么，我们要用的逻辑是哪块呢？就是最下面<code>AuthorizationServerTokenServices</code>生成Token的逻辑，所以我们的实现流程就如下图：</p>
+<p><img src="/image/20191019175256328.png" alt="在这里插入图片描述"></p>
+<p>首先我们之前的认证成功处理器的处理就是直接将<code>Authorization</code>作为json形式返回，所以我们是有<code>Authorization</code>这个对象的。</p>
+<p>那么我们的目光就聚焦在<code>OAuth2Request</code>上了，只要有了他就能调用<code>DefaultTokenServices</code>生成Token，那么如何创建一个<code>OAuth2Request</code>对象呢？</p>
+<p>通过上节源码可知，它是由<code>ClientDetails</code>和<code>TokenRequest</code>生成的</p>
+<ul>
+<li><code>ClientDetails</code>是由请求参数<code>ClientId</code>作为参数，调用<code>ClientDetailsService</code>生成的</li>
+<li><code>TokenRequest</code>就更简单了，是直接<code>new</code>出来的，通过请求的几个参数和<code>ClientDetails</code></li>
+</ul>
+<p>总结，使用SpringSecurity OAuth重构表单登录的思路有三点：</p>
+<ul>
+<li>代码写在<code>AuthorizationSuccessHandler</code>成功处理器里</li>
+<li>最终目标是构建出<code>OAuth2Request</code>对象</li>
+<li>构建对象需要从参数<code>ClientId</code>入手
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/01/19/ss19-SpringSecurity19-OAuth-%E9%87%8D%E6%9E%84%E4%B8%89%E7%A7%8D%E7%99%BB%E5%BD%95/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/19/ss18-SpringSecurity18-OAuth-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/19/ss18-SpringSecurity18-OAuth-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" itemprop="url">SpringSecurity18-OAuth-源码解析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-19T17:18:21+08:00">
+                2020-01-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="明确目标"><a href="#明确目标" class="headerlink" title="明确目标"></a>明确目标</h2><p>还记得我们刚了解OAuth时说的，它默认只有四种认证模式，那么如果我们想用短信验证或者第三方登录验证的模式，如何自定义授权模式并嫁接到认证服务器中呢？</p>
+<p><img src="/image/20191019095619646.png" alt="在这里插入图片描述"></p>
+<p>即我们自己实现认证方式，然后使用Security造好的Token生成存放校验逻辑进行Token管理</p>
+<p>为了达到这个目的，我们需要对SpringSecurity OAuth源码进行解析</p>
+<h2 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h2><h3 id="TokenEndPoint"><a href="#TokenEndPoint" class="headerlink" title="TokenEndPoint"></a>TokenEndPoint</h3><p>首先，在我们上一章中，获取令牌的方式是向<code>/oauth/token</code>发送post请求，根据我们对springboot的了解，这个是由<code>EndPoint</code>端点控制的，所以我们直接取看<code>TokenEndPoint</code>源码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TokenEndpoint</span> <span class="keyword">extends</span> <span class="title">AbstractEndpoint</span> </span>&#123;</span><br><span class="line">    <span class="meta">@RequestMapping</span>(value = <span class="string">"/oauth/token"</span>, method=RequestMethod.POST)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> ResponseEntity&lt;OAuth2AccessToken&gt; <span class="title">postAccessToken</span><span class="params">(Principal principal, @RequestParam</span></span></span><br><span class="line"><span class="function"><span class="params">	Map&lt;String, String&gt; parameters)</span> <span class="keyword">throws</span> HttpRequestMethodNotSupportedException </span>&#123;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (!(principal <span class="keyword">instanceof</span> Authentication)) &#123;</span><br><span class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> InsufficientAuthenticationException(</span><br><span class="line">					<span class="string">"There is no client authentication. Try adding an appropriate authentication filter."</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 从请求中获取clientId</span></span><br><span class="line">		String clientId = getClientId(principal);</span><br><span class="line">         <span class="comment">// 根据clientId，获取ClientDetails，保存了clientId，secret,scope等客户端配置的信息</span></span><br><span class="line">		ClientDetails authenticatedClient = getClientDetailsService().loadClientByClientId(clientId);</span><br><span class="line">        </span><br><span class="line">		<span class="comment">// 通过ClientDetails获取TokenRequest，其中保存grantType，username，password等就是我们请求中的那些必要参数，封装成TokenRequest对象</span></span><br><span class="line">		TokenRequest tokenRequest = getOAuth2RequestFactory().createTokenRequest(parameters, authenticatedClient);</span><br><span class="line"></span><br><span class="line">		··· <span class="comment">// 进行一些校验，比如scope是否合法，授权模式判断等</span></span><br><span class="line"></span><br><span class="line">         <span class="comment">// 生成Token的步骤</span></span><br><span class="line">		OAuth2AccessToken token = getTokenGranter().grant(tokenRequest.getGrantType(), tokenRequest);</span><br><span class="line">		<span class="keyword">if</span> (token == <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedGrantTypeException(<span class="string">"Unsupported grant type: "</span> + tokenRequest.getGrantType());</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> getResponse(token);</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/01/19/ss18-SpringSecurity18-OAuth-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/19/ss17-SpringSecurity17-OAuth-%E5%AE%9E%E7%8E%B0%E6%A0%87%E5%87%86%E7%9A%84OAuthProvider/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/19/ss17-SpringSecurity17-OAuth-%E5%AE%9E%E7%8E%B0%E6%A0%87%E5%87%86%E7%9A%84OAuthProvider/" itemprop="url">SpringSecurity17-OAuth-实现标准的OAuthProvider</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-19T17:18:05+08:00">
+                2020-01-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们之前的项目中，都是使用的都是<code>demo</code>模块依赖<code>Browser</code>模块，对于SpringSecurityOAuth来说，我们需要使用<code>app</code>模块，所以我们要进行一些配置</p>
+<p><code>demo</code>模块的依赖引用由<code>browser</code>改为<code>app</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.enbuys<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-security-app<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>core</code>中使用到了认证失败处理器和认证成功处理器，所以要从<code>browser</code>移到<code>app</code>中，对应着<code>SimpleResponse</code>也要移动</p>
+<p>将我们自己实现的<code>UserDetailsService</code>放到<code>Demo</code>模块中</p>
+<h2 id="实现Provider中的认证服务器"><a href="#实现Provider中的认证服务器" class="headerlink" title="实现Provider中的认证服务器"></a>实现Provider中的认证服务器</h2><p>对于SpringSecurity OAuth来说，实现认证服务器非常简单，因为由上节我们知道，很多东西他都已经封装好了，比如四种认证模式，Token生成规则，返回的实现等等。</p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><p>所以我们只需创建一个类，添加注解即可实现标准的认证服务器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableAuthorizationServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthorizationServerConfig</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样一个认证服务器就创建好了，然后启动应用</p>
+<p><img src="/image/1579399724850.png" alt="1579399724850"></p>
+<p>在控制台可以看到Security向容器中添加了一些控制器，</p>
+<ul>
+<li><code>/oauth/authorize</code>：就是授权码模式授权的接口，访问这个接口就会跳转到授权页面，就比如QQ登录时的那个登录页</li>
+<li><code>/oauth/token</code>：根据授权码获取<code>AccessToken</code>的接口</li>
+</ul>
+<p>在下面还可以看懂自动生成的<code>client-id</code>与<code>secret</code>，因为是随机生成的，所以很不方便，我们这里配置成固定的</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">security.oauth2.client.client-id</span>=<span class="string">enbuys</span></span><br><span class="line"><span class="meta">security.oauth2.client.client-secret</span>=<span class="string">enbuys</span></span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/01/19/ss17-SpringSecurity17-OAuth-%E5%AE%9E%E7%8E%B0%E6%A0%87%E5%87%86%E7%9A%84OAuthProvider/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/17/ss16-SpringSecurity16-OAuth-%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1328,476 +1806,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/09/ss09-SpringSecurity09-Social-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="PAcee">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/photo.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PAcee Hub">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/09/ss09-SpringSecurity09-Social-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/" itemprop="url">SpringSecurity09-Social-基本原理</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-09T17:52:00+08:00">
-                2020-01-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
-                    <span itemprop="name">springsecurity</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>我们之前学习了SpringSecurity的基本使用方式以及原理流程。接下来我们学习SpringSecuritySocial，在第一节就介绍过，这个技术是在SpringSecurity基础上添加的，用来处理第三方登录的认证请求。</p>
-<h2 id="Oauth协议介绍"><a href="#Oauth协议介绍" class="headerlink" title="Oauth协议介绍"></a>Oauth协议介绍</h2><p>这里为什么要先将Oauth协议呢？Oauth不是后面才要学到的吗？第一节介绍SpringSecurity Oauth是用于APP安全认证的。</p>
-<p>其实Social和SpringSecurity Oauth都是基于Oauth协议开发的，所以我们学习之前要了解Oauth协议是什么?</p>
-<h3 id="问题提出"><a href="#问题提出" class="headerlink" title="问题提出"></a>问题提出</h3><p>比如我们要开发一个微信助手，用来美化自拍，需要用户微信中的自拍数据，那要怎么办呢？</p>
-<p>让用户直接把用户名密码给我们吗？这肯定不现实，因为微信有更多的隐私聊天记录，直接登录肯定会看到。</p>
-<h3 id="Oauth协议解决问题"><a href="#Oauth协议解决问题" class="headerlink" title="Oauth协议解决问题"></a>Oauth协议解决问题</h3><p>Oauth协议就是的出现就是为了解决这类问题的</p>
-<p><img src="/image/14483918-473d8c496b4e87b7.webp" alt="img"></p>
-<ul>
-<li>用户不把密码告诉我们，而是给我们一个令牌，比如Token</li>
-<li>我们拿着令牌去找微信要数据</li>
-<li>微信根据令牌，把对应的数据传给我们，而不是所有数据
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/01/09/ss09-SpringSecurity09-Social-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/08/ss08-SpringSecurity08-%E7%9F%AD%E4%BF%A1%E9%AA%8C%E8%AF%81%E7%A0%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="PAcee">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/photo.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PAcee Hub">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/08/ss08-SpringSecurity08-%E7%9F%AD%E4%BF%A1%E9%AA%8C%E8%AF%81%E7%A0%81/" itemprop="url">SpringSecurity08-短信验证码</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-08T20:17:08+08:00">
-                2020-01-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
-                    <span itemprop="name">springsecurity</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>本篇文章我们研究Spring Security开发基于表单的登录的最后一块内容，基于短信验证码的接口开发。 <a href="https://pacee1.github.io/2020/01/08/ss06-SpringSecurity06-%E5%9B%BE%E7%89%87%E9%AA%8C%E8%AF%81%E7%A0%81/" target="_blank" rel="noopener">前面的文章我们讲解了基于图片验证码的校验</a>，有兴趣的同学可以翻看一下。</p>
-<p>这篇文章除了讲解短信验证码的开发之外，我们还会对之前的代码做一次重构，我们希望短信验证码和图片验证码的逻辑的公共部分可以抽离出来。</p>
-<h2 id="开发短信验证码接口"><a href="#开发短信验证码接口" class="headerlink" title="开发短信验证码接口"></a>开发短信验证码接口</h2><h3 id="实现思路"><a href="#实现思路" class="headerlink" title="实现思路"></a>实现思路</h3><p>我们的代码类似于图片验证校验，进行实现</p>
-<p>首先肯定要写一个生成短信的类，然后将这个短信通过接口发送出去（这个接口可以有很多实现，因为有不同的短信服务提供商）。</p>
-<p>既然有短信，肯定有一个短信的封装类，还需要配置类，配置短信验证码长度，过期时间等。</p>
-<h3 id="创建短信验证码信息封装类"><a href="#创建短信验证码信息封装类" class="headerlink" title="创建短信验证码信息封装类"></a>创建短信验证码信息封装类</h3><p>因为短信和图片成员变量类似，所以集体抽象出来为ValidateCode，并使两个封装类继承此类</p>
-<p>短信验证码直接调用父类构造方法</p>
-<p>图片验证码新增一个图片变量</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SmsCode</span> <span class="keyword">extends</span> <span class="title">ValidateCode</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SmsCode</span><span class="params">(String code, <span class="keyword">int</span> expireTime)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(code, expireTime);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SmsCode</span><span class="params">(String code, LocalDateTime expireTime)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(code, expireTime);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/01/08/ss08-SpringSecurity08-%E7%9F%AD%E4%BF%A1%E9%AA%8C%E8%AF%81%E7%A0%81/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/08/ss07-SpringSecurity07-%E8%AE%B0%E4%BD%8F%E6%88%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="PAcee">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/photo.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PAcee Hub">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/08/ss07-SpringSecurity07-%E8%AE%B0%E4%BD%8F%E6%88%91/" itemprop="url">SpringSecurity07-记住我</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-08T15:41:35+08:00">
-                2020-01-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
-                    <span itemprop="name">springsecurity</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="记住我基本原理"><a href="#记住我基本原理" class="headerlink" title="记住我基本原理"></a>记住我基本原理</h2><p>记住我这个功能应该都不陌生，就是保存用户登录信息</p>
-<p><img src="/image/1578468221183.png" alt="img"></p>
-<p>在SpringSecurity中实现原理是：</p>
-<ul>
-<li>第一次，浏览器发出认证请求，由<code>UsernamePassword</code>拦截器认证后，会走到<code>RememberMeService</code>类</li>
-<li><code>RememberMeService</code>使用<code>TokenRepository</code>做了两件事<ul>
-<li>将用户信息以Token对象保存到数据库中（Mysql，Redis等等）</li>
-<li>将Token放到Cookie中返回给浏览器</li>
-</ul>
-</li>
-<li>第二次浏览器请求后，会被<code>RememberMeAuthenticationFilter</code>拦截，这个拦截器会当前面一系列绿色拦截器拦截过后才会拦截</li>
-<li><code>RememberMeAuthenticationFilter</code>请求<code>RemenberMeService</code>，将请求信息传递给他</li>
-<li><code>RememberMeService</code>先读取Cookie中的Token然后使用<code>TokenRepository</code>向DB查找Token<ul>
-<li>如果查到了调用<code>UserDetailsService</code>获取用户信息</li>
-<li>没查到则抛出异常，让用户去登录页
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/01/08/ss07-SpringSecurity07-%E8%AE%B0%E4%BD%8F%E6%88%91/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1852,7 +1860,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-count">74</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

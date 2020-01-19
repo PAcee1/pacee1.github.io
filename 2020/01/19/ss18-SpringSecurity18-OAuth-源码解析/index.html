@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springsecurity," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="明确目标还记得我们刚了解OAuth时说的，它默认只有四种认证模式，那么如果我们想用短信验证或者第三方登录验证的模式，如何自定义授权模式并嫁接到认证服务器中呢？  即我们自己实现认证方式，然后使用Security造好的Token生成存放校验逻辑进行Token管理 为了达到这个目的，我们需要对SpringSecurity OAuth源码进行解析 源码解析TokenEndPoint首先，在我们上一章中，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringSecurity18-OAuth-源码解析">
+<meta property="og:url" content="http://yoursite.com/2020/01/19/ss18-SpringSecurity18-OAuth-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="明确目标还记得我们刚了解OAuth时说的，它默认只有四种认证模式，那么如果我们想用短信验证或者第三方登录验证的模式，如何自定义授权模式并嫁接到认证服务器中呢？  即我们自己实现认证方式，然后使用Security造好的Token生成存放校验逻辑进行Token管理 为了达到这个目的，我们需要对SpringSecurity OAuth源码进行解析 源码解析TokenEndPoint首先，在我们上一章中，">
+<meta property="og:image" content="http://yoursite.com/image/20191019095619646.png">
+<meta property="og:image" content="http://yoursite.com/image/1579414379414.png">
+<meta property="og:image" content="http://yoursite.com/image/1579414828260.png">
+<meta property="og:image" content="http://yoursite.com/image/1579415964909.png">
+<meta property="og:image" content="http://yoursite.com/image/20191019104037815.png">
+<meta property="article:published_time" content="2020-01-19T09:18:21.000Z">
+<meta property="article:modified_time" content="2020-01-19T09:25:44.259Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springsecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/20191019095619646.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/19/ss18-SpringSecurity18-OAuth-源码解析/"/>
+
+
+
+
+
+  <title>SpringSecurity18-OAuth-源码解析 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/19/ss18-SpringSecurity18-OAuth-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SpringSecurity18-OAuth-源码解析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-19T17:18:21+08:00">
+                2020-01-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="明确目标"><a href="#明确目标" class="headerlink" title="明确目标"></a>明确目标</h2><p>还记得我们刚了解OAuth时说的，它默认只有四种认证模式，那么如果我们想用短信验证或者第三方登录验证的模式，如何自定义授权模式并嫁接到认证服务器中呢？</p>
+<p><img src="/image/20191019095619646.png" alt="在这里插入图片描述"></p>
+<p>即我们自己实现认证方式，然后使用Security造好的Token生成存放校验逻辑进行Token管理</p>
+<p>为了达到这个目的，我们需要对SpringSecurity OAuth源码进行解析</p>
+<h2 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h2><h3 id="TokenEndPoint"><a href="#TokenEndPoint" class="headerlink" title="TokenEndPoint"></a>TokenEndPoint</h3><p>首先，在我们上一章中，获取令牌的方式是向<code>/oauth/token</code>发送post请求，根据我们对springboot的了解，这个是由<code>EndPoint</code>端点控制的，所以我们直接取看<code>TokenEndPoint</code>源码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TokenEndpoint</span> <span class="keyword">extends</span> <span class="title">AbstractEndpoint</span> </span>&#123;</span><br><span class="line">    <span class="meta">@RequestMapping</span>(value = <span class="string">"/oauth/token"</span>, method=RequestMethod.POST)</span><br><span class="line">	<span class="function"><span class="keyword">public</span> ResponseEntity&lt;OAuth2AccessToken&gt; <span class="title">postAccessToken</span><span class="params">(Principal principal, @RequestParam</span></span></span><br><span class="line"><span class="function"><span class="params">	Map&lt;String, String&gt; parameters)</span> <span class="keyword">throws</span> HttpRequestMethodNotSupportedException </span>&#123;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (!(principal <span class="keyword">instanceof</span> Authentication)) &#123;</span><br><span class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> InsufficientAuthenticationException(</span><br><span class="line">					<span class="string">"There is no client authentication. Try adding an appropriate authentication filter."</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 从请求中获取clientId</span></span><br><span class="line">		String clientId = getClientId(principal);</span><br><span class="line">         <span class="comment">// 根据clientId，获取ClientDetails，保存了clientId，secret,scope等客户端配置的信息</span></span><br><span class="line">		ClientDetails authenticatedClient = getClientDetailsService().loadClientByClientId(clientId);</span><br><span class="line">        </span><br><span class="line">		<span class="comment">// 通过ClientDetails获取TokenRequest，其中保存grantType，username，password等就是我们请求中的那些必要参数，封装成TokenRequest对象</span></span><br><span class="line">		TokenRequest tokenRequest = getOAuth2RequestFactory().createTokenRequest(parameters, authenticatedClient);</span><br><span class="line"></span><br><span class="line">		··· <span class="comment">// 进行一些校验，比如scope是否合法，授权模式判断等</span></span><br><span class="line"></span><br><span class="line">         <span class="comment">// 生成Token的步骤</span></span><br><span class="line">		OAuth2AccessToken token = getTokenGranter().grant(tokenRequest.getGrantType(), tokenRequest);</span><br><span class="line">		<span class="keyword">if</span> (token == <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedGrantTypeException(<span class="string">"Unsupported grant type: "</span> + tokenRequest.getGrantType());</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> getResponse(token);</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>看完源码，我们可以发生请求试试，这里我们使用密码模式，因为比较简单。</p>
+<p><img src="/image/1579414379414.png" alt="1579414379414"></p>
+<p>可以看到，就是我们请求中的信息，我们接着往下看生成Token的源码</p>
+<p><code>OAuth2AccessToken token = getTokenGranter().grant(tokenRequest.getGrantType(), tokenRequest);</code></p>
+<h3 id="生成Token"><a href="#生成Token" class="headerlink" title="生成Token"></a>生成Token</h3><h4 id="根据grantType找到正确的Token生成器"><a href="#根据grantType找到正确的Token生成器" class="headerlink" title="根据grantType找到正确的Token生成器"></a>根据grantType找到正确的Token生成器</h4><p>首先它会进到<code>TokenGranter</code>的实现类<code>CompositeTokenGranter</code>里</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CompositeTokenGranter</span> <span class="keyword">implements</span> <span class="title">TokenGranter</span> </span>&#123;    </span><br><span class="line">	<span class="function"><span class="keyword">public</span> OAuth2AccessToken <span class="title">grant</span><span class="params">(String grantType, TokenRequest tokenRequest)</span> </span>&#123;</span><br><span class="line">       <span class="comment">// 循环token的生成器，匹配grantType找到实现类，进行token的生成，如果不为null就返回</span></span><br><span class="line">       <span class="keyword">for</span> (TokenGranter granter : tokenGranters) &#123;</span><br><span class="line">          OAuth2AccessToken grant = granter.grant(grantType, tokenRequest);</span><br><span class="line">          <span class="keyword">if</span> (grant!=<span class="keyword">null</span>) &#123;</span><br><span class="line">             <span class="keyword">return</span> grant;</span><br><span class="line">          &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1579414828260.png" alt="1579414828260"></p>
+<p>这里有四种授权模式，和一个<code>RefreshToken</code>的生成器。</p>
+<h4 id="密码模式生成器"><a href="#密码模式生成器" class="headerlink" title="密码模式生成器"></a>密码模式生成器</h4><p>因为我们是密码模式，所以使用<code>ClientCredentialsTokenGranter</code>这个生成器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClientCredentialsTokenGranter</span> <span class="keyword">extends</span> <span class="title">AbstractTokenGranter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> OAuth2AccessToken <span class="title">grant</span><span class="params">(String grantType, TokenRequest tokenRequest)</span> </span>&#123;</span><br><span class="line">      <span class="comment">//去具体的实现类里去拿token</span></span><br><span class="line">      OAuth2AccessToken token = <span class="keyword">super</span>.grant(grantType, tokenRequest);</span><br><span class="line">      ···</span><br><span class="line">      <span class="keyword">return</span> token;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里也是一个中间处理类，具体生成还要往下走</p>
+<p>具体实现类为<code>AbstractTokenGranter</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> OAuth2AccessToken <span class="title">grant</span><span class="params">(String grantType, TokenRequest tokenRequest)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//判断当前grantType是否为本实现类指定要处理的grantType---如果不是直接返回null</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.grantType.equals(grantType)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//获取clientId</span></span><br><span class="line">    String clientId = tokenRequest.getClientId();</span><br><span class="line">    <span class="comment">//通过clientId再获取一遍ClientDetails对象</span></span><br><span class="line">    ClientDetails client = clientDetailsService.loadClientByClientId(clientId);</span><br><span class="line">    <span class="comment">//判断grantType是否合法</span></span><br><span class="line">    validateGrantType(grantType, client);</span><br><span class="line">    <span class="comment">//打个注释</span></span><br><span class="line">    <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">        logger.debug(<span class="string">"Getting access token for: "</span> + clientId);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//真正去具体的实现类里去拿token</span></span><br><span class="line">    <span class="keyword">return</span> getAccessToken(client, tokenRequest);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//上面的getAccessToken方法的具体实现</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> OAuth2AccessToken <span class="title">getAccessToken</span><span class="params">(ClientDetails client, TokenRequest tokenRequest)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> tokenServices.createAccessToken(getOAuth2Authentication(client, tokenRequest));</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//上面getOAuth2Authentication方法的具体实现 --- 生成OAuth2Authentication，</span></span><br><span class="line"><span class="comment">//但是按照方法的加载机制如果具体实现里有该方法会先走实现类里的</span></span><br><span class="line"><span class="comment">//在简化+授权码+密码模式的情况下不会走下面的方法  =======================《 特别注意 》===================</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> OAuth2Authentication <span class="title">getOAuth2Authentication</span><span class="params">(ClientDetails client, TokenRequest tokenRequest)</span> </span>&#123;</span><br><span class="line">    OAuth2Request storedOAuth2Request = requestFactory.createOAuth2Request(client, tokenRequest);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> OAuth2Authentication(storedOAuth2Request, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们先看<code>getAccessToken()</code>方法，他的实现分为两步</p>
+<ul>
+<li><code>getOAuth2Authentication()</code>：先对密码进行校验</li>
+<li><code>createAccessToken()</code>：然后再创建成功的令牌</li>
+</ul>
+<p>然后我们会发现<code>getAccessToken()</code>方法是<code>protected</code>，所以其实实现还是要看他这个子实现类，使用的设计模式是模板模式。</p>
+<h4 id="密码认证获取OAuth2Authentication对象"><a href="#密码认证获取OAuth2Authentication对象" class="headerlink" title="密码认证获取OAuth2Authentication对象"></a>密码认证获取OAuth2Authentication对象</h4><p>因为我们这里使用的是密码模式，不同的模式其<code>getOAuth2Authentication</code>方法的实现都是不同的，我们先看看<code>ResourceOwnerPasswordTokenGranter</code>的实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> OAuth2Authentication <span class="title">getOAuth2Authentication</span><span class="params">(ClientDetails client, TokenRequest tokenRequest)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Map&lt;String, String&gt; parameters = <span class="keyword">new</span> LinkedHashMap&lt;String, String&gt;(tokenRequest.getRequestParameters());</span><br><span class="line">    String username = parameters.get(<span class="string">"username"</span>);</span><br><span class="line">    String password = parameters.get(<span class="string">"password"</span>);</span><br><span class="line">    <span class="comment">// Protect from downstream leaks of password</span></span><br><span class="line">    parameters.remove(<span class="string">"password"</span>);</span><br><span class="line">    <span class="comment">//下面这部分代码在用户名+密码登陆时其实我们已经见过了，就是利用请求中的用户名+密码进行认证+授权校验</span></span><br><span class="line">    <span class="comment">//校验成功后会生成一个已经认证了的Authentication对象  --- 这里不细分析了</span></span><br><span class="line">    <span class="comment">//与之对应的是授权码模式会利用授权码进行校验并生成一个认证成功的Authentication对象 </span></span><br><span class="line">    Authentication userAuth = <span class="keyword">new</span> UsernamePasswordAuthenticationToken(username, password);</span><br><span class="line">    ((AbstractAuthenticationToken) userAuth).setDetails(parameters);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        userAuth = authenticationManager.authenticate(userAuth);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    ···</span><br><span class="line">        </span><br><span class="line">    <span class="comment">//将ClientDetails 对象和TokenRequest 对象封装成一个OAuth2Request 对象</span></span><br><span class="line">    OAuth2Request storedOAuth2Request = getRequestFactory().createOAuth2Request(client, tokenRequest);	</span><br><span class="line">    <span class="comment">//利用OAuth2Request和已经认证校验成功的 Authentication 对象new 一个OAuth2Authentication对象</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> OAuth2Authentication(storedOAuth2Request, userAuth);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里认证流程其实我们在最开始学习表单登录的时候已经看过了，就是对密码进行校验，如果成功创建一个授权的<code>Authorization</code>，这里还会将<code>OAuth2Request</code>和<code>Authentication</code>进行封装生成<code>OAuth2Authentication</code></p>
+<h4 id="真正的生成逻辑"><a href="#真正的生成逻辑" class="headerlink" title="真正的生成逻辑"></a>真正的生成逻辑</h4><p>接着我们就要看<code>createAccessToken()</code>方法了，实现类为<code>DefaultTokenServices</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> OAuth2AccessToken <span class="title">createAccessToken</span><span class="params">(OAuth2Authentication authentication)</span> <span class="keyword">throws</span> AuthenticationException </span>&#123;</span><br><span class="line">   <span class="comment">// 从TokenStore中获取已经存在的Token,这里实现方式有多种，可以看下图</span></span><br><span class="line">   OAuth2AccessToken existingAccessToken = tokenStore.getAccessToken(authentication);</span><br><span class="line">   OAuth2RefreshToken refreshToken = <span class="keyword">null</span>;</span><br><span class="line">   </span><br><span class="line">   ··· <span class="comment">// 对刷新令牌的操作，是否过期，过期重新设置等等</span></span><br><span class="line">   </span><br><span class="line">   <span class="comment">// 生成Token</span></span><br><span class="line">   OAuth2AccessToken accessToken = createAccessToken(authentication, refreshToken);</span><br><span class="line">   <span class="comment">// TokenStore保存Token</span></span><br><span class="line">   tokenStore.storeAccessToken(accessToken, authentication);</span><br><span class="line">   <span class="comment">// In case it was modified</span></span><br><span class="line">   refreshToken = accessToken.getRefreshToken();</span><br><span class="line">   <span class="keyword">if</span> (refreshToken != <span class="keyword">null</span>) &#123;</span><br><span class="line">      tokenStore.storeRefreshToken(refreshToken, authentication);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> accessToken;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/image/1579415964909.png" alt="1579415964909"></p>
+<p><code>TokenStore</code>的实现有多种，这里我们还是存在内存中的</p>
+<p>最重要的生成Token的代码终于要来了，也是这个类的私有方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> OAuth2AccessToken <span class="title">createAccessToken</span><span class="params">(OAuth2Authentication authentication, OAuth2RefreshToken refreshToken)</span> </span>&#123;</span><br><span class="line">	<span class="comment">//利用UUID当成构造函数的参数生成一个令牌</span></span><br><span class="line">	DefaultOAuth2AccessToken token = <span class="keyword">new</span> DefaultOAuth2AccessToken(UUID.randomUUID().toString());</span><br><span class="line">	<span class="comment">//获取过期时间并设置到token里</span></span><br><span class="line">	<span class="keyword">int</span> validitySeconds = getAccessTokenValiditySeconds(authentication.getOAuth2Request());</span><br><span class="line">	<span class="keyword">if</span> (validitySeconds &gt; <span class="number">0</span>) &#123;</span><br><span class="line">		token.setExpiration(<span class="keyword">new</span> Date(System.currentTimeMillis() + (validitySeconds * <span class="number">1000L</span>)));</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//设置刷新令牌</span></span><br><span class="line">	token.setRefreshToken(refreshToken);</span><br><span class="line">	<span class="comment">//设置令牌的权限</span></span><br><span class="line">	token.setScope(authentication.getOAuth2Request().getScope());</span><br><span class="line">	<span class="comment">//看是否配置了AccessTokenEnhancer的具体实现</span></span><br><span class="line">	<span class="comment">//如果配置了对生成的token进行增强 --- 设置Jwt时会讲</span></span><br><span class="line">	<span class="keyword">return</span> accessTokenEnhancer != <span class="keyword">null</span> ? accessTokenEnhancer.enhance(token, authentication) : token;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看完之后是不是索然无味了，其实就是使用<code>UUID</code>生成的，我们在之前看到返回<code>accessToken</code>的样式时其实就能猜到。</p>
+<h2 id="总结流程"><a href="#总结流程" class="headerlink" title="总结流程"></a>总结流程</h2><p><img src="/image/20191019104037815.png" alt="在这里插入图片描述"></p>
+<p>从<code>TokenEndpoint</code>开始，我们总结了以上步骤</p>
+<ol>
+<li><code>TokenEndpoint</code>为获取Token的API入口</li>
+<li>通过<code>ClientDetailsService</code>获取请求中的第三方应用信息<code>ClientDetails</code>，如<code>client-id</code>，<code>client-secret</code>，<code>scope</code></li>
+<li>然后根据<code>ClientDetails</code>和请求中的信息（<code>grantType</code>，认证验证码等）组装成<code>TokenRequest</code>对象</li>
+<li>使用<code>TokenGranter</code>生成Token，根据不同的<code>grantType</code>使用正确的授权模式生成</li>
+<li>在生成Token逻辑中，首先会对密码进行验证，验证通过会将<code>OAuth2Request</code>和<code>Authorization</code>（封装了用户信息）组装成<code>OAuth2Authorization</code>对象</li>
+<li>最后使用<code>DefaultTokenServices</code>生成Token，将Token存储，并对Token增强</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springsecurity/" rel="tag"># springsecurity</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/19/ss17-SpringSecurity17-OAuth-%E5%AE%9E%E7%8E%B0%E6%A0%87%E5%87%86%E7%9A%84OAuthProvider/" rel="next" title="SpringSecurity17-OAuth-实现标准的OAuthProvider">
+                <i class="fa fa-chevron-left"></i> SpringSecurity17-OAuth-实现标准的OAuthProvider
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/19/ss19-SpringSecurity19-OAuth-%E9%87%8D%E6%9E%84%E4%B8%89%E7%A7%8D%E7%99%BB%E5%BD%95/" rel="prev" title="SpringSecurity19-OAuth-重构三种登录">
+                SpringSecurity19-OAuth-重构三种登录 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#明确目标"><span class="nav-number">1.</span> <span class="nav-text">明确目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码解析"><span class="nav-number">2.</span> <span class="nav-text">源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TokenEndPoint"><span class="nav-number">2.1.</span> <span class="nav-text">TokenEndPoint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成Token"><span class="nav-number">2.2.</span> <span class="nav-text">生成Token</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#根据grantType找到正确的Token生成器"><span class="nav-number">2.2.1.</span> <span class="nav-text">根据grantType找到正确的Token生成器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#密码模式生成器"><span class="nav-number">2.2.2.</span> <span class="nav-text">密码模式生成器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#密码认证获取OAuth2Authentication对象"><span class="nav-number">2.2.3.</span> <span class="nav-text">密码认证获取OAuth2Authentication对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#真正的生成逻辑"><span class="nav-number">2.2.4.</span> <span class="nav-text">真正的生成逻辑</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结流程"><span class="nav-number">3.</span> <span class="nav-text">总结流程</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -240,6 +240,465 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/26/rb10-RabbitMQ%E9%AB%98%E7%BA%A7-TTL%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/26/rb10-RabbitMQ%E9%AB%98%E7%BA%A7-TTL%E8%AF%A6%E8%A7%A3/" itemprop="url">RabbitMQ高级-TTL详解</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-26T09:09:23+08:00">
+                2019-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rabbitmq/" itemprop="url" rel="index">
+                    <span itemprop="name">rabbitmq</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h3 id="什么是TTL"><a href="#什么是TTL" class="headerlink" title="什么是TTL"></a>什么是TTL</h3><ul>
+<li>TTL意为<code>Time To Live</code>，即生存时间</li>
+<li>RabbitMQ中适用于队列和消息<ul>
+<li>消息：即消息过期时间，比如设置10秒，10秒后如果没有被消费则删除</li>
+<li>队列：队列中消息的存活时间，从消息入队列开始计算，只要超过了队列的超时时间配置，那么消息会自动的清除</li>
+</ul>
+</li>
+</ul>
+<h3 id="TTL控制台操作"><a href="#TTL控制台操作" class="headerlink" title="TTL控制台操作"></a>TTL控制台操作</h3><p>因为之前都是代码操作，还没有在15672控制台操作过，所以我们先使用控制台进行TTL测试</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/26/rb10-RabbitMQ%E9%AB%98%E7%BA%A7-TTL%E8%AF%A6%E8%A7%A3/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/26/rb09-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AFACK%E4%B8%8E%E9%87%8D%E5%9B%9E%E9%98%9F%E5%88%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/26/rb09-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AFACK%E4%B8%8E%E9%87%8D%E5%9B%9E%E9%98%9F%E5%88%97/" itemprop="url">RabbitMQ高级-消费端ACK与重回队列</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-26T09:09:11+08:00">
+                2019-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rabbitmq/" itemprop="url" rel="index">
+                    <span itemprop="name">rabbitmq</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="ACK与NACK"><a href="#ACK与NACK" class="headerlink" title="ACK与NACK"></a>ACK与NACK</h2><p>在上一节中，我们研究了消费端的限流，了解到手动发送<code>ACK</code>的<code>API</code>，对于消费端来说，不止能发<code>ACK</code>还能发<code>NACK</code>，因为总会有消息接收出问题的情况。</p>
+<p>当发送<code>ACK</code>后，告知Broker成功被消费，就结束了一条消息流程。</p>
+<p>当发送<code>NACK</code>，消息未被成功消费，那么有两种情况，对于<code>requeue</code>的设置</p>
+<ul>
+<li>如果为<code>true</code>，即重回队列，将未被成功消费的信息放到队列最末端，等等重新被消费</li>
+<li>如果为<code>false</code>，即不做任何操作</li>
+</ul>
+<h3 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h3><p>NACK：<code>void basicNack(long deliveryTag, boolean multiple, boolean requeue)</code></p>
+<p>ACK：<code>void basicAck(long deliveryTag, boolean multiple)</code></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/26/rb09-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AFACK%E4%B8%8E%E9%87%8D%E5%9B%9E%E9%98%9F%E5%88%97/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/26/rb08-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AF%E9%99%90%E6%B5%81%E7%AD%96%E7%95%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/26/rb08-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AF%E9%99%90%E6%B5%81%E7%AD%96%E7%95%A5/" itemprop="url">RabbitMQ高级-消费端限流策略</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-26T09:08:55+08:00">
+                2019-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rabbitmq/" itemprop="url" rel="index">
+                    <span itemprop="name">rabbitmq</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="为什么要进行限流"><a href="#为什么要进行限流" class="headerlink" title="为什么要进行限流"></a>为什么要进行限流</h2><p>假设一个情景：某个消费端挂掉了，因为不是很重要，所以程序员第二天才发现，这时在MQ Broker上已经囤积了可能上千上万条message，如果这时直接重启消费端，巨量消息冲击，如果单机客户端无法抵御冲击很可能导致服务器崩溃，引发线上故障。</p>
+<p>除了这个情景，还有其他情况，生产端每分钟有几百条消息，但消费端每分钟只能处理几十条，这时生产与消费肯定是不平衡的，如果长此以往超出了最大负荷，消费端性能必定下降，导致服务器卡顿崩溃等问题。</p>
+<p>这两个情景下都离不开限流，只要有了限流，这些问题都能迎刃而解。</p>
+<h2 id="RabbitMQ限流机制"><a href="#RabbitMQ限流机制" class="headerlink" title="RabbitMQ限流机制"></a>RabbitMQ限流机制</h2><p>对于限流，肯定是在消费端的，与生产端无关。</p>
+<p>RabbitMQ提供了一种<code>QOS</code>（服务质量保证）功能：即在未开启自动确认（<code>autoAck</code>）功能的前提下，如果一定数量的消息未确认，即未返回<code>ACK</code>，消费端不进行新消息的消费</p>
+<p><strong>最重要一点：不能开启<code>autoAck</code>，即<code>autoAck=false</code>，否则无法做到限流</strong></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/26/rb08-RabbitMQ%E9%AB%98%E7%BA%A7-%E6%B6%88%E8%B4%B9%E7%AB%AF%E9%99%90%E6%B5%81%E7%AD%96%E7%95%A5/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/26/rb07-RabbitMQ%E9%AB%98%E7%BA%A7-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B6%88%E8%B4%B9%E8%80%85/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1439,458 +1898,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/25/es08-ElasticSearch%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="PAcee">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/photo.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PAcee Hub">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/25/es08-ElasticSearch%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" itemprop="url">ElasticSearch性能优化</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-25T09:40:01+08:00">
-                2019-12-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">elasticsearch</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>ES对于其他的一些应用来说，能够优化的地方非常少，其实最大的优化就是给予它足够大的内存，我们说下其他一些优化。</p>
-<h2 id="一、慢查询日志"><a href="#一、慢查询日志" class="headerlink" title="一、慢查询日志"></a>一、慢查询日志</h2><p>ES会自动开启慢查询日志，来查看插入搜索哪些性能比较慢，然后再考虑如何优化写入或搜索的性能。</p>
-<p>在elasticsearch.yml中配置快慢的阈值，即多少秒算慢，需要写到日志里</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">index.search.slowlog.threshold.query.warn: 10s</span><br><span class="line">index.search.slowlog.threshold.query.info: 5s</span><br><span class="line">index.search.slowlog.threshold.query.debug: 2s</span><br><span class="line">index.search.slowlog.threshold.query.trace: 500ms</span><br><span class="line"></span><br><span class="line">index.search.slowlog.threshold.fetch.warn: 1s</span><br><span class="line">index.search.slowlog.threshold.fetch.info: 800ms</span><br><span class="line">index.search.slowlog.threshold.fetch.debug: 500ms</span><br><span class="line">index.search.slowlog.threshold.fetch.trace: 200ms</span><br></pre></td></tr></table></figure>
-
-<p>对于慢查询日志的日志格式，是在log4j2.properties中配置，es默认会给出一些配置，可以根据自己的需要修改。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/12/25/es08-ElasticSearch%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/25/es07-ElasticSearch%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="PAcee">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/photo.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PAcee Hub">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/25/es07-ElasticSearch%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/" itemprop="url">ElasticSearch集群配置</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-25T09:39:50+08:00">
-                2019-12-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">elasticsearch</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="一、背景知识"><a href="#一、背景知识" class="headerlink" title="一、背景知识"></a>一、背景知识</h2><p>当我们想要搭建集群时，要先了解下ES的集群发现机制<code>zen discovery</code></p>
-<p>在默认情况下，es进程会绑定在自己的回环地址上，会去寻找9300-9305端口是否有es node，如果有并且启动，会主动与其通信，组成集群。这样的话如果本地启动多个节点，其搭建集群是非常方便的。但是生产环境不是这样，因为是在不同服务器上进行集群的搭建，需要绑定到非回环的ip地址上，并使用<strong>集群发现机制</strong>进行通信。</p>
-<p>集群发现机制常用的有两种：</p>
-<ul>
-<li>unicast：es默认的集群发现机制，通过特殊节点的配置，使之组成一个集群，主要使用网络通信协议，而不是随便什么节点就可以进入集群。</li>
-<li>multicast：这个机制非常简单，所有在启动的节点接收到multicast ping后就自动加入集群，但是非常脆弱，如果有点网络波动，可能会导致集群的不稳定，一般不使用。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/12/25/es07-ElasticSearch%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/25/es06-ElasticSearch%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="PAcee">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/photo.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PAcee Hub">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/25/es06-ElasticSearch%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/" itemprop="url">ElasticSearch集群搭建</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-25T09:39:37+08:00">
-                2019-12-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/elasticsearch/" itemprop="url" rel="index">
-                    <span itemprop="name">elasticsearch</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>我们开始学习搭建集群，这里搭建4节点的虚拟机集群，每个虚拟机1核2G，因为我笔记本只有16G，需要留8G。</p>
-<h2 id="一、在虚拟机中安装centos7"><a href="#一、在虚拟机中安装centos7" class="headerlink" title="一、在虚拟机中安装centos7"></a>一、在虚拟机中安装centos7</h2><p>软件：VMware10，centos7</p>
-<h3 id="1-1-安装centos7"><a href="#1-1-安装centos7" class="headerlink" title="1.1.安装centos7"></a>1.1.安装centos7</h3><p>这里正常安装即可，主要配置下内存为2G，名称为elasticsearch01即可</p>
-<h3 id="1-2-配置网络"><a href="#1-2-配置网络" class="headerlink" title="1.2.配置网络"></a>1.2.配置网络</h3><p>安装完毕需要配置网络，因为是centos7与之前的6.x不同，6.x的百度一下</p>
-<h4 id="1）设置IP与DNS"><a href="#1）设置IP与DNS" class="headerlink" title="1）设置IP与DNS"></a>1）设置IP与DNS</h4><p><code>vi /etc/sysconfig/network-scripts/ifcfg-ene33</code>，然后按照如下配置，其<code>IPADDR</code>和<code>GATEWAY</code>的前三位可以根据自己虚拟机默认配置的配，使用<code>ip addr</code>查看</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/12/25/es06-ElasticSearch%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1945,7 +1952,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-count">74</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

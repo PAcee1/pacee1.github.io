@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springsecurity," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="为何&#x2F;如何重构表单登录首先，我们需要明确一点，为什么我们要重构之前的表单登录？ 因为对于App来说，没有Cookie，所以不能使用Cookie+Session的方式对登录用户信息存储，就必须使用Token，然后SpringSecurityOAuth就是封装了一系列操作，最后返回Token，但是它只有四种授权模式，并没有直接表单登录，或者短信登录的方式，所以我们需要进行一些改变，来通过SpringS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringSecurity19-OAuth-重构三种登录">
+<meta property="og:url" content="http://yoursite.com/2020/01/19/ss19-SpringSecurity19-OAuth-%E9%87%8D%E6%9E%84%E4%B8%89%E7%A7%8D%E7%99%BB%E5%BD%95/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="为何&#x2F;如何重构表单登录首先，我们需要明确一点，为什么我们要重构之前的表单登录？ 因为对于App来说，没有Cookie，所以不能使用Cookie+Session的方式对登录用户信息存储，就必须使用Token，然后SpringSecurityOAuth就是封装了一系列操作，最后返回Token，但是它只有四种授权模式，并没有直接表单登录，或者短信登录的方式，所以我们需要进行一些改变，来通过SpringS">
+<meta property="og:image" content="http://yoursite.com/image/1579419496431.png">
+<meta property="og:image" content="http://yoursite.com/image/20191019175256328.png">
+<meta property="og:image" content="http://yoursite.com/image/1579423433327.png">
+<meta property="og:image" content="http://yoursite.com/image/1579423477088.png">
+<meta property="og:image" content="http://yoursite.com/image/20191019214117953.png">
+<meta property="og:image" content="http://yoursite.com/image/1579424812865.png">
+<meta property="article:published_time" content="2020-01-19T09:18:45.000Z">
+<meta property="article:modified_time" content="2020-01-19T09:23:47.234Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springsecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/1579419496431.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/19/ss19-SpringSecurity19-OAuth-重构三种登录/"/>
+
+
+
+
+
+  <title>SpringSecurity19-OAuth-重构三种登录 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/19/ss19-SpringSecurity19-OAuth-%E9%87%8D%E6%9E%84%E4%B8%89%E7%A7%8D%E7%99%BB%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SpringSecurity19-OAuth-重构三种登录</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-19T17:18:45+08:00">
+                2020-01-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="为何-如何重构表单登录"><a href="#为何-如何重构表单登录" class="headerlink" title="为何/如何重构表单登录"></a>为何/如何重构表单登录</h2><p>首先，我们需要明确一点，为什么我们要重构之前的表单登录？</p>
+<p>因为对于App来说，没有Cookie，所以不能使用Cookie+Session的方式对登录用户信息存储，就必须使用Token，然后SpringSecurityOAuth就是封装了一系列操作，最后返回Token，但是它只有四种授权模式，并没有直接表单登录，或者短信登录的方式，所以我们需要进行一些改变，来通过SpringSecurityOAuth帮我们实现Token的生成发放，最后实现App的登录以及登录状态保存。</p>
+<p>通过上一节的学习，我们大致了解了SpringSecurityOAuth生成Token的流程，如下图</p>
+<p><img src="/image/1579419496431.png" alt="1579419496431"></p>
+<p>那么，我们要用的逻辑是哪块呢？就是最下面<code>AuthorizationServerTokenServices</code>生成Token的逻辑，所以我们的实现流程就如下图：</p>
+<p><img src="/image/20191019175256328.png" alt="在这里插入图片描述"></p>
+<p>首先我们之前的认证成功处理器的处理就是直接将<code>Authorization</code>作为json形式返回，所以我们是有<code>Authorization</code>这个对象的。</p>
+<p>那么我们的目光就聚焦在<code>OAuth2Request</code>上了，只要有了他就能调用<code>DefaultTokenServices</code>生成Token，那么如何创建一个<code>OAuth2Request</code>对象呢？</p>
+<p>通过上节源码可知，它是由<code>ClientDetails</code>和<code>TokenRequest</code>生成的</p>
+<ul>
+<li><code>ClientDetails</code>是由请求参数<code>ClientId</code>作为参数，调用<code>ClientDetailsService</code>生成的</li>
+<li><code>TokenRequest</code>就更简单了，是直接<code>new</code>出来的，通过请求的几个参数和<code>ClientDetails</code></li>
+</ul>
+<p>总结，使用SpringSecurity OAuth重构表单登录的思路有三点：</p>
+<ul>
+<li>代码写在<code>AuthorizationSuccessHandler</code>成功处理器里</li>
+<li>最终目标是构建出<code>OAuth2Request</code>对象</li>
+<li>构建对象需要从参数<code>ClientId</code>入手<a id="more"></a>
+<h2 id="SpringSecurityOAuth重构表单登录"><a href="#SpringSecurityOAuth重构表单登录" class="headerlink" title="SpringSecurityOAuth重构表单登录"></a>SpringSecurityOAuth重构表单登录</h2></li>
+</ul>
+<h3 id="认证成功处理器"><a href="#认证成功处理器" class="headerlink" title="认证成功处理器"></a>认证成功处理器</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAuthenticationSuccessHandler</span> <span class="keyword">extends</span> <span class="title">SimpleUrlAuthenticationSuccessHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ObjectMapper objectMapper;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ClientDetailsService clientDetailsService;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> AuthorizationServerTokenServices authorizationServerTokenServices;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAuthenticationSuccess</span><span class="params">(HttpServletRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">                                        HttpServletResponse response,</span></span></span><br><span class="line"><span class="function"><span class="params">                                        Authentication authentication)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//请求头的Authorization里存放了ClientId和ClientSecret</span></span><br><span class="line">        <span class="comment">//从请求头里获取Authorization信息可参考BasicAuthenticationFilter类</span></span><br><span class="line">        String header = request.getHeader(<span class="string">"Authorization"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (header == <span class="keyword">null</span> || !header.startsWith(<span class="string">"Basic "</span>)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> UnapprovedClientAuthenticationException(<span class="string">"请求头中无client信息"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        String[] tokens = extractAndDecodeHeader(header, request);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 第一个为clientId 第二个为clientSecret</span></span><br><span class="line">        String clientId = tokens[<span class="number">0</span>];</span><br><span class="line">        String clientSecret = tokens[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 根据clientId获取clientDetails</span></span><br><span class="line">        ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 对获取到的clientDetails进行校验</span></span><br><span class="line">        <span class="keyword">if</span> (clientDetails == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> UnapprovedClientAuthenticationException(<span class="string">"clientId对应的配置信息不存在:"</span> + clientId);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!StringUtils.equals(clientDetails.getClientSecret(), clientSecret)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> UnapprovedClientAuthenticationException(<span class="string">"clientSecret不匹配:"</span> + clientId);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 根据clientDetails获取TokenRequest</span></span><br><span class="line">        <span class="comment">// 1- 请求参数的map，用来获取Authorization，因为已经获得所以传空的</span></span><br><span class="line">        <span class="comment">// 4- grantType，因为是自定义的 所以随便传一个</span></span><br><span class="line">        TokenRequest tokenRequest = <span class="keyword">new</span> TokenRequest(MapUtils.EMPTY_MAP, clientId, clientDetails.getScope(), <span class="string">"custom"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取OAuth2Request对象</span></span><br><span class="line">        OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取Token</span></span><br><span class="line">        OAuth2Authentication oAuth2Authentication = <span class="keyword">new</span> OAuth2Authentication(oAuth2Request, authentication);</span><br><span class="line">        OAuth2AccessToken accessToken = authorizationServerTokenServices.createAccessToken(oAuth2Authentication);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 返回Json数据 返回Token</span></span><br><span class="line">        response.setContentType(<span class="string">"application/json;charset=UTF-8"</span>);</span><br><span class="line">        response.getWriter().write(objectMapper.writeValueAsString(accessToken));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从header获取Authentication信息 --- 》 clientId和clientSecret</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> header</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> request</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String[] extractAndDecodeHeader(String header, HttpServletRequest request) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">byte</span>[] base64Token = header.substring(<span class="number">6</span>).getBytes(<span class="string">"UTF-8"</span>);</span><br><span class="line">        <span class="keyword">byte</span>[] decoded;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            decoded = Base64.decode(base64Token);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> BadCredentialsException(<span class="string">"Failed to decode basic authentication token"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        String token = <span class="keyword">new</span> String(decoded, <span class="string">"UTF-8"</span>);</span><br><span class="line">        <span class="keyword">int</span> delim = token.indexOf(<span class="string">":"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (delim == -<span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> BadCredentialsException(<span class="string">"Invalid basic authentication token"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> String[]&#123;token.substring(<span class="number">0</span>, delim), token.substring(delim + <span class="number">1</span>)&#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="app模块加入安全配置"><a href="#app模块加入安全配置" class="headerlink" title="app模块加入安全配置"></a>app模块加入安全配置</h3><p>这里要加在资源服务器上配置，因为资源服务器才是需要安全认证的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableResourceServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourcesServerConfig</span> <span class="keyword">extends</span> <span class="title">ResourceServerConfigurerAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SecurityProperties properties;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> MyAuthenticationSuccessHandler successHandler;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> MyAuthenticationFailHandler failHandler;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">        http.formLogin() <span class="comment">// 表单配置</span></span><br><span class="line">                .loginPage(<span class="string">"/authentication/require"</span>) <span class="comment">// 自定义登录页</span></span><br><span class="line">                .loginProcessingUrl(<span class="string">"/authentication/form"</span>) <span class="comment">// url映射，post表单的url交给表单拦截器处理</span></span><br><span class="line">                .successHandler(successHandler)</span><br><span class="line">                .failureHandler(failHandler)</span><br><span class="line">            .and()</span><br><span class="line">            .authorizeRequests() <span class="comment">// 下面是认证信息</span></span><br><span class="line">                .antMatchers(</span><br><span class="line">                        <span class="string">"/authentication/require"</span>,</span><br><span class="line">                        <span class="string">"/authentication/mobile"</span>,</span><br><span class="line">                        <span class="string">"/code/*"</span>,</span><br><span class="line">                        properties.getBrowser().getLoginPage(),</span><br><span class="line">                        properties.getBrowser().getSignupPage(),</span><br><span class="line">                        <span class="string">"/social/user"</span>,</span><br><span class="line">                        <span class="string">"/user/regist"</span>,</span><br><span class="line">                        <span class="string">"/session/invalid"</span></span><br><span class="line">                )</span><br><span class="line">                .permitAll() <span class="comment">// 匹配请求过滤</span></span><br><span class="line">                .anyRequest() <span class="comment">// 所有请求</span></span><br><span class="line">                .authenticated() <span class="comment">// 都需要认证</span></span><br><span class="line">            .and()</span><br><span class="line">            .csrf().disable()<span class="comment">// 取消csrf安全防护机制</span></span><br><span class="line">        ;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里复制了之前的browser模块配置，去掉了一些，保留了有用的</p>
+<h3 id="启动测试"><a href="#启动测试" class="headerlink" title="启动测试"></a>启动测试</h3><p>使用Talend API插件，Postman也可以</p>
+<p><img src="/image/1579423433327.png" alt="1579423433327"></p>
+<p>请求后成功返回<code>AccessToken</code>，接着我们使用这个Token去资源服务器请求</p>
+<p><img src="/image/1579423477088.png" alt="1579423477088"></p>
+<p>正确返回，说明我们使用SpringSecurityOAuth重构表单登录成功</p>
+<h2 id="SpringSecurityOAuth重构短信登录"><a href="#SpringSecurityOAuth重构短信登录" class="headerlink" title="SpringSecurityOAuth重构短信登录"></a>SpringSecurityOAuth重构短信登录</h2><p>这里简单说一下为什么要重构短信验证，之前我们将短信的校验码是保存在Session中的，但是App没有使用Session，所以需要重构</p>
+<p><img src="/image/20191019214117953.png" alt="在这里插入图片描述"></p>
+<p>重构方式也很简单，就是之前在代码中所有使用<code>sessionStrategy</code>进行保存，获取，移除验证码的操作都改为数据库读写操作。比如下图这行代码：</p>
+<p><img src="/image/1579424812865.png" alt="1579424812865"></p>
+<p>因为实现比较简单，并且对我们之前写的<strong>认证成功处理器返回Token没有任何修改</strong>，就不再做演示了。</p>
+<h2 id="SpringSecurityOAuth重构第三方登录"><a href="#SpringSecurityOAuth重构第三方登录" class="headerlink" title="SpringSecurityOAuth重构第三方登录"></a>SpringSecurityOAuth重构第三方登录</h2><p><em>TODO</em></p>
+<p>可以看下这两篇博客：<a href="https://blog.csdn.net/nrsc272420199/article/details/102653869" target="_blank" rel="noopener">使用简化模式重构第三方登录</a>，<a href="https://blog.csdn.net/nrsc272420199/article/details/102673112" target="_blank" rel="noopener">使用授权码模式重构第三方登录</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springsecurity/" rel="tag"># springsecurity</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/19/ss18-SpringSecurity18-OAuth-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" rel="next" title="SpringSecurity18-OAuth-源码解析">
+                <i class="fa fa-chevron-left"></i> SpringSecurity18-OAuth-源码解析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为何-如何重构表单登录"><span class="nav-number">1.</span> <span class="nav-text">为何&#x2F;如何重构表单登录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringSecurityOAuth重构表单登录"><span class="nav-number">2.</span> <span class="nav-text">SpringSecurityOAuth重构表单登录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#认证成功处理器"><span class="nav-number">2.1.</span> <span class="nav-text">认证成功处理器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#app模块加入安全配置"><span class="nav-number">2.2.</span> <span class="nav-text">app模块加入安全配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动测试"><span class="nav-number">2.3.</span> <span class="nav-text">启动测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringSecurityOAuth重构短信登录"><span class="nav-number">3.</span> <span class="nav-text">SpringSecurityOAuth重构短信登录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringSecurityOAuth重构第三方登录"><span class="nav-number">4.</span> <span class="nav-text">SpringSecurityOAuth重构第三方登录</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
