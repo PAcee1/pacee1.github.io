@@ -240,6 +240,157 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/20/ss20-SpringSecurity20-OAuth-JWT/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/20/ss20-SpringSecurity20-OAuth-JWT/" itemprop="url">SpringSecurity20-OAuth-JWT</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-20T16:37:45+08:00">
+                2020-01-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="基本的Token配置"><a href="#基本的Token配置" class="headerlink" title="基本的Token配置"></a>基本的Token配置</h2><p>在之前的OAuth学习中，我们都是使用它默认生成的Token，那么我们这一节就是来自定义Token的一些配置。</p>
+<h3 id="配置Token"><a href="#配置Token" class="headerlink" title="配置Token"></a>配置Token</h3><p>配置Token需要继承<code>AuthorizationServerConfigurerAdapter</code>类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableAuthorizationServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthorizationServerConfig</span> <span class="keyword">extends</span> <span class="title">AuthorizationServerConfigurerAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> AuthenticationManager authenticationManager;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserDetailsService myUserDetailService;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> PasswordEncoder passwordEncoder;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(AuthorizationServerEndpointsConfigurer endpoints)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 如果继承AuthorizationServerConfigurerAdapter这个类，就必须配置下面两个对象</span></span><br><span class="line">        <span class="comment">// 认证管理器和UserDetailsService</span></span><br><span class="line">        <span class="comment">// Security5之后，认证管理器无法自动注入，需要向容器中添加，方式为继承WebServerConfigurerAdapter重新方法</span></span><br><span class="line">        endpoints.authenticationManager(authenticationManager)</span><br><span class="line">                .userDetailsService(myUserDetailService);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(ClientDetailsServiceConfigurer clients)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        clients.inMemory()</span><br><span class="line">                    .withClient(<span class="string">"enbuys"</span>) <span class="comment">// client id</span></span><br><span class="line">                    <span class="comment">// client secret 必须使用密码进行加密</span></span><br><span class="line">                    .secret(passwordEncoder.encode(<span class="string">"enbuys"</span>))</span><br><span class="line">                    <span class="comment">// token过期时间</span></span><br><span class="line">                    .accessTokenValiditySeconds(<span class="number">6000</span>)</span><br><span class="line">                    <span class="comment">// 可以使用的授权模式</span></span><br><span class="line">                    .authorizedGrantTypes(<span class="string">"password"</span>,<span class="string">"refresh_token"</span>)</span><br><span class="line">                    <span class="comment">// 配置授权类型，设置了这个，发送请求如果不同会报错</span></span><br><span class="line">                    .scopes(<span class="string">"all"</span>)</span><br><span class="line">                .and() <span class="comment">// 配置第二个客户端</span></span><br><span class="line">                    .withClient(<span class="string">"test"</span>)</span><br><span class="line">                    .secret(passwordEncoder.encode(<span class="string">"test"</span>))</span><br><span class="line">        ;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由代码注释可见，继承此类，<strong>必须重写方法配置<code>AuthorizationManager</code>和<code>UserDetailsService</code></strong>，其中<code>UserDetailsService</code>我们之前已经实现，直接注入即可，<code>AuthorizationManager</code>在SpringBoot2.x，Security5.x之后需要我们向容器注入，否则会出现无法找到类的情况，所以我们下一步需要向容器注入<code>AuthorizationManager</code>。</p>
+<p>还有一点需要注意的是，在SpringBoot2.x，Security5.x之后，客户端密码即<code>clientSecret</code>需要进行加密，不然无法匹配。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/01/20/ss20-SpringSecurity20-OAuth-JWT/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/19/ss19-SpringSecurity19-OAuth-%E9%87%8D%E6%9E%84%E4%B8%89%E7%A7%8D%E7%99%BB%E5%BD%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1644,168 +1795,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/13/ss10-SpringSecurity10-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="PAcee">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/photo.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PAcee Hub">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/13/ss10-SpringSecurity10-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/" itemprop="url">SpringSecurity10-Social-QQ登录（上）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-13T17:16:47+08:00">
-                2020-01-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
-                    <span itemprop="name">springsecurity</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>这一节，我们要研究SpringBoot2+SpringSecuritySocial来实现第三方登录-QQ登录</p>
-<h2 id="开发QQ登录思路"><a href="#开发QQ登录思路" class="headerlink" title="开发QQ登录思路"></a>开发QQ登录思路</h2><p>我们先看上一章的图</p>
-<p><img src="/image/14483918-5c885d94a5eefb3c.webp" alt="img"></p>
-<p>我们最后需要<code>Connection</code>，即QQ登录后的用户信息，想要<code>Connection</code>，就需要<code>ConnectionFactory</code>，想要<code>ConnectionFactory</code>，就需要我们自己实现<code>APIAdapter</code>和<code>ServiceProvider</code>，对于<code>ServiceProvider</code>来说，我们需要自己实现<code>Api</code>，而对于<code>OAuth2Operations</code>可以使用它默认实现的<code>OAuth2Template</code>。</p>
-<p>所以，我们的开发流程为：</p>
-<ol>
-<li>自己实现<code>Api</code></li>
-<li>使用默认的<code>OAuth2Operations</code>，从而实现<code>ServiceProvider</code></li>
-<li>实现<code>ApiAdapter</code>，从而实现<code>ConnectionFactory</code></li>
-<li>在<code>DB</code>建表，使用默认的<code>UsersConnectionRepository</code></li>
-<li>这样就可以在容器中通过<code>ConnectionFactory</code>注入<code>Connection</code>使用了</li>
-</ol>
-<h2 id="实现QQ登录"><a href="#实现QQ登录" class="headerlink" title="实现QQ登录"></a>实现QQ登录</h2><h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p><a href="https://wiki.connect.qq.com/" target="_blank" rel="noopener">https://wiki.connect.qq.com/</a>，到QQ互联官网查看文档，了解QQ登录需要哪些信息，如何获取这些信息，调用哪些接口，传入什么参数，返回什么结果，比较重要的有：</p>
-<ul>
-<li><a href="https://wiki.connect.qq.com/get_user_info" target="_blank" rel="noopener">获取用户信息</a></li>
-<li><a href="https://wiki.connect.qq.com/%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7openid_oauth2-0" target="_blank" rel="noopener">获取OpenID</a></li>
-<li><a href="https://wiki.connect.qq.com/%E4%BD%BF%E7%94%A8authorization_code%E8%8E%B7%E5%8F%96access_token" target="_blank" rel="noopener">获取Access_Token</a>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/01/13/ss10-SpringSecurity10-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1860,7 +1849,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-count">75</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

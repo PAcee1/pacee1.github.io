@@ -102,7 +102,7 @@
 <meta property="og:image" content="http://yoursite.com/image/1579402513864.png">
 <meta property="og:image" content="http://yoursite.com/image/1579402646028.png">
 <meta property="article:published_time" content="2020-01-19T09:18:05.000Z">
-<meta property="article:modified_time" content="2020-01-19T09:23:06.431Z">
+<meta property="article:modified_time" content="2020-01-19T09:29:09.540Z">
 <meta property="article:author" content="PAcee">
 <meta property="article:tag" content="springsecurity">
 <meta name="twitter:card" content="summary">
@@ -393,6 +393,8 @@
 <p><img src="/image/1579400623018.png" alt="1579400623018"></p>
 <h4 id="问题二"><a href="#问题二" class="headerlink" title="问题二"></a>问题二</h4><p><img src="/image/1579400678322.png" alt="1579400678322"></p>
 <p>重新访问报错，这是因为我们没有配置redirect_uri，Security5后就没有默认配置了，所以我们要在配置文件中配置一下：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">security.oauth2.client.client-id</span>=<span class="string">enbuys</span></span><br><span class="line"><span class="meta">security.oauth2.client.client-secret</span>=<span class="string">enbuys</span></span><br><span class="line"><span class="meta">security.oauth2.client.registered-redirect-uri</span>=<span class="string">http://www.example.com,http://www.enbuys.com</span></span><br></pre></td></tr></table></figure>
+
 <h4 id="获取授权码"><a href="#获取授权码" class="headerlink" title="获取授权码"></a>获取授权码</h4><p>再次访问</p>
 <p><img src="/image/1579400813546.png" alt="1579400813546"></p>
 <p>成功到授权页面，这里两个按钮，<code>Approve</code>- 同意授权，<code>Deny</code>- 拒绝授权</p>
@@ -557,7 +559,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-count">75</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
