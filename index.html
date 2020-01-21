@@ -240,6 +240,170 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/21/ss21-SpringSecurity21-%E6%8E%88%E6%9D%83%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/21/ss21-SpringSecurity21-%E6%8E%88%E6%9D%83%E7%AE%A1%E7%90%86/" itemprop="url">SpringSecurity21-授权管理</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-21T14:43:16+08:00">
+                2020-01-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="权限控制简单介绍"><a href="#权限控制简单介绍" class="headerlink" title="权限控制简单介绍"></a>权限控制简单介绍</h2><p>在我们之前的20篇关于SpringSecurity的笔记中，较详细的介绍了SpringSecurity关于认证的内容，接下来我们会讲一下关于授权的内容。</p>
+<p><strong>认证</strong>是指：你有一个家，你可以进行控制让谁能进来，比如你的家人，谁进不来比如陌生人，这就是认证。</p>
+<p><strong>授权</strong>是指：你的家人进到你家可以做什么事，比如你姑姑姨姨就不能随便翻你的东西，打开保险柜，而你的妻子就可以，这就是授权。</p>
+<p>对于我们开发应用的授权有一定经验的都知道，基本适用于后台管理系统，不同职位的人有不同的操作权限，比如人事就有添加员工的权限，财务有设置工资的权限，领导有审批请假的权限等等。</p>
+<p>那么一般情况下，如何控制授权呢？这里不止SpringSecurity</p>
+<p><img src="/image/20191027191742396.png" alt="在这里插入图片描述"></p>
+<p>如图，系统应该有两部分信息</p>
+<ul>
+<li>系统配置：哪些路径需要哪些权限才可以访问，比如添加用户需要A权限，审批需要B权限</li>
+<li>用户权限配置：哪些用户具有哪些权限，比如人事有A权限但是没有B权限，领导既有A还有B权限</li>
+</ul>
+<p>当请求发过来的时候，会先根据系统配置看看这个请求是否需要某个权限才能访问，如果有，再判断用户是否有这个权限，有才能访问。</p>
+<h2 id="SpringSecurity简单权限控制"><a href="#SpringSecurity简单权限控制" class="headerlink" title="SpringSecurity简单权限控制"></a>SpringSecurity简单权限控制</h2><blockquote>
+<p>对于某些URL，只有某些权限的用户才能访问，这种逻辑直接写死在代码里，从技术实现上来说很简单，但真实项目中应该很少会这样用，但本文仍主要来演示一下具体的代码实现。</p>
+</blockquote>
+<p>首先我们把<code>demo</code>项目改为引用<code>browser</code></p>
+<p>然后我们看一下之前的代码：</p>
+<p><img src="/image/1579573798751.png" alt="1579573798751"></p>
+<p>可以看到，这些都是和认证有关的，关于授权就是<code>.permitAll()</code>，意思是这些请求返回<code>True</code>，对于其他的授权控制代码也类似，如下：</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/01/21/ss21-SpringSecurity21-%E6%8E%88%E6%9D%83%E7%AE%A1%E7%90%86/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/20/ss20-SpringSecurity20-OAuth-JWT/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1643,158 +1807,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/14/ss11-SpringSecurity11-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%BA%8C%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="PAcee">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/photo.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PAcee Hub">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/14/ss11-SpringSecurity11-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%BA%8C%EF%BC%89/" itemprop="url">SpringSecurity11-Social-QQ登录（中）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-14T17:15:02+08:00">
-                2020-01-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
-                    <span itemprop="name">springsecurity</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>在上一节，我们的SpringSocialQQ登录成功跑起来了，跳到QQ登录的网站上，但是报错了，我们来一点一点解决问题，直到成功登录</p>
-<h2 id="Redirect-Url-Illegal"><a href="#Redirect-Url-Illegal" class="headerlink" title="Redirect Url Illegal"></a>Redirect Url Illegal</h2><h3 id="Redirect-Url是什么"><a href="#Redirect-Url是什么" class="headerlink" title="Redirect Url是什么"></a>Redirect Url是什么</h3><p><img src="/image/1578906244303.png" alt="1578906244303"></p>
-<p>上一节我们开发完，来到这个页面，首先我们配合之前的流程图分析一下完整的QQ登录流程：</p>
-<p><img src="/image/1578555140255.png" alt="1578555140255"></p>
-<p>用户点击QQ登录 ——》用户扫码或者账号密码登录 ——》登录成功后QQ调用应用<code>回调地址</code>，将授权码给我们应用 ——》应用拿着授权码请求QQ获取<code>accesstoken</code>——》换到<code>accesstoken</code>后再根据它获取<code>openId</code>——》然后通过openId获取用户信息</p>
-<p><strong>这里<code>Redirect Url</code>就是回调地址</strong></p>
-<p>同时我们还要明确<code>redirect uri</code>不是随意生成的，而是在我们的系统在QQ上进行注册时需要填写的必填信息之一，它的填写有一定的规则，可参考<a href="https://wiki.connect.qq.com/%E5%9B%9E%E8%B0%83%E5%9C%B0%E5%9D%80%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E4%BF%AE%E6%94%B9%E6%96%B9%E6%B3%95" target="_blank" rel="noopener">QQ互联官网</a>。<strong>这里要注意，官网上明确说明了域名要包含<code>http://</code>部分</strong>。<br><img src="/image/20190820092959636.png" alt="在这里插入图片描述"></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/01/14/ss11-SpringSecurity11-Social-QQ%E7%99%BB%E5%BD%95%EF%BC%88%E4%BA%8C%EF%BC%89/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1849,7 +1861,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-count">76</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

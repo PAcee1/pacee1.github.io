@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="springsecurity," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="权限控制简单介绍在我们之前的20篇关于SpringSecurity的笔记中，较详细的介绍了SpringSecurity关于认证的内容，接下来我们会讲一下关于授权的内容。 认证是指：你有一个家，你可以进行控制让谁能进来，比如你的家人，谁进不来比如陌生人，这就是认证。 授权是指：你的家人进到你家可以做什么事，比如你姑姑姨姨就不能随便翻你的东西，打开保险柜，而你的妻子就可以，这就是授权。 对于我们开发应">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringSecurity21-授权管理">
+<meta property="og:url" content="http://yoursite.com/2020/01/21/ss21-SpringSecurity21-%E6%8E%88%E6%9D%83%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="PAcee Hub">
+<meta property="og:description" content="权限控制简单介绍在我们之前的20篇关于SpringSecurity的笔记中，较详细的介绍了SpringSecurity关于认证的内容，接下来我们会讲一下关于授权的内容。 认证是指：你有一个家，你可以进行控制让谁能进来，比如你的家人，谁进不来比如陌生人，这就是认证。 授权是指：你的家人进到你家可以做什么事，比如你姑姑姨姨就不能随便翻你的东西，打开保险柜，而你的妻子就可以，这就是授权。 对于我们开发应">
+<meta property="og:image" content="http://yoursite.com/image/20191027191742396.png">
+<meta property="og:image" content="http://yoursite.com/image/1579573798751.png">
+<meta property="og:image" content="http://yoursite.com/image/1579573869051.png">
+<meta property="og:image" content="http://yoursite.com/image/1579573932134.png">
+<meta property="og:image" content="http://yoursite.com/image/1579573972548.png">
+<meta property="og:image" content="http://yoursite.com/image/1579574032708.png">
+<meta property="og:image" content="http://yoursite.com/image/1579574117174.png">
+<meta property="og:image" content="http://yoursite.com/image/20191029093323987.png">
+<meta property="og:image" content="http://yoursite.com/image/20191030000855335.png">
+<meta property="og:image" content="http://yoursite.com/image/1579587982176.png">
+<meta property="article:published_time" content="2020-01-21T06:43:16.000Z">
+<meta property="article:modified_time" content="2020-01-21T06:43:58.445Z">
+<meta property="article:author" content="PAcee">
+<meta property="article:tag" content="springsecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/image/20191027191742396.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/21/ss21-SpringSecurity21-授权管理/"/>
+
+
+
+
+
+  <title>SpringSecurity21-授权管理 | PAcee Hub</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PAcee Hub</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">学习 笔记</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/21/ss21-SpringSecurity21-%E6%8E%88%E6%9D%83%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="PAcee">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/photo.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PAcee Hub">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SpringSecurity21-授权管理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-21T14:43:16+08:00">
+                2020-01-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springsecurity/" itemprop="url" rel="index">
+                    <span itemprop="name">springsecurity</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="权限控制简单介绍"><a href="#权限控制简单介绍" class="headerlink" title="权限控制简单介绍"></a>权限控制简单介绍</h2><p>在我们之前的20篇关于SpringSecurity的笔记中，较详细的介绍了SpringSecurity关于认证的内容，接下来我们会讲一下关于授权的内容。</p>
+<p><strong>认证</strong>是指：你有一个家，你可以进行控制让谁能进来，比如你的家人，谁进不来比如陌生人，这就是认证。</p>
+<p><strong>授权</strong>是指：你的家人进到你家可以做什么事，比如你姑姑姨姨就不能随便翻你的东西，打开保险柜，而你的妻子就可以，这就是授权。</p>
+<p>对于我们开发应用的授权有一定经验的都知道，基本适用于后台管理系统，不同职位的人有不同的操作权限，比如人事就有添加员工的权限，财务有设置工资的权限，领导有审批请假的权限等等。</p>
+<p>那么一般情况下，如何控制授权呢？这里不止SpringSecurity</p>
+<p><img src="/image/20191027191742396.png" alt="在这里插入图片描述"></p>
+<p>如图，系统应该有两部分信息</p>
+<ul>
+<li>系统配置：哪些路径需要哪些权限才可以访问，比如添加用户需要A权限，审批需要B权限</li>
+<li>用户权限配置：哪些用户具有哪些权限，比如人事有A权限但是没有B权限，领导既有A还有B权限</li>
+</ul>
+<p>当请求发过来的时候，会先根据系统配置看看这个请求是否需要某个权限才能访问，如果有，再判断用户是否有这个权限，有才能访问。</p>
+<h2 id="SpringSecurity简单权限控制"><a href="#SpringSecurity简单权限控制" class="headerlink" title="SpringSecurity简单权限控制"></a>SpringSecurity简单权限控制</h2><blockquote>
+<p>对于某些URL，只有某些权限的用户才能访问，这种逻辑直接写死在代码里，从技术实现上来说很简单，但真实项目中应该很少会这样用，但本文仍主要来演示一下具体的代码实现。</p>
+</blockquote>
+<p>首先我们把<code>demo</code>项目改为引用<code>browser</code></p>
+<p>然后我们看一下之前的代码：</p>
+<p><img src="/image/1579573798751.png" alt="1579573798751"></p>
+<p>可以看到，这些都是和认证有关的，关于授权就是<code>.permitAll()</code>，意思是这些请求返回<code>True</code>，对于其他的授权控制代码也类似，如下：</p>
+<a id="more"></a>
+<p><img src="/image/1579573869051.png" alt="1579573869051"></p>
+<p>意思是<code>/user/me</code>这个请求路径，必须有<code>ADMIN</code>权限才可以，这里的权限是在哪分发的呢？是之前的<code>UserDetailsService</code>类：</p>
+<p><img src="/image/1579573932134.png" alt="1579573932134"></p>
+<p>创建<code>SocialUser</code>时，最后一个参数就是其用户权限的配置参数，这里我们给了个<code>admin</code>，启动试试能不能访问</p>
+<p><img src="/image/1579573972548.png" alt="1579573972548"></p>
+<p>请求<code>Forbidden</code>了，说明没有权限，有人会想我们不是给了<code>admin</code>权限吗？</p>
+<p>其实这里根据SpringSecurity权限控制规则，需要给<code>ROLE_ADMIN</code>，才会有<code>ADMIN</code>权限，即：</p>
+<p><img src="/image/1579574032708.png" alt="1579574032708"></p>
+<p>为什么要这样给，我们之后的源码分析时再研究</p>
+<p><img src="/image/1579574117174.png" alt="1579574117174"></p>
+<p>成功请求。</p>
+<hr>
+<p>这里还有一个问题，就是如果是RESTful的API，<code>/user/1</code>如果是<code>GET</code>是获取用户，如果是<code>DELETE</code>是删除用户，我们只想控制<code>DELETE</code>请求能否控制，也是可以的很简单：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http..authorizeRequests()</span><br><span class="line">	.antMatchers(HttpMethod.DELETE,<span class="string">"/user/*"</span>).hasRole(<span class="string">"ADMIN"</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这样即可</p>
+<h2 id="SpringSecurity授权整体流程"><a href="#SpringSecurity授权整体流程" class="headerlink" title="SpringSecurity授权整体流程"></a>SpringSecurity授权整体流程</h2><p><img src="/image/20191029093323987.png" alt="在这里插入图片描述"></p>
+<p>这里简单解释一下，对于SpringSecurity授权来说</p>
+<p>主入口是<code>FIlterSecurityInterceptor</code></p>
+<p>系统配置<code>URl</code>为：<code>SecurityConfig</code>整合成<code>ConfigAttribute</code></p>
+<p>该用户有哪些权限：<code>SecurityContextHolder</code>生成带权限的<code>Authorization</code>对象</p>
+<p>然后我们将<code>Authorization</code>对象，<code>ConfigAttribute</code>URL权限配置，以及当前访问的路径作为三个参数，传给<code>AccessDecisionManager</code>，这个接口的方法用来判断该用户是否有权限访问该<code>URL</code>。</p>
+<p>因为是接口，所以实现类有很多，这里SpringSecurity默认使用<code>AffirmativeBased</code>进行判断，调用投票器来根据路径找到需要的权限，然后再匹配当前用户使用有权限，如果有则投一张票，然后<code>AffirmativeBased</code>只有有投票器通过，就会放行。</p>
+<h2 id="SpringSecurity授权表达式"><a href="#SpringSecurity授权表达式" class="headerlink" title="SpringSecurity授权表达式"></a>SpringSecurity授权表达式</h2><p><img src="/image/20191030000855335.png" alt="在这里插入图片描述"></p>
+<p>主要的表达式是这些，那么这些表达式怎么使用，在代码中怎么编写呢？其实我们之前就写过</p>
+<p><img src="/image/1579587982176.png" alt="1579587982176"></p>
+<p>比如这两个就是授权表达式，其规则是：<code>.antMatchers(&quot;匹配的URL&quot;).表达式(表达式参数)</code></p>
+<p>对于上面的<code>anonymous</code>解释一下，意思就是未登录的用户，在<code>Security</code>过滤器链中，在所有绿色过滤器链的最后，一定会有一个<code>AnonymousAuthorizationFilter</code>，他的作用就是如果认证时用户没有登录上下文中没有<code>Authorization</code>，他会创建一个类型为<code>Anonymous</code>的<code>Authorization</code>标识匿名用户</p>
+<h3 id="如何联合使用权限表达式"><a href="#如何联合使用权限表达式" class="headerlink" title="如何联合使用权限表达式"></a>如何联合使用权限表达式</h3><p>如下面这个需求:</p>
+<blockquote>
+<p> 某个URL的访问既需要用户有ADMIN权限,又必须是127.0.0.1这个IP地址发送的请求</p>
+</blockquote>
+<p>权限表达式对应的方法不能进行链式调用,如果想完成此需求,可以使用<code>access()</code>方法拼接权限表达式:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.antMatchers(<span class="string">"/user/*"</span>).access(<span class="string">"hasRole('ROLE_ADMIN') and hasIpAddress('127.0.0.1')"</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/springsecurity/" rel="tag"># springsecurity</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/20/ss20-SpringSecurity20-OAuth-JWT/" rel="next" title="SpringSecurity20-OAuth-JWT">
+                <i class="fa fa-chevron-left"></i> SpringSecurity20-OAuth-JWT
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/photo.jpg"
+                alt="PAcee" />
+            
+              <p class="site-author-name" itemprop="name">PAcee</p>
+              <p class="site-description motion-element" itemprop="description">学习 笔记</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">76</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#权限控制简单介绍"><span class="nav-number">1.</span> <span class="nav-text">权限控制简单介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringSecurity简单权限控制"><span class="nav-number">2.</span> <span class="nav-text">SpringSecurity简单权限控制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringSecurity授权整体流程"><span class="nav-number">3.</span> <span class="nav-text">SpringSecurity授权整体流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringSecurity授权表达式"><span class="nav-number">4.</span> <span class="nav-text">SpringSecurity授权表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#如何联合使用权限表达式"><span class="nav-number">4.1.</span> <span class="nav-text">如何联合使用权限表达式</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">PAcee</span>
+
+  
+</div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
